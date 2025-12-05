@@ -43,7 +43,7 @@ export const mainSchema = z.object({
   // ===== Common entity fields =====
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
   title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
-  slug: z.string().max(250, 'Slug is too long'),
+  // slug: z.string().max(250, 'Slug is too long'),
   description: z.string().min(1, 'Description is required'),
   shortDescription: z.string().max(500, 'Short description is too long'),
   isActive: z.boolean(),

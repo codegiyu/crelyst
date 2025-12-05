@@ -28,7 +28,6 @@ export const updateService = withRequestContext({ protect: true, accessType: 'co
 
     const {
       title,
-      slug: newSlug,
       description,
       shortDescription,
       icon,
@@ -47,19 +46,10 @@ export const updateService = withRequestContext({ protect: true, accessType: 'co
       throw new AppError('Service not found', 404);
     }
 
-    // If slug is being updated, check if new slug already exists
-    if (newSlug && newSlug !== currentService.slug) {
-      const existingService = await Service.findOne({ slug: newSlug });
-      if (existingService) {
-        throw new AppError('Service with this slug already exists', 409);
-      }
-    }
-
     // Build update object with only provided fields
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
-    if (newSlug !== undefined) updateData.slug = newSlug;
     if (description !== undefined) updateData.description = description;
     if (shortDescription !== undefined) updateData.shortDescription = shortDescription;
     if (icon !== undefined) updateData.icon = icon;
