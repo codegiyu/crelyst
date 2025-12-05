@@ -28,7 +28,6 @@ export const updateProject = withRequestContext({ protect: true, accessType: 'co
 
     const {
       title,
-      slug: newSlug,
       description,
       shortDescription,
       featuredImage,
@@ -55,19 +54,10 @@ export const updateProject = withRequestContext({ protect: true, accessType: 'co
       throw new AppError('Project not found', 404);
     }
 
-    // If slug is being updated, check if new slug already exists
-    if (newSlug && newSlug !== currentProject.slug) {
-      const existingProject = await Project.findOne({ slug: newSlug });
-      if (existingProject) {
-        throw new AppError('Project with this slug already exists', 409);
-      }
-    }
-
     // Build update object with only provided fields
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
-    if (newSlug !== undefined) updateData.slug = newSlug;
     if (description !== undefined) updateData.description = description;
     if (shortDescription !== undefined) updateData.shortDescription = shortDescription;
     if (featuredImage !== undefined) updateData.featuredImage = featuredImage;
