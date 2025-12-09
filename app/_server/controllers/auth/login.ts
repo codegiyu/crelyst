@@ -11,8 +11,7 @@ import { RequestContext, withRequestContext } from '../../lib/context/withReques
 // Login controller (public endpoint)
 export const login = withRequestContext({ protect: false })(
   catchAsync(async context => {
-    const { req } = context as RequestContext;
-    const body = await req.json();
+    const { req, body } = context as RequestContext;
     const { email, password } = body;
 
     if (!email || !password) {

@@ -153,11 +153,11 @@ export const ContactFormSection = () => {
             onSelectChange={value => onChange('budget', value)}
             errors={errorsVisible ? formErrors.budget : []}
             options={[
-              { value: 'under-5k', text: 'Under $5,000' },
-              { value: '5k-10k', text: '$5,000 - $10,000' },
-              { value: '10k-25k', text: '$10,000 - $25,000' },
-              { value: '25k-50k', text: '$25,000 - $50,000' },
-              { value: '50k-plus', text: '$50,000+' },
+              { value: 'under-50k', text: 'Under ₦50,000' },
+              { value: '50k-100k', text: '₦50,000 - ₦100,000' },
+              { value: '100k-500k', text: '₦100,000 - ₦500,000' },
+              { value: '500k-1m', text: '₦500,000 - ₦1,000,000' },
+              { value: '1m-plus', text: '₦1,000,000+' },
             ]}
           />
 

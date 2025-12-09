@@ -36,7 +36,7 @@ const TestimonialCard = ({
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`w-4 h-4 ${i < testimonial.rating! ? 'text-accent fill-accent' : 'text-muted'}`}
+              className={`w-4 h-4 ${i < testimonial.rating! ? 'text-yellow-500 fill-yellow-500' : 'text-muted'}`}
             />
           ))}
         </div>
@@ -75,7 +75,7 @@ const TestimonialCard = ({
           <img
             src={testimonial.companyLogo}
             alt={testimonial.companyName || 'Company'}
-            className="h-8 ml-auto opacity-50 grayscale"
+            className="h-8 ml-auto"
           />
         )}
       </div>

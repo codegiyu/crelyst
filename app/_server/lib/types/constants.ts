@@ -451,15 +451,26 @@ export const EMAIL_STATUSES = [
 ] as const;
 export type EmailStatus = (typeof EMAIL_STATUSES)[number];
 
-export type UploadIntent = 'avatar' | 'logo' | 'card-image' | 'banner-image' | 'image' | 'other';
-export type EntityType =
-  | 'user'
-  | 'admin'
-  | 'service'
-  | 'project'
-  | 'testimonial'
-  | 'brand'
-  | 'team-member';
+export const UPLOAD_INTENTS = [
+  'avatar',
+  'logo',
+  'card-image',
+  'banner-image',
+  'image',
+  'other',
+] as const;
+export type UploadIntent = (typeof UPLOAD_INTENTS)[number];
+
+export const ENTITY_TYPES = [
+  'user',
+  'admin',
+  'service',
+  'project',
+  'testimonial',
+  'brand',
+  'team-member',
+] as const;
+export type EntityType = (typeof ENTITY_TYPES)[number];
 
 export const AUDIT_LOG_RESOURCES = [
   'admin',

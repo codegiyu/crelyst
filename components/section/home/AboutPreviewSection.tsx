@@ -7,12 +7,12 @@ import { useSiteStore } from '@/lib/store/siteStore';
 import { Check, ArrowRight } from 'lucide-react';
 
 const FEATURES = [
-  'Expert team with 10+ years of experience',
-  'Cutting-edge technologies and best practices',
-  'Transparent communication throughout',
-  'On-time delivery guaranteed',
-  'Post-launch support and maintenance',
-  'Scalable solutions for growth',
+  'Expert team with 5+ years of experience',
+  'Creative excellence in every design',
+  'Brand storytelling that resonates',
+  'End-to-end design solutions',
+  'Collaborative design process',
+  'Award-winning visual identities',
 ];
 
 export const AboutPreviewSection = () => {
@@ -63,7 +63,7 @@ export const AboutPreviewSection = () => {
                   transition={{ duration: 0.5, delay: 0.4 }}
                   viewport={{ once: true }}
                   className="bg-secondary/20 rounded-xl p-6 text-center">
-                  <div className="text-4xl font-bold text-secondary mb-1">10+</div>
+                  <div className="text-4xl font-bold text-secondary mb-1">5+</div>
                   <div className="text-sm text-muted-foreground">Years</div>
                 </motion.div>
 
@@ -127,7 +127,7 @@ export const AboutPreviewSection = () => {
                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Check className="w-3 h-3 text-primary" />
                 </div>
-                <span className="text-sm text-foreground">{feature}</span>
+                <span className="text-base text-foreground">{feature}</span>
               </motion.div>
             ))}
           </div>
