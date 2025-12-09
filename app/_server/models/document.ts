@@ -1,11 +1,16 @@
-import { DOCUMENT_STATUSES, ModelDocument, UploadIntent, EntityType } from '../lib/types/constants';
+import {
+  DOCUMENT_STATUSES,
+  ModelDocument,
+  ENTITY_TYPES,
+  UPLOAD_INTENTS,
+} from '../lib/types/constants';
 import mongoose, { Schema } from 'mongoose';
 
 export const DocumentSchema = new Schema<ModelDocument>(
   {
     entityType: {
       type: String,
-      enum: ['user', 'admin'] as EntityType[],
+      enum: ENTITY_TYPES,
       required: true,
       index: true,
     },
@@ -16,7 +21,7 @@ export const DocumentSchema = new Schema<ModelDocument>(
     },
     intent: {
       type: String,
-      enum: ['avatar', 'logo', 'card-image', 'banner-image', 'image', 'other'] as UploadIntent[],
+      enum: UPLOAD_INTENTS,
       required: true,
       index: true,
     },

@@ -48,7 +48,7 @@ export const Footer = () => {
       <div className="regular-container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-[0.9375rem] mb-12">
           {/* Company Info */}
-          <div className="grid gap-4">
+          <div className="h-fit grid gap-4">
             <div className="flex items-center">
               <GhostBtn
                 Icon={LogoFull}
@@ -73,7 +73,7 @@ export const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="grid gap-4">
+          <div className="h-fit grid gap-4">
             <h3 className="text-lg font-semibold text-accent">Quick Links</h3>
             <ul className="grid gap-3">
               {NAV_LINKS.filter(item => !item.showInHeaderOnly).map((item, idx) => (
@@ -83,7 +83,7 @@ export const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          <div className="grid gap-4">
+          <div className="h-fit grid gap-4">
             <h3 className="text-lg font-semibold text-accent">Contact</h3>
             <div className="grid gap-5 text-secondary-foreground/60">
               {isLoading && contactCards.length === 0 ? (
@@ -99,7 +99,7 @@ export const Footer = () => {
           </div>
 
           {/* Office Hours */}
-          <div className="grid gap-4">
+          <div className="h-fit grid gap-4">
             <h3 className="text-lg font-semibold text-accent">Office Hours</h3>
             <ul className="grid gap-2 text-[0.9375rem] text-secondary-foreground/80">
               {isLoading && officeHours.length === 0 ? (

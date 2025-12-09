@@ -1,14 +1,35 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
+import { useEffect } from 'react';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
+import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
 import { ArrowRight, MessageCircle, Phone } from 'lucide-react';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 
 export const CTASection = () => {
   const { siteLoading } = useSiteStore(state => state);
+
+  const { settings, fetchSettings } = useSiteSettingsStore(state => ({
+    settings: state.settings,
+    fetchSettings: state.actions.fetchSettings,
+  }));
+
+  useEffect(() => {
+    fetchSettings('contactInfo');
+  }, []);
+
+  useEffect(() => {
+    console.log({ settings });
+  }, [settings]);
+
+  const phoneNumber = settings?.contactInfo?.tel?.[0] || '';
+  const phoneLink = phoneNumber
+    ? `tel:${phoneNumber.replaceAll(' ', '').replaceAll('-', '').replaceAll('(', '').replaceAll(')', '')}`
+    : '#';
 
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
@@ -84,14 +105,14 @@ export const CTASection = () => {
             />
 
             <GhostBtn
-              linkProps={{ href: 'tel:+1234567890' }}
+              linkProps={{ href: phoneLink }}
               className="flex items-center gap-3 px-6 py-3 text-white hover:text-accent transition-colors group">
               <span className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                 <Phone className="w-5 h-5" />
               </span>
               <div className="text-left">
                 <span className="block text-sm text-white/60">Call us now</span>
-                <span className="font-medium">+1 (234) 567-890</span>
+                <span className="font-medium">{phoneNumber || 'Phone number not available'}</span>
               </div>
             </GhostBtn>
           </motion.div>
