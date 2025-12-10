@@ -3,12 +3,12 @@ const SvgLogoFull = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     xmlSpace="preserve"
-    width="1em"
+    // width="1em"
     height="1em"
     style={{
       shapeRendering: 'geometricPrecision',
       textRendering: 'geometricPrecision',
-      imageRendering: 'optimizeQuality',
+      imageRendering: 'auto',
       fillRule: 'evenodd',
       clipRule: 'evenodd',
     }}
