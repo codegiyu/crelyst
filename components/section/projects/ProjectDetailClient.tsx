@@ -54,7 +54,7 @@ export const ProjectDetailClient = ({ slug }: ProjectDetailClientProps) => {
 
   if (isLoading) {
     return (
-      <MainLayout>
+      <MainLayout transparentHeader>
         <SectionContainer>
           <div className="max-w-4xl mx-auto">
             <Skeleton className="h-8 w-32 mb-4" />
@@ -73,7 +73,7 @@ export const ProjectDetailClient = ({ slug }: ProjectDetailClientProps) => {
   }
 
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <ProjectDetailHero project={project} />
       <ProjectDetailContent project={project} />
       {project.images && project.images.length > 0 && <ProjectGallery project={project} />}

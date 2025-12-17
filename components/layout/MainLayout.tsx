@@ -13,6 +13,8 @@ export interface MainLayoutProps {
   hideFooter?: boolean;
   /** Hide the scroll to top button */
   hideScrollToTop?: boolean;
+  /** Make header transparent on load (becomes opaque after scrolling) */
+  transparentHeader?: boolean;
 }
 
 export const MainLayout = ({
@@ -21,10 +23,11 @@ export const MainLayout = ({
   hideHeader = false,
   hideFooter = false,
   hideScrollToTop = false,
+  transparentHeader = false,
 }: MainLayoutProps) => {
   return (
     <>
-      {!hideHeader && <Header />}
+      {!hideHeader && <Header transparentOnLoad={transparentHeader} />}
       <main className={cn('min-h-screen', className)}>
         {children}
         {!hideScrollToTop && <ScrollToTop />}

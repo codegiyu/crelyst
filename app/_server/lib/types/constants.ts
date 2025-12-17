@@ -92,6 +92,40 @@ export interface IService {
   cardImage?: string;
   bannerImage?: string;
   features: string[];
+  process?: Array<{
+    title: string;
+    description: string;
+    order: number;
+  }>;
+  benefits?: string[];
+  pricing?: {
+    startingPrice?: number;
+    priceRange?: string;
+    pricingModel?: 'fixed' | 'hourly' | 'project-based' | 'subscription' | 'custom';
+    currency?: string;
+    notes?: string;
+  };
+  duration?: {
+    minWeeks?: number;
+    maxWeeks?: number;
+    typicalDuration?: string;
+  };
+  videoUrl?: string;
+  faq?: Array<{
+    question: string;
+    answer: string;
+    order: number;
+  }>;
+  additionalContent?: Array<{
+    title: string;
+    content: string;
+    type?: 'text' | 'html' | 'markdown';
+    order: number;
+  }>;
+  relatedServices?: mongoose.Types.ObjectId[];
+  testimonials?: mongoose.Types.ObjectId[];
+  caseStudies?: mongoose.Types.ObjectId[];
+  tags?: string[];
   isActive: boolean;
   displayOrder: number;
   seo?: {
@@ -122,6 +156,46 @@ export interface IProject {
   githubUrl?: string;
   startDate?: Date;
   endDate?: Date;
+  challenge?: string;
+  solution?: string;
+  approach?: string;
+  results?: string;
+  metrics?: Array<{
+    label: string;
+    value: string;
+    icon?: string;
+    order: number;
+  }>;
+  timeline?: Array<{
+    phase: string;
+    description: string;
+    startDate?: Date;
+    endDate?: Date;
+    status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
+    order: number;
+  }>;
+  teamMembers?: mongoose.Types.ObjectId[];
+  challengesFaced?: Array<{
+    challenge: string;
+    solution: string;
+    order: number;
+  }>;
+  lessonsLearned?: string[];
+  videoUrl?: string;
+  additionalContent?: Array<{
+    title: string;
+    content: string;
+    type?: 'text' | 'html' | 'markdown';
+    order: number;
+  }>;
+  relatedProjects?: mongoose.Types.ObjectId[];
+  testimonials?: mongoose.Types.ObjectId[];
+  tags?: string[];
+  budget?: {
+    amount?: number;
+    currency?: string;
+    range?: string;
+  };
   isFeatured: boolean;
   displayOrder: number;
   seo?: {

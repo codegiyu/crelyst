@@ -179,6 +179,17 @@ export const seedServices = async () => {
           cardImage: service.cardImage,
           bannerImage: service.bannerImage,
           features: service.features,
+          process: service.process,
+          benefits: service.benefits,
+          pricing: service.pricing,
+          duration: service.duration,
+          videoUrl: service.videoUrl,
+          faq: service.faq,
+          additionalContent: service.additionalContent,
+          relatedServices: service.relatedServices,
+          testimonials: service.testimonials,
+          caseStudies: service.caseStudies,
+          tags: service.tags,
           isActive: service.isActive,
           displayOrder: service.displayOrder,
           seo: service.seo,
@@ -228,6 +239,21 @@ export const seedProjects = async () => {
           githubUrl: project.githubUrl,
           startDate: project.startDate,
           endDate: project.endDate,
+          challenge: project.challenge,
+          solution: project.solution,
+          approach: project.approach,
+          results: project.results,
+          metrics: project.metrics,
+          timeline: project.timeline,
+          teamMembers: project.teamMembers,
+          challengesFaced: project.challengesFaced,
+          lessonsLearned: project.lessonsLearned,
+          videoUrl: project.videoUrl,
+          additionalContent: project.additionalContent,
+          relatedProjects: project.relatedProjects,
+          testimonials: project.testimonials,
+          tags: project.tags,
+          budget: project.budget,
           isFeatured: project.isFeatured,
           displayOrder: project.displayOrder,
           seo: project.seo,
@@ -475,8 +501,8 @@ export const seedDb = async () => {
   // await seedRolesAndPermissions();
   // await seedSuperAdmin();
   await seedSiteSettings();
-  // await seedServices();
-  // await seedProjects();
+  await seedServices();
+  await seedProjects();
   // await seedTestimonials();
   // await seedBrands();
 };

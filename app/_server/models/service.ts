@@ -62,6 +62,79 @@ const ServiceSchema = new Schema<ModelService>(
       type: [String],
       default: [],
     },
+    // Expanded fields
+    process: {
+      type: [
+        {
+          title: { type: String, required: true },
+          description: { type: String, required: true },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    benefits: {
+      type: [String],
+      default: [],
+    },
+    pricing: {
+      startingPrice: { type: Number },
+      priceRange: { type: String },
+      pricingModel: {
+        type: String,
+        enum: ['fixed', 'hourly', 'project-based', 'subscription', 'custom'],
+        default: 'custom',
+      },
+      currency: { type: String, default: 'USD' },
+      notes: { type: String },
+    },
+    duration: {
+      minWeeks: { type: Number },
+      maxWeeks: { type: Number },
+      typicalDuration: { type: String },
+    },
+    videoUrl: {
+      type: String,
+      default: '',
+    },
+    faq: {
+      type: [
+        {
+          question: { type: String, required: true },
+          answer: { type: String, required: true },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    additionalContent: {
+      type: [
+        {
+          title: { type: String, required: true },
+          content: { type: String, required: true },
+          type: { type: String, enum: ['text', 'html', 'markdown'], default: 'text' },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    relatedServices: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Service' }],
+      default: [],
+    },
+    testimonials: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Testimonial' }],
+      default: [],
+    },
+    caseStudies: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+      default: [],
+    },
+    tags: {
+      type: [String],
+      default: [],
+      index: true,
+    },
     isActive: {
       type: Boolean,
       default: true,

@@ -27,6 +27,7 @@ const SvgLogo = (props: SVGProps<SVGSVGElement>) => (
         strokeWidth: 3.55,
         strokeMiterlimit: 22.9256,
         fill: 'none',
+        opacity: 0,
       }}
     />
   </svg>

@@ -10,11 +10,29 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants/texts';
 
-export type HeaderProps = ComponentProps<'section'>;
+export type HeaderProps = ComponentProps<'section'> & {
+  transparentOnLoad?: boolean;
+};
 
-export const Header = ({ className, ...props }: HeaderProps) => {
+export const Header = ({ className, transparentOnLoad = false, ...props }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+
+  // Scroll detection for transparent header
+  useEffect(() => {
+    if (!transparentOnLoad) return;
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    // Check initial scroll position
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [transparentOnLoad]);
 
   // Prevent scroll when menu is open
   useEffect(() => {
@@ -28,16 +46,27 @@ export const Header = ({ className, ...props }: HeaderProps) => {
     };
   }, [isMenuOpen]);
 
+  const isTransparent = transparentOnLoad && !isScrolled;
+
   return (
     <header
-      className={cn('sticky top-0 z-50 bg-card shadow-soft border-b border-border', className)}
+      className={cn(
+        'z-50 transition-all duration-300',
+        transparentOnLoad ? 'fixed top-0 left-0 right-0' : 'sticky top-0',
+        isTransparent
+          ? 'bg-transparent shadow-none border-transparent'
+          : 'bg-card shadow-soft border-b border-border',
+        className
+      )}
       {...props}>
       <div className="regular-container">
-        <div className="flex items-center justify-between h-20">
+        <div className={`flex items-center justify-between ${isTransparent ? 'h-28' : 'h-20'}`}>
           {/* Logo */}
           <div className="flex items-center">
-            <GhostBtn linkProps={{ href: '/' }}>
-              <i className="text-[1.5rem] lg:text-[2.5rem]">
+            <GhostBtn
+              linkProps={{ href: '/' }}
+              className={isTransparent ? 'text-white hover:text-white/80' : ''}>
+              <i className={cn('text-[1.5rem] lg:text-[2.5rem]', isTransparent && 'text-white')}>
                 <LogoFull />
               </i>
             </GhostBtn>
@@ -48,7 +77,12 @@ export const Header = ({ className, ...props }: HeaderProps) => {
             <nav className="">
               <ul className="list-none hidden lg:flex items-center space-x-8">
                 {NAV_LINKS.filter(s => !s.showInFooterOnly).map((item, idx) => (
-                  <HeaderLink key={idx} {...item} activePath={pathname} />
+                  <HeaderLink
+                    key={idx}
+                    {...item}
+                    activePath={pathname}
+                    isTransparent={isTransparent}
+                  />
                 ))}
               </ul>
             </nav>
@@ -56,9 +90,13 @@ export const Header = ({ className, ...props }: HeaderProps) => {
 
           {/* Mobile Menu Button */}
           <GhostBtn
-            className="lg:hidden"
+            className={cn('lg:hidden', isTransparent && 'text-white hover:text-white/80')}
             wrapClassName="lg:hidden"
-            iconClass={`size-6 ${isMenuOpen ? 'text-destructive' : ''}`}
+            iconClass={cn(
+              'size-6',
+              isMenuOpen ? 'text-destructive' : '',
+              isTransparent && !isMenuOpen && 'text-white'
+            )}
             LucideIcon={isMenuOpen ? X : Menu}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           />
@@ -66,7 +104,11 @@ export const Header = ({ className, ...props }: HeaderProps) => {
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden h-auto grid ${isMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'} transition-all duration-500 ease-out animate-fade-in overflow-hidden`}>
+          className={cn(
+            'lg:hidden h-auto grid transition-all duration-500 ease-out animate-fade-in overflow-hidden',
+            isMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+            isTransparent && 'bg-card/95 backdrop-blur-sm'
+          )}>
           <nav className="overflow-hidden">
             <div className="pb-4">
               <ul className="list-none grid px-0 pb-6 gap-2">
@@ -143,29 +185,44 @@ const HeaderLink = ({
   basePath,
   dropdownOpen,
   setDropdownOpen,
-}: HeaderLinkProps) => {
+  isTransparent = false,
+}: HeaderLinkProps & { isTransparent?: boolean }) => {
   return (
     <li className={``}>
       {children ? (
         <div className="relative group">
           <GhostBtn
-            className={`w-fit flex items-center font-medium transition-smooth hover:text-primary ${activePath?.startsWith(basePath) ? 'text-primary' : 'text-foreground'}`}
+            className={cn(
+              'w-fit flex items-center font-medium transition-smooth',
+              isTransparent
+                ? activePath?.startsWith(basePath)
+                  ? 'text-white'
+                  : 'text-white/90 hover:text-white'
+                : activePath?.startsWith(basePath)
+                  ? 'text-primary'
+                  : 'text-foreground hover:text-primary'
+            )}
             onMouseEnter={() => setDropdownOpen?.(true)}
             onMouseLeave={() => setDropdownOpen?.(false)}>
             <span>{text}</span>
-            <ChevronDown className="ml-1 h-4 w-4" />
+            <ChevronDown className={cn('ml-1 h-4 w-4', isTransparent && 'text-white')} />
           </GhostBtn>
 
           {dropdownOpen && (
             <div
-              className="absolute top-full left-0 mt-0 w-48 bg-card rounded-lg shadow-medium border border-border py-2 animate-fade-in"
+              className={cn(
+                'absolute top-full left-0 mt-0 w-48 rounded-lg shadow-medium border py-2 animate-fade-in',
+                isTransparent
+                  ? 'bg-card/95 backdrop-blur-sm border-border'
+                  : 'bg-card border-border'
+              )}
               onMouseEnter={() => setDropdownOpen?.(true)}
               onMouseLeave={() => setDropdownOpen?.(false)}>
               {children.map((link, idx) => (
                 <Link
                   key={`link-${text}-${idx}`}
                   href={link.href}
-                  className="block px-4 py-2 hover:bg-secondary transition-smooth">
+                  className="block px-4 py-2 hover:bg-secondary transition-smooth text-foreground">
                   {link.text}
                 </Link>
               ))}
@@ -182,9 +239,16 @@ const HeaderLink = ({
           }}>
           <div className="w-full lg:w-fit px-0 relative">
             <p
-              className={`transition-smooth hover:text-primary ${
-                activePath === href ? 'font-semibold text-primary' : 'font-medium text-foreground'
-              }`}>
+              className={cn(
+                'transition-smooth',
+                isTransparent
+                  ? activePath === href
+                    ? 'font-semibold text-white'
+                    : 'font-medium text-white/90 hover:text-white'
+                  : activePath === href
+                    ? 'font-semibold text-primary'
+                    : 'font-medium text-foreground hover:text-primary'
+              )}>
               {text}
             </p>
           </div>
