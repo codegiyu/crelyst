@@ -53,7 +53,7 @@ export const ServiceDetailClient = ({ slug }: ServiceDetailClientProps) => {
 
   if (isLoading) {
     return (
-      <MainLayout>
+      <MainLayout transparentHeader>
         <SectionContainer>
           <div className="max-w-4xl mx-auto">
             <Skeleton className="h-8 w-32 mb-4" />
@@ -72,7 +72,7 @@ export const ServiceDetailClient = ({ slug }: ServiceDetailClientProps) => {
   }
 
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <ServiceDetailHero service={service} />
       <ServiceDetailContent service={service} />
     </MainLayout>

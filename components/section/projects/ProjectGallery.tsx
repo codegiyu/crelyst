@@ -42,18 +42,18 @@ export const ProjectGallery = ({ project }: ProjectGalleryProps) => {
 
   return (
     <>
-      <SectionContainer background="muted">
+      <SectionContainer background="muted" customContainer>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="max-w-4xl mx-auto">
+          className="w-full">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 font-serif text-center">
             Project Gallery
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image, index) => (
               <motion.button
                 key={index}

@@ -83,5 +83,4 @@ AdminSchema.pre(/^find/, function async(next) {
   next();
 });
 
-export const Admin =
-  mongoose.models.Admin || mongoose.model<ModelAdmin>('Admin', AdminSchema);
+export const Admin = mongoose.models.Admin || mongoose.model<ModelAdmin>('Admin', AdminSchema);

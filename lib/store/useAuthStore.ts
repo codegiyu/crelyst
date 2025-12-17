@@ -68,7 +68,7 @@ export const useInitAuthStore = create<AuthStore>()((set, get) => ({
           return;
         }
 
-        setUser(data.admin);
+        setUser(data.admin?._id ? data.admin : null);
       } catch (error) {
         console.error('Failed to initialize session:', error);
         setUser(null, {});

@@ -95,6 +95,102 @@ const ProjectSchema = new Schema<ModelProject>(
     endDate: {
       type: Date,
     },
+    // Expanded fields
+    challenge: {
+      type: String,
+      default: '',
+    },
+    solution: {
+      type: String,
+      default: '',
+    },
+    approach: {
+      type: String,
+      default: '',
+    },
+    results: {
+      type: String,
+      default: '',
+    },
+    metrics: {
+      type: [
+        {
+          label: { type: String, required: true },
+          value: { type: String, required: true },
+          icon: { type: String },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    timeline: {
+      type: [
+        {
+          phase: { type: String, required: true },
+          description: { type: String, required: true },
+          startDate: { type: Date },
+          endDate: { type: Date },
+          status: {
+            type: String,
+            enum: ['planned', 'in-progress', 'completed', 'on-hold'],
+            default: 'planned',
+          },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    teamMembers: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'TeamMember' }],
+      default: [],
+    },
+    challengesFaced: {
+      type: [
+        {
+          challenge: { type: String, required: true },
+          solution: { type: String, required: true },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    lessonsLearned: {
+      type: [String],
+      default: [],
+    },
+    videoUrl: {
+      type: String,
+      default: '',
+    },
+    additionalContent: {
+      type: [
+        {
+          title: { type: String, required: true },
+          content: { type: String, required: true },
+          type: { type: String, enum: ['text', 'html', 'markdown'], default: 'text' },
+          order: { type: Number, default: 0 },
+        },
+      ],
+      default: [],
+    },
+    relatedProjects: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+      default: [],
+    },
+    testimonials: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Testimonial' }],
+      default: [],
+    },
+    tags: {
+      type: [String],
+      default: [],
+      index: true,
+    },
+    budget: {
+      amount: { type: Number },
+      currency: { type: String, default: 'USD' },
+      range: { type: String },
+    },
     isFeatured: {
       type: Boolean,
       default: false,
