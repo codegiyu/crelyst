@@ -54,6 +54,7 @@ export const Footer = () => {
                 Icon={LogoFull}
                 iconClass="text-secondary-foreground/80 text-3xl"
                 linkProps={{ href: '/' }}
+                size="none"
               />
             </div>
             <p className="text-secondary-foreground/80 text-[0.9375rem] leading-[1.6]">
@@ -129,6 +130,7 @@ const FooterLink = ({ text, href = '#', footerOnlySuffix = '', afterClick }: Hea
   return (
     <li className={``}>
       <GhostBtn
+        size="none"
         className={`w-fit py-0`}
         wrapClassName={`w-fit`}
         {...(href && { linkProps: { href } })}
@@ -164,6 +166,7 @@ const FooterContactRow = ({ LucideIcon, Icon, texts, href = '' }: FooterContactR
       )}
       <GhostBtn
         {...(href ? { linkProps: { href, target: '_blank', rel: 'noreferrer noopener' } } : {})}
+        size="none"
         className={`text-secondary-foreground/70 ${href ? 'hover:text-secondary-foreground' : ''}`}
         wrapClassName="">
         <div className="grid gap-3 text-start">
@@ -197,6 +200,7 @@ export interface SocialBtnProps {
 export function SocialBtn({ Icon, href, label }: SocialBtnProps) {
   return (
     <GhostBtn
+      size="none"
       className="size-10 bg-secondary-foreground/10 grid place-items-center rounded-full hover:bg-accent hover:text-accent-foreground transition-all transition-smooth"
       linkProps={{ href, target: '_blank', rel: 'noopener noreferrer' }}
       aria-label={label}>

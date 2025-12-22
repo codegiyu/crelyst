@@ -3,6 +3,6 @@ import { updateTestimonial } from '@/app/_server/controllers/testimonials/update
 import { deleteTestimonial } from '@/app/_server/controllers/testimonials/deleteTestimonial';
 import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
 
-export const GET = applyMiddlewares(getTestimonial);
+export const GET = applyMiddlewares(getTestimonial('console'));
 export const PATCH = applyMiddlewares(updateTestimonial);
 export const DELETE = applyMiddlewares(deleteTestimonial);

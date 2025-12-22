@@ -23,6 +23,7 @@ export const createTestimonial = withRequestContext({ protect: true, accessType:
       testimonial,
       rating,
       isFeatured,
+      isActive,
       displayOrder,
       projectId,
     } = body;
@@ -40,6 +41,7 @@ export const createTestimonial = withRequestContext({ protect: true, accessType:
       testimonial,
       rating: rating || 5,
       isFeatured: isFeatured !== undefined ? isFeatured : false,
+      isActive: isActive !== undefined ? isActive : true,
       displayOrder: displayOrder || 0,
       projectId: projectId ? new mongoose.Types.ObjectId(projectId) : null,
     });

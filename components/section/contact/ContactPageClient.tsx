@@ -8,7 +8,7 @@ import { MapSection } from './MapSection';
 
 export const ContactPageClient = () => {
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <ContactHeroSection />
       <div className="grid lg:grid-cols-5 gap-0">
         <div className="lg:col-span-3">

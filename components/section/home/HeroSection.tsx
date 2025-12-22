@@ -11,10 +11,21 @@ import { CRELYST_TAGLINE } from '@/lib/constants/texts';
 export const HeroSection = () => {
   const { siteLoading } = useSiteStore(state => state);
 
+  const bannerImage =
+    'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?q=80&w=1920&auto=format&fit=crop';
+
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10" />
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Banner Image - Full Height Background */}
+      {bannerImage && (
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${bannerImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+        </div>
+      )}
 
       {/* Floating Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -40,9 +51,6 @@ export const HeroSection = () => {
         />
       </div>
 
-      {/* Pattern Overlay */}
-      <div className="absolute inset-0 pattern-overlay opacity-50" />
-
       <SectionContainer className="relative z-10 py-20 md:py-28">
         <div className="max-w-5xl mx-auto text-center">
           {/* Badge */}
@@ -50,9 +58,9 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-primary/10 rounded-full border border-primary/20">
-            <Palette className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Creative Design Agency</span>
+            className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-white/20 rounded-full border border-white/30 backdrop-blur-sm">
+            <Palette className="w-4 h-4 text-white" />
+            <span className="text-sm font-medium text-white">Creative Design Agency</span>
           </motion.div>
 
           {/* Tagline - Prominent */}
@@ -60,7 +68,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="text-xl sm:text-2xl md:text-3xl font-light text-primary mb-4 font-serif italic">
+            className="text-xl sm:text-2xl md:text-3xl font-light text-white/90 mb-4 font-serif italic">
             {CRELYST_TAGLINE}
           </motion.h2>
 
@@ -69,7 +77,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 font-sans leading-[1.1]">
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 font-sans leading-[1.1]">
             Where{' '}
             <span className="relative">
               <span className="text-primary">Creativity</span>
@@ -97,7 +105,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
+            className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto mb-10 leading-relaxed">
             We're a full-service design and branding agency specializing in photography, brand
             design, product design, packaging, and visual identity. We help brands express their
             unique personality through powerful visuals and storytelling.
@@ -121,8 +129,9 @@ export const HeroSection = () => {
 
             <GhostBtn
               linkProps={{ href: '/projects' }}
-              className="flex items-center gap-3 px-6 py-3 text-foreground hover:text-primary transition-colors group">
-              <span className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+              size="none"
+              className="flex items-center gap-3 px-6 py-3 text-white hover:text-primary transition-colors group">
+              <span className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-colors">
                 <Play className="w-5 h-5 ml-0.5" />
               </span>
               <span className="font-medium">View Our Work</span>
@@ -134,7 +143,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-16 pt-16 border-t border-border">
+            className="mt-16 pt-16 border-t border-white/20">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
                 { value: '150+', label: 'Projects Delivered' },
@@ -151,7 +160,7 @@ export const HeroSection = () => {
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  <div className="text-sm text-white/80">{stat.label}</div>
                 </motion.div>
               ))}
             </div>

@@ -5,10 +5,26 @@ import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
 import { toast } from 'sonner';
 import type { ClientProject } from '@/lib/constants/endpoints';
-import { GripVertical, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ReorderProjectsModalProps {
   projects: ClientProject[];
@@ -30,31 +46,12 @@ export const ReorderProjectsModal = ({
   const [loading, setLoading] = useState(false);
   const [orderedProjects, setOrderedProjects] = useState<ReorderableProject[]>([]);
 
-  const moveItem = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= orderedProjects.length) return;
-
-    setOrderedProjects(prev => {
-      const newOrder = [...prev];
-      const [movedItem] = newOrder.splice(fromIndex, 1);
-      newOrder.splice(toIndex, 0, movedItem);
-
-      // Update display orders
-      return newOrder.map((project, index) => ({
-        ...project,
-        newDisplayOrder: index + 1,
-      }));
-    });
-  };
-
-  const moveToTop = (index: number) => {
-    if (index === 0) return;
-    moveItem(index, 0);
-  };
-
-  const moveToBottom = (index: number) => {
-    if (index === orderedProjects.length - 1) return;
-    moveItem(index, orderedProjects.length - 1);
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const hasChanges = () => {
     return orderedProjects.some((project, index) => {
@@ -63,6 +60,23 @@ export const ReorderProjectsModal = ({
         .findIndex(p => p._id === project._id);
       return originalIndex !== index;
     });
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setOrderedProjects(items => {
+        const oldIndex = items.findIndex(item => item._id === active.id);
+        const newIndex = items.findIndex(item => item._id === over.id);
+
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        return newOrder.map((project, index) => ({
+          ...project,
+          newDisplayOrder: index + 1,
+        }));
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -117,7 +131,7 @@ export const ReorderProjectsModal = ({
       maxWidth="lg"
       header={{
         title: 'Reorder Projects',
-        description: 'Use the arrows to change the display order of projects on the website.',
+        description: 'Drag and drop projects to change their display order on the website.',
       }}
       cancelButton={{
         text: 'Cancel',
@@ -129,25 +143,21 @@ export const ReorderProjectsModal = ({
         onClick: handleSave,
         disabled: !hasChanges(),
       }}>
-      <div className="space-y-2">
-        {orderedProjects.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">No projects to reorder</div>
-        ) : (
-          orderedProjects.map((project, index) => (
-            <ReorderableProjectItem
-              key={project._id}
-              project={project}
-              index={index}
-              isFirst={index === 0}
-              isLast={index === orderedProjects.length - 1}
-              onMoveUp={() => moveItem(index, index - 1)}
-              onMoveDown={() => moveItem(index, index + 1)}
-              onMoveToTop={() => moveToTop(index)}
-              onMoveToBottom={() => moveToBottom(index)}
-            />
-          ))
-        )}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={orderedProjects.map(p => p._id)}
+          strategy={verticalListSortingStrategy}>
+          <div className="space-y-2">
+            {orderedProjects.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">No projects to reorder</div>
+            ) : (
+              orderedProjects.map((project, index) => (
+                <ReorderableProjectItem key={project._id} project={project} index={index} />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
     </Modal>
   );
 };
@@ -155,24 +165,19 @@ export const ReorderProjectsModal = ({
 interface ReorderableProjectItemProps {
   project: ReorderableProject;
   index: number;
-  isFirst: boolean;
-  isLast: boolean;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onMoveToTop: () => void;
-  onMoveToBottom: () => void;
 }
 
-const ReorderableProjectItem = ({
-  project,
-  index,
-  isFirst,
-  isLast,
-  onMoveUp,
-  onMoveDown,
-  onMoveToTop,
-  onMoveToBottom,
-}: ReorderableProjectItemProps) => {
+const ReorderableProjectItem = ({ project, index }: ReorderableProjectItemProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: project._id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const statusColors: Record<string, string> = {
     draft: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
     'in-progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -183,12 +188,18 @@ const ReorderableProjectItem = ({
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       className={cn(
         'flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors',
-        'hover:border-primary/50 hover:bg-accent/30'
+        'hover:border-primary/50 hover:bg-accent/30',
+        isDragging && 'ring-2 ring-primary ring-offset-2'
       )}>
-      {/* Grip icon for visual indication */}
-      <div className="text-muted-foreground">
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="text-muted-foreground cursor-grab active:cursor-grabbing hover:text-foreground transition-colors">
         <GripVertical className="size-5" />
       </div>
 
@@ -237,46 +248,6 @@ const ReorderableProjectItem = ({
           Featured
         </div>
       )}
-
-      {/* Reorder controls */}
-      <div className="flex items-center gap-1 shrink-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={onMoveToTop}
-          disabled={isFirst}
-          title="Move to top">
-          <ArrowUpToLine className="size-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={onMoveUp}
-          disabled={isFirst}
-          title="Move up">
-          <ChevronUp className="size-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={onMoveDown}
-          disabled={isLast}
-          title="Move down">
-          <ChevronDown className="size-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={onMoveToBottom}
-          disabled={isLast}
-          title="Move to bottom">
-          <ArrowDownToLine className="size-4" />
-        </Button>
-      </div>
     </div>
   );
 };

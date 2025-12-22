@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { InputWrapper } from '../general/InputWrapper';
 import { ImagePlus, X, Loader2, Upload } from 'lucide-react';
 import { Button } from '../ui/button';
-import Image from 'next/image';
 
 export interface ImageUploadProps {
   label?: string;
@@ -63,10 +62,19 @@ export const ImageUpload = ({
   const displayUrl = previewUrl || value;
   const hasImage = !!displayUrl;
 
-  const handleClick = () => {
-    if (!disabled && !uploading) {
-      inputRef.current?.click();
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't open file picker if clicking on the clear button or its container
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="button"]')) {
+      return;
     }
+
+    // if (!disabled && !uploading && !hasImage) {
+    //   inputRef.current?.click();
+    // } else if (!disabled && !uploading && hasImage) {
+    //   // Allow changing image by clicking on it (but not on the clear button)
+    //   inputRef.current?.click();
+    // }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,6 +125,7 @@ export const ImageUpload = ({
   };
 
   const handleClear = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     onClear?.();
     onFileSelect?.(null);
@@ -158,12 +167,11 @@ export const ImageUpload = ({
 
         {hasImage ? (
           // Image preview
-          <div className="relative w-full h-full">
-            <Image
+          <div className="relative w-full h-full grid place-items-center overflow-hidden">
+            <img
               src={displayUrl}
               alt="Upload preview"
-              fill
-              className="object-cover"
+              className="w-full h-auto object-cover rounded-lg"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
 
@@ -181,8 +189,12 @@ export const ImageUpload = ({
                 type="button"
                 variant="destructive"
                 size="icon"
-                className="absolute top-2 right-2 size-8 rounded-full shadow-md"
-                onClick={handleClear}>
+                className="absolute top-2 right-2 size-8 rounded-full shadow-md z-20"
+                onClick={handleClear}
+                onMouseDown={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}>
                 <X className="size-4" />
               </Button>
             )}

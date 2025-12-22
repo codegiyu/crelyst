@@ -3,10 +3,20 @@
 
 import { useEffect, useState } from 'react';
 import { useTestimonialsStore } from '@/lib/store/useTestimonialsStore';
-import { Plus, Pencil, Trash2, MoreHorizontal, Star, StarOff, Quote } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  Star,
+  StarOff,
+  Quote,
+  Eye,
+  EyeOff,
+  ArrowUpDown,
+} from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Modal } from '@/components/ui/Modal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,14 +24,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { TestimonialForm } from './TestimonialForm';
+import { TestimonialFormModal } from './TestimonialFormModal';
 import { DeleteTestimonialDialog } from './DeleteTestimonialDialog';
+import { ReorderTestimonialsModal } from './ReorderTestimonialsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
+import { cn } from '@/lib/utils';
 
 export const TestimonialsPageClient = () => {
   const { testimonials, actions, isLoading } = useTestimonialsStore(state => state);
@@ -30,9 +41,10 @@ export const TestimonialsPageClient = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<ClientTestimonial | null>(null);
   const [deleteTestimonial, setDeleteTestimonial] = useState<ClientTestimonial | null>(null);
+  const [isReorderOpen, setIsReorderOpen] = useState(false);
 
   useEffect(() => {
-    fetchTestimonials({ force: true });
+    fetchTestimonials({ force: true, useAdminEndpoint: true });
   }, []);
 
   const handleCreate = () => {
@@ -48,7 +60,7 @@ export const TestimonialsPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingTestimonial(null);
-    fetchTestimonials({ force: true });
+    fetchTestimonials({ force: true, useAdminEndpoint: true });
   };
 
   const handleToggleFeatured = async (testimonial: ClientTestimonial) => {
@@ -70,6 +82,25 @@ export const TestimonialsPageClient = () => {
     }
   };
 
+  const handleToggleActive = async (testimonial: ClientTestimonial) => {
+    try {
+      const { data, error } = await callApi('ADMIN_UPDATE_TESTIMONIAL', {
+        query: `/${testimonial._id}`,
+        payload: { isActive: !testimonial.isActive },
+      });
+
+      if (error || !data) {
+        toast.error(error?.message || 'Failed to update testimonial');
+        return;
+      }
+
+      updateTestimonial(data.testimonial);
+      toast.success(`Testimonial ${data.testimonial.isActive ? 'activated' : 'deactivated'}`);
+    } catch {
+      toast.error('Failed to update testimonial');
+    }
+  };
+
   return (
     <DashboardPageWrapper
       header={{
@@ -77,12 +108,23 @@ export const TestimonialsPageClient = () => {
         description: 'Manage your client testimonials and reviews',
       }}
       headerActions={
-        <RegularBtn
-          text="Add Testimonial"
-          LeftIcon={Plus}
-          leftIconProps={{ className: 'size-5' }}
-          onClick={handleCreate}
-        />
+        <div className="flex items-center gap-2">
+          {testimonials.length > 1 && (
+            <RegularBtn
+              text="Reorder"
+              variant="outline"
+              LeftIcon={ArrowUpDown}
+              leftIconProps={{ className: 'size-4' }}
+              onClick={() => setIsReorderOpen(true)}
+            />
+          )}
+          <RegularBtn
+            text="Add Testimonial"
+            LeftIcon={Plus}
+            leftIconProps={{ className: 'size-5' }}
+            onClick={handleCreate}
+          />
+        </div>
       }>
       {/* Testimonials Grid */}
       {isLoading ? (
@@ -107,35 +149,28 @@ export const TestimonialsPageClient = () => {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map(testimonial => (
-            <TestimonialCard
-              key={testimonial._id}
-              testimonial={testimonial}
-              onEdit={() => handleEdit(testimonial)}
-              onDelete={() => setDeleteTestimonial(testimonial)}
-              onToggleFeatured={() => handleToggleFeatured(testimonial)}
-            />
-          ))}
+          {[...testimonials]
+            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+            .map(testimonial => (
+              <TestimonialCard
+                key={testimonial._id}
+                testimonial={testimonial}
+                onEdit={() => handleEdit(testimonial)}
+                onDelete={() => setDeleteTestimonial(testimonial)}
+                onToggleFeatured={() => handleToggleFeatured(testimonial)}
+                onToggleActive={() => handleToggleActive(testimonial)}
+              />
+            ))}
         </div>
       )}
 
       {/* Create/Edit Modal */}
-      <Modal
+      <TestimonialFormModal
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        maxWidth="lg"
-        header={{
-          title: editingTestimonial ? 'Edit Testimonial' : 'Add Testimonial',
-          description: editingTestimonial
-            ? 'Update the testimonial details below'
-            : 'Fill in the details to add a new testimonial',
-        }}>
-        <TestimonialForm
-          testimonial={editingTestimonial}
-          onSuccess={handleFormSuccess}
-          onCancel={() => setIsFormOpen(false)}
-        />
-      </Modal>
+        testimonial={editingTestimonial}
+        onSuccess={handleFormSuccess}
+      />
 
       {/* Delete Dialog */}
       <DeleteTestimonialDialog
@@ -144,8 +179,16 @@ export const TestimonialsPageClient = () => {
         onOpenChange={open => !open && setDeleteTestimonial(null)}
         onSuccess={() => {
           setDeleteTestimonial(null);
-          fetchTestimonials({ force: true });
+          fetchTestimonials({ force: true, useAdminEndpoint: true });
         }}
+      />
+
+      {/* Reorder Modal */}
+      <ReorderTestimonialsModal
+        testimonials={testimonials}
+        open={isReorderOpen}
+        onOpenChange={setIsReorderOpen}
+        onSuccess={() => fetchTestimonials({ force: true, useAdminEndpoint: true })}
       />
     </DashboardPageWrapper>
   );
@@ -156,6 +199,7 @@ interface TestimonialCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onToggleFeatured: () => void;
+  onToggleActive: () => void;
 }
 
 const TestimonialCard = ({
@@ -163,6 +207,7 @@ const TestimonialCard = ({
   onEdit,
   onDelete,
   onToggleFeatured,
+  onToggleActive,
 }: TestimonialCardProps) => {
   return (
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -201,9 +246,9 @@ const TestimonialCard = ({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <RegularBtn variant="ghost" size="icon" className="shrink-0">
                 <MoreHorizontal className="size-4" />
-              </Button>
+              </RegularBtn>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onEdit}>
@@ -220,6 +265,19 @@ const TestimonialCard = ({
                   <>
                     <Star className="size-4 mr-2" />
                     Feature
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onToggleActive}>
+                {testimonial.isActive ? (
+                  <>
+                    <EyeOff className="size-4 mr-2" />
+                    Deactivate
+                  </>
+                ) : (
+                  <>
+                    <Eye className="size-4 mr-2" />
+                    Activate
                   </>
                 )}
               </DropdownMenuItem>
@@ -258,17 +316,34 @@ const TestimonialCard = ({
           "{testimonial.testimonial}"
         </p>
 
-        {/* Badges */}
-        <div className="flex items-center gap-2 mt-3 flex-wrap">
-          {testimonial.isFeatured && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-              Featured
+        {/* Badges and Company Logo */}
+        <div className="flex items-center justify-between gap-2 mt-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className={cn(
+                'px-2 py-0.5 rounded-full text-xs font-medium',
+                testimonial.isActive
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+              )}>
+              {testimonial.isActive ? 'Active' : 'Inactive'}
             </span>
-          )}
+            {testimonial.isFeatured && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                Featured
+              </span>
+            )}
+          </div>
           {testimonial.companyLogo && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-              Has Logo
-            </span>
+            <div className="relative h-8 w-20 shrink-0 bg-transparent rounded overflow-hidden">
+              <Image
+                src={testimonial.companyLogo}
+                alt={testimonial.companyName || 'Company logo'}
+                fill
+                className="object-contain p-1"
+                sizes="80px"
+              />
+            </div>
           )}
         </div>
       </div>

@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { ServiceForm } from './ServiceForm';
 import { DeleteServiceDialog } from './DeleteServiceDialog';
 import { ReorderServicesModal } from './ReorderServicesModal';
@@ -34,7 +33,7 @@ export const ServicesPageClient = () => {
   const [isReorderOpen, setIsReorderOpen] = useState(false);
 
   useEffect(() => {
-    fetchServices({ force: true });
+    fetchServices({ force: true, useAdminEndpoint: true });
   }, []);
 
   const handleCreate = () => {
@@ -50,7 +49,7 @@ export const ServicesPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingService(null);
-    fetchServices({ force: true });
+    fetchServices({ force: true, useAdminEndpoint: true });
   };
 
   const handleToggleActive = async (service: ClientService) => {
@@ -157,7 +156,7 @@ export const ServicesPageClient = () => {
         onOpenChange={open => !open && setDeleteService(null)}
         onSuccess={() => {
           setDeleteService(null);
-          fetchServices({ force: true });
+          fetchServices({ force: true, useAdminEndpoint: true });
         }}
       />
 
@@ -166,7 +165,7 @@ export const ServicesPageClient = () => {
         services={services}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchServices({ force: true })}
+        onSuccess={() => fetchServices({ force: true, useAdminEndpoint: true })}
       />
     </DashboardPageWrapper>
   );
@@ -184,9 +183,9 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive }: ServiceCardP
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
       <div className="relative h-40 bg-muted">
-        {service.image ? (
+        {service.cardImage || service.bannerImage || service.image ? (
           <Image
-            src={service.image}
+            src={service.cardImage || service.bannerImage || service.image || ''}
             alt={service.title}
             fill
             className="object-cover"
@@ -219,9 +218,9 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive }: ServiceCardP
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <RegularBtn variant="ghost" size="icon" className="shrink-0">
                 <MoreHorizontal className="size-4" />
-              </Button>
+              </RegularBtn>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onEdit}>

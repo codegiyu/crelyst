@@ -196,6 +196,11 @@ const ProjectSchema = new Schema<ModelProject>(
       default: false,
       index: true,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     displayOrder: {
       type: Number,
       default: 0,
@@ -219,7 +224,7 @@ ProjectSchema.pre(/update/i, slugMiddleware.preUpdate);
 
 // Index for common queries
 // Note: slug already has an index from unique: true, so we don't need to index it again
-ProjectSchema.index({ status: 1, isFeatured: 1, displayOrder: 1 });
-ProjectSchema.index({ category: 1, status: 1 });
+ProjectSchema.index({ status: 1, isFeatured: 1, isActive: 1, displayOrder: 1 });
+ProjectSchema.index({ category: 1, status: 1, isActive: 1 });
 
 export const Project = mongoose.models.Project || model<ModelProject>('Project', ProjectSchema);

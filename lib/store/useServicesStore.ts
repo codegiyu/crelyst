@@ -16,10 +16,15 @@ export interface ServicesStore {
 
   // Actions
   actions: {
-    fetchServices: (options?: { force?: boolean; page?: number; limit?: number }) => Promise<void>;
+    fetchServices: (options?: {
+      force?: boolean;
+      page?: number;
+      limit?: number;
+      useAdminEndpoint?: boolean;
+    }) => Promise<void>;
     getServiceBySlug: (
       slug: string,
-      options?: { force?: boolean }
+      options?: { force?: boolean; useAdminEndpoint?: boolean }
     ) => Promise<ClientService | null>;
     setServices: (services: ClientService[], pagination?: IServicesListRes['pagination']) => void;
     updateService: (service: ClientService) => void;
@@ -50,7 +55,7 @@ export const useInitServicesStore = create<ServicesStore>()((set, get) => ({
   ...initialData,
   actions: {
     fetchServices: async (options = {}) => {
-      const { force = false, page = 1, limit = 100 } = options;
+      const { force = false, page = 1, limit = 100, useAdminEndpoint = false } = options;
       const { lastFetched, isLoading } = get();
 
       // Return early if cache is valid and not forcing refresh
@@ -64,9 +69,12 @@ export const useInitServicesStore = create<ServicesStore>()((set, get) => ({
       set({ isLoading: true });
 
       try {
-        const { data, error } = await callApi('LIST_SERVICES', {
-          query: `?page=${page}&limit=${limit}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_LIST_SERVICES' : 'LIST_SERVICES',
+          {
+            query: `?page=${page}&limit=${limit}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch services:', error?.message);
@@ -96,7 +104,7 @@ export const useInitServicesStore = create<ServicesStore>()((set, get) => ({
     },
 
     getServiceBySlug: async (slug, options = {}) => {
-      const { force = false } = options;
+      const { force = false, useAdminEndpoint = false } = options;
       const { servicesBySlug, lastFetched } = get();
 
       // Return from cache if valid
@@ -105,9 +113,12 @@ export const useInitServicesStore = create<ServicesStore>()((set, get) => ({
       }
 
       try {
-        const { data, error } = await callApi('GET_SERVICE', {
-          query: `/${slug}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_GET_SERVICE' : 'GET_SERVICE',
+          {
+            query: `/${slug}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch service:', error?.message);

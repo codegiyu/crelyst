@@ -15,7 +15,7 @@ export const ServicesPageClient = () => {
   }, []);
 
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <ServicesHeroSection />
       <ServicesGridSection />
     </MainLayout>

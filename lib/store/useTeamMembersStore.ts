@@ -20,10 +20,11 @@ export interface TeamMembersStore {
       force?: boolean;
       page?: number;
       limit?: number;
+      useAdminEndpoint?: boolean;
     }) => Promise<void>;
     getTeamMemberById: (
       id: string,
-      options?: { force?: boolean }
+      options?: { force?: boolean; useAdminEndpoint?: boolean }
     ) => Promise<ClientTeamMember | null>;
     setTeamMembers: (
       teamMembers: ClientTeamMember[],
@@ -57,7 +58,7 @@ export const useInitTeamMembersStore = create<TeamMembersStore>()((set, get) => 
   ...initialData,
   actions: {
     fetchTeamMembers: async (options = {}) => {
-      const { force = false, page = 1, limit = 100 } = options;
+      const { force = false, page = 1, limit = 100, useAdminEndpoint = false } = options;
       const { lastFetched, isLoading } = get();
 
       // Return early if cache is valid and not forcing refresh
@@ -71,9 +72,12 @@ export const useInitTeamMembersStore = create<TeamMembersStore>()((set, get) => 
       set({ isLoading: true });
 
       try {
-        const { data, error } = await callApi('LIST_TEAM_MEMBERS', {
-          query: `?page=${page}&limit=${limit}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_LIST_TEAM_MEMBERS' : 'LIST_TEAM_MEMBERS',
+          {
+            query: `?page=${page}&limit=${limit}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch team members:', error?.message);
@@ -103,7 +107,7 @@ export const useInitTeamMembersStore = create<TeamMembersStore>()((set, get) => 
     },
 
     getTeamMemberById: async (id, options = {}) => {
-      const { force = false } = options;
+      const { force = false, useAdminEndpoint = false } = options;
       const { teamMembersById, lastFetched } = get();
 
       // Return from cache if valid
@@ -112,9 +116,12 @@ export const useInitTeamMembersStore = create<TeamMembersStore>()((set, get) => 
       }
 
       try {
-        const { data, error } = await callApi('GET_TEAM_MEMBER', {
-          query: `/${id}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_GET_TEAM_MEMBER' : 'GET_TEAM_MEMBER',
+          {
+            query: `/${id}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch team member:', error?.message);

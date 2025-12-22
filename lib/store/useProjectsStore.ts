@@ -16,10 +16,15 @@ export interface ProjectsStore {
 
   // Actions
   actions: {
-    fetchProjects: (options?: { force?: boolean; page?: number; limit?: number }) => Promise<void>;
+    fetchProjects: (options?: {
+      force?: boolean;
+      page?: number;
+      limit?: number;
+      useAdminEndpoint?: boolean;
+    }) => Promise<void>;
     getProjectBySlug: (
       slug: string,
-      options?: { force?: boolean }
+      options?: { force?: boolean; useAdminEndpoint?: boolean }
     ) => Promise<ClientProject | null>;
     setProjects: (projects: ClientProject[], pagination?: IProjectsListRes['pagination']) => void;
     updateProject: (project: ClientProject) => void;
@@ -50,7 +55,7 @@ export const useInitProjectsStore = create<ProjectsStore>()((set, get) => ({
   ...initialData,
   actions: {
     fetchProjects: async (options = {}) => {
-      const { force = false, page = 1, limit = 100 } = options;
+      const { force = false, page = 1, limit = 100, useAdminEndpoint = false } = options;
       const { lastFetched, isLoading } = get();
 
       // Return early if cache is valid and not forcing refresh
@@ -64,9 +69,12 @@ export const useInitProjectsStore = create<ProjectsStore>()((set, get) => ({
       set({ isLoading: true });
 
       try {
-        const { data, error } = await callApi('LIST_PROJECTS', {
-          query: `?page=${page}&limit=${limit}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_LIST_PROJECTS' : 'LIST_PROJECTS',
+          {
+            query: `?page=${page}&limit=${limit}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch projects:', error?.message);
@@ -96,7 +104,7 @@ export const useInitProjectsStore = create<ProjectsStore>()((set, get) => ({
     },
 
     getProjectBySlug: async (slug, options = {}) => {
-      const { force = false } = options;
+      const { force = false, useAdminEndpoint = false } = options;
       const { projectsBySlug, lastFetched } = get();
 
       // Return from cache if valid
@@ -105,9 +113,12 @@ export const useInitProjectsStore = create<ProjectsStore>()((set, get) => ({
       }
 
       try {
-        const { data, error } = await callApi('GET_PROJECT', {
-          query: `/${slug}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_GET_PROJECT' : 'GET_PROJECT',
+          {
+            query: `/${slug}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch project:', error?.message);

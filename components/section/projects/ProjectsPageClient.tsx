@@ -15,7 +15,7 @@ export const ProjectsPageClient = () => {
   }, []);
 
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <ProjectsHeroSection />
       <ProjectsGridSection />
     </MainLayout>

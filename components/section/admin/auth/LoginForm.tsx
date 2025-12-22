@@ -10,7 +10,7 @@ import { LogIn } from 'lucide-react';
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Please enter a valid email'),
+  email: z.email('Please enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -30,6 +30,7 @@ export const LoginForm = () => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
+    resetForm,
   } = useForm<typeof loginSchema>({
     formSchema: loginSchema,
     defaultFormValues: {
@@ -41,6 +42,7 @@ export const LoginForm = () => {
 
       if (result.success) {
         router.replace('/admin/dashboard/home');
+        resetForm();
         return true;
       } else {
         setFormErrors({ root: [result.error || 'Login failed'] });
@@ -50,14 +52,14 @@ export const LoginForm = () => {
   });
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+    <form onSubmit={handleSubmit} className="mt-8 grid gap-6">
       {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
         <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
           {formErrors.root[0]}
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="grid gap-4">
         <RegularInput
           label="Email address"
           name="email"

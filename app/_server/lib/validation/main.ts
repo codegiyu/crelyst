@@ -9,7 +9,7 @@ const seoSchema = z.object({
 
 const socialSchema = z.object({
   platform: z.string(),
-  href: z.string().url('Invalid social URL'),
+  href: z.url('Invalid social URL').or(z.literal('')),
 });
 
 export const mainSchema = z.object({
@@ -51,15 +51,15 @@ export const mainSchema = z.object({
   displayOrder: z.number().int().min(0),
 
   // ===== Image fields =====
-  image: z.string().url('Invalid image URL'),
-  logo: z.string().url('Invalid logo URL'),
+  image: z.url('Invalid image URL').or(z.literal('')),
+  logo: z.url('Invalid logo URL').or(z.literal('')),
   icon: z.string(),
-  cardImage: z.string().url('Invalid card image URL'),
-  bannerImage: z.string().url('Invalid banner image URL'),
-  featuredImage: z.string().url('Invalid featured image URL'),
-  images: z.array(z.string().url('Invalid image URL')),
-  clientImage: z.string().url('Invalid client image URL'),
-  companyLogo: z.string().url('Invalid company logo URL'),
+  cardImage: z.url('Invalid card image URL').or(z.literal('')),
+  bannerImage: z.url('Invalid banner image URL').or(z.literal('')),
+  featuredImage: z.url('Invalid featured image URL').or(z.literal('')),
+  images: z.array(z.url('Invalid image URL').or(z.literal(''))),
+  clientImage: z.url('Invalid client image URL').or(z.literal('')),
+  companyLogo: z.url('Invalid company logo URL').or(z.literal('')),
 
   // ===== Service fields =====
   features: z.array(z.string()),
@@ -70,14 +70,14 @@ export const mainSchema = z.object({
   category: z.string().max(100),
   status: z.enum(['draft', 'in-progress', 'completed', 'archived']),
   clientName: z.string().max(100),
-  clientWebsite: z.string().url('Invalid client website URL'),
-  projectUrl: z.string().url('Invalid project URL'),
-  githubUrl: z.string().url('Invalid GitHub URL'),
+  clientWebsite: z.url('Invalid client website URL').or(z.literal('')),
+  projectUrl: z.url('Invalid project URL').or(z.literal('')),
+  githubUrl: z.url('Invalid GitHub URL').or(z.literal('')),
   startDate: z.string().or(z.date()),
   endDate: z.string().or(z.date()),
 
   // ===== Brand fields =====
-  websiteUrl: z.string().url('Invalid website URL'),
+  websiteUrl: z.url('Invalid website URL').or(z.literal('')),
 
   // ===== Testimonial fields =====
   clientRole: z.string().max(100),

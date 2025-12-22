@@ -13,6 +13,8 @@ import {
   ArrowUpDown,
   ExternalLink,
   Github,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,7 +26,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { ProjectForm } from './ProjectForm';
 import { DeleteProjectDialog } from './DeleteProjectDialog';
 import { ReorderProjectsModal } from './ReorderProjectsModal';
@@ -45,7 +46,7 @@ export const ProjectsPageClient = () => {
   const [isReorderOpen, setIsReorderOpen] = useState(false);
 
   useEffect(() => {
-    fetchProjects({ force: true });
+    fetchProjects({ force: true, useAdminEndpoint: true });
   }, []);
 
   const handleCreate = () => {
@@ -61,13 +62,14 @@ export const ProjectsPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingProject(null);
-    fetchProjects({ force: true });
+    fetchProjects({ force: true, useAdminEndpoint: true });
   };
 
   const handleToggleFeatured = async (project: ClientProject) => {
     try {
+      const identifier = project.slug || project._id;
       const { data, error } = await callApi('ADMIN_UPDATE_PROJECT', {
-        query: `/${project.slug}`,
+        query: `/${identifier}`,
         payload: { isFeatured: !project.isFeatured },
       });
 
@@ -78,6 +80,26 @@ export const ProjectsPageClient = () => {
 
       updateProject(data.project);
       toast.success(`Project ${data.project.isFeatured ? 'featured' : 'unfeatured'}`);
+    } catch {
+      toast.error('Failed to update project');
+    }
+  };
+
+  const handleToggleActive = async (project: ClientProject) => {
+    try {
+      const identifier = project.slug || project._id;
+      const { data, error } = await callApi('ADMIN_UPDATE_PROJECT', {
+        query: `/${identifier}`,
+        payload: { isActive: !project.isActive },
+      });
+
+      if (error || !data) {
+        toast.error(error?.message || 'Failed to update project');
+        return;
+      }
+
+      updateProject(data.project);
+      toast.success(`Project ${data.project.isActive ? 'activated' : 'deactivated'}`);
     } catch {
       toast.error('Failed to update project');
     }
@@ -138,6 +160,7 @@ export const ProjectsPageClient = () => {
               onEdit={() => handleEdit(project)}
               onDelete={() => setDeleteProject(project)}
               onToggleFeatured={() => handleToggleFeatured(project)}
+              onToggleActive={() => handleToggleActive(project)}
             />
           ))}
         </div>
@@ -168,7 +191,7 @@ export const ProjectsPageClient = () => {
         onOpenChange={open => !open && setDeleteProject(null)}
         onSuccess={() => {
           setDeleteProject(null);
-          fetchProjects({ force: true });
+          fetchProjects({ force: true, useAdminEndpoint: true });
         }}
       />
 
@@ -177,7 +200,7 @@ export const ProjectsPageClient = () => {
         projects={projects}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchProjects({ force: true })}
+        onSuccess={() => fetchProjects({ force: true, useAdminEndpoint: true })}
       />
     </DashboardPageWrapper>
   );
@@ -188,6 +211,7 @@ interface ProjectCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onToggleFeatured: () => void;
+  onToggleActive: () => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -198,7 +222,13 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 };
 
-const ProjectCard = ({ project, onEdit, onDelete, onToggleFeatured }: ProjectCardProps) => {
+const ProjectCard = ({
+  project,
+  onEdit,
+  onDelete,
+  onToggleFeatured,
+  onToggleActive,
+}: ProjectCardProps) => {
   return (
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
@@ -225,6 +255,15 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggleFeatured }: ProjectCar
             )}>
             {project.status.replace('-', ' ')}
           </div>
+          <div
+            className={cn(
+              'px-2 py-1 rounded-full text-xs font-medium',
+              project.isActive
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+            )}>
+            {project.isActive ? 'Active' : 'Inactive'}
+          </div>
           {project.isFeatured && (
             <div className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
               <Star className="size-3 fill-current" />
@@ -245,9 +284,9 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggleFeatured }: ProjectCar
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <RegularBtn variant="ghost" size="icon" className="shrink-0">
                 <MoreHorizontal className="size-4" />
-              </Button>
+              </RegularBtn>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onEdit}>
@@ -264,6 +303,19 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggleFeatured }: ProjectCar
                   <>
                     <Star className="size-4 mr-2" />
                     Add to Featured
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onToggleActive}>
+                {project.isActive ? (
+                  <>
+                    <EyeOff className="size-4 mr-2" />
+                    Deactivate
+                  </>
+                ) : (
+                  <>
+                    <Eye className="size-4 mr-2" />
+                    Activate
                   </>
                 )}
               </DropdownMenuItem>

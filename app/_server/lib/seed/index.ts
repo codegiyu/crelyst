@@ -52,34 +52,55 @@ export type RoleSlug = (typeof ROLE_SLUGS)[number];
 
 export const seedRolesAndPermissions = async () => {
   for (const role of ROLES_DATA) {
+    // Find existing role to check which fields exist
+    const existingRole = await Role.findOne({ slug: role.slug });
+
+    // Build update object with only missing fields
+    const setFields: Record<string, unknown> = {};
+    const setOnInsertFields: Record<string, unknown> = {
+      slug: role.slug,
+    };
+
+    if (!existingRole || existingRole.name === undefined || existingRole.name === null) {
+      setFields.name = role.name;
+    }
+    if (
+      !existingRole ||
+      existingRole.description === undefined ||
+      existingRole.description === null
+    ) {
+      setFields.description = role.description;
+    }
+    if (
+      !existingRole ||
+      existingRole.permissions === undefined ||
+      existingRole.permissions === null ||
+      existingRole.permissions.length === 0
+    ) {
+      setFields.permissions = (role.permissions || []).map(p => ({
+        name: p.name,
+        description: p.description,
+        slug: p.slug,
+        isRestricted: p.isRestricted,
+      }));
+    }
+
+    const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+      $setOnInsert: setOnInsertFields,
+    };
+    if (Object.keys(setFields).length > 0) {
+      updateObj.$set = setFields;
+    }
+
     // create role if not exists
-    const rawResult = await Role.findOneAndUpdate(
-      { slug: role.slug },
-      {
-        $set: {
-          name: role.name,
-          description: role.description,
-          permissions: (role.permissions || []).map(p => ({
-            name: p.name,
-            description: p.description,
-            slug: p.slug,
-            isRestricted: p.isRestricted,
-          })),
-        },
-        $setOnInsert: {
-          slug: role.slug,
-          // any fields you want initialized only on insert
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        includeResultMetadata: true,
-        runValidators: true, // validate against schema
-        setDefaultsOnInsert: true, // apply schema defaults on insert
-        context: 'query', // useful for some validators that need query context
-      }
-    );
+    const rawResult = await Role.findOneAndUpdate({ slug: role.slug }, updateObj, {
+      upsert: true,
+      new: true,
+      includeResultMetadata: true,
+      runValidators: true, // validate against schema
+      setDefaultsOnInsert: true, // apply schema defaults on insert
+      context: 'query', // useful for some validators that need query context
+    });
 
     if (!rawResult || !rawResult.value) continue;
     const createdRole = rawResult.value.toObject();
@@ -100,38 +121,57 @@ export const seedSuperAdmin = async () => {
     throw new AppError('Error seeding super admin: Super Admin role not found', 500);
   }
 
+  // Find existing admin to check which fields exist
+  const existingAdmin = await Admin.findOne({ email: DEFAULT_SUPER_ADMIN.email });
+
+  // Build update object with only missing fields
+  const setFields: Record<string, unknown> = {};
+  const setOnInsertFields: Record<string, unknown> = {
+    firstName: DEFAULT_SUPER_ADMIN.firstName,
+    lastName: DEFAULT_SUPER_ADMIN.lastName,
+    email: DEFAULT_SUPER_ADMIN.email,
+    accountStatus: DEFAULT_SUPER_ADMIN.accountStatus,
+    'auth.password.value': hashedPassword,
+  };
+
+  if (!existingAdmin || !existingAdmin.auth?.refreshTokenJTI) {
+    setFields['auth.refreshTokenJTI'] = JTI;
+  }
+  if (!existingAdmin || !existingAdmin.auth?.roles || existingAdmin.auth.roles.length === 0) {
+    setFields['auth.roles'] = [{ roleId: superAdminRole._id, slug: superAdminRole.slug }];
+  }
+  if (
+    !existingAdmin ||
+    !existingAdmin.auth?.permissions ||
+    existingAdmin.auth.permissions.length === 0
+  ) {
+    setFields['auth.permissions'] = (superAdminRole.permissions || []).map(permission => ({
+      slug: permission.slug,
+      name: permission.name,
+      description: permission.description,
+      isRestricted: permission.isRestricted,
+    }));
+  }
+  if (!existingAdmin || !existingAdmin.auth?.lastLogin) {
+    setFields['auth.lastLogin'] = new Date();
+  }
+
+  const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+    $setOnInsert: setOnInsertFields,
+  };
+  if (Object.keys(setFields).length > 0) {
+    updateObj.$set = setFields;
+  }
+
   // create superadmin if not exists
-  const rawResult = await Admin.findOneAndUpdate(
-    { email: DEFAULT_SUPER_ADMIN.email },
-    {
-      $set: {
-        'auth.refreshTokenJTI': JTI,
-        'auth.roles': [{ roleId: superAdminRole._id, slug: superAdminRole.slug }],
-        'auth.permissions': (superAdminRole.permissions || []).map(permission => ({
-          slug: permission.slug,
-          name: permission.name,
-          description: permission.description,
-          isRestricted: permission.isRestricted,
-        })),
-        'auth.lastLogin': new Date(),
-      },
-      $setOnInsert: {
-        firstName: DEFAULT_SUPER_ADMIN.firstName,
-        lastName: DEFAULT_SUPER_ADMIN.lastName,
-        email: DEFAULT_SUPER_ADMIN.email,
-        accountStatus: DEFAULT_SUPER_ADMIN.accountStatus,
-        'auth.password.value': hashedPassword,
-      },
-    },
-    {
-      upsert: true,
-      new: true,
-      includeResultMetadata: true,
-      runValidators: true, // validate against schema
-      setDefaultsOnInsert: true, // apply schema defaults on insert
-      context: 'query', // useful for some validators that need query context
-    }
-  );
+  const rawResult = await Admin.findOneAndUpdate({ email: DEFAULT_SUPER_ADMIN.email }, updateObj, {
+    upsert: true,
+    new: true,
+    includeResultMetadata: true,
+    runValidators: true, // validate against schema
+    setDefaultsOnInsert: true, // apply schema defaults on insert
+    context: 'query', // useful for some validators that need query context
+  });
 
   if (!rawResult || !rawResult.value) {
     throw new AppError('Error seeding superAdmin: findOneAndUpdate failed!', 500);
@@ -166,47 +206,74 @@ export const updateCacheToken = async () => {
   // }
 };
 
+// Helper function to check if a value is missing (undefined, null, or empty array/object)
+const isFieldMissing = (value: unknown): boolean => {
+  if (value === undefined || value === null) return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === 'object' && value !== null && Object.keys(value).length === 0) return true;
+  return false;
+};
+
 // Seed functions
 export const seedServices = async () => {
   for (const service of SERVICES_DATA) {
-    const rawResult = await Service.findOneAndUpdate(
-      { slug: service.slug },
-      {
-        $set: {
-          title: service.title,
-          description: service.description,
-          shortDescription: service.shortDescription,
-          cardImage: service.cardImage,
-          bannerImage: service.bannerImage,
-          features: service.features,
-          process: service.process,
-          benefits: service.benefits,
-          pricing: service.pricing,
-          duration: service.duration,
-          videoUrl: service.videoUrl,
-          faq: service.faq,
-          additionalContent: service.additionalContent,
-          relatedServices: service.relatedServices,
-          testimonials: service.testimonials,
-          caseStudies: service.caseStudies,
-          tags: service.tags,
-          isActive: service.isActive,
-          displayOrder: service.displayOrder,
-          seo: service.seo,
-        },
-        $setOnInsert: {
-          slug: service.slug,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        includeResultMetadata: true,
-        runValidators: true,
-        setDefaultsOnInsert: true,
-        context: 'query',
+    // Find existing service to check which fields exist
+    const existingService = await Service.findOne({ slug: service.slug });
+
+    // Build update object with only missing fields
+    const setFields: Record<string, unknown> = {};
+    const setOnInsertFields: Record<string, unknown> = {
+      slug: service.slug,
+    };
+
+    const fieldsToCheck = [
+      'title',
+      'description',
+      'shortDescription',
+      'cardImage',
+      'bannerImage',
+      'features',
+      'process',
+      'benefits',
+      'pricing',
+      'duration',
+      'videoUrl',
+      'faq',
+      'additionalContent',
+      'relatedServices',
+      'testimonials',
+      'caseStudies',
+      'tags',
+      'isActive',
+      'displayOrder',
+      'seo',
+    ];
+
+    for (const field of fieldsToCheck) {
+      const existingValue = existingService?.get(field);
+      const seedValue = (service as Record<string, unknown>)[field];
+      if (!existingService || isFieldMissing(existingValue)) {
+        if (seedValue !== undefined && seedValue !== null) {
+          setFields[field] = seedValue;
+        }
       }
-    );
+    }
+
+    const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+      $setOnInsert: setOnInsertFields,
+    };
+    if (Object.keys(setFields).length > 0) {
+      updateObj.$set = setFields;
+    }
+
+    const rawResult = await Service.findOneAndUpdate({ slug: service.slug }, updateObj, {
+      upsert: true,
+      new: true,
+      includeResultMetadata: true,
+      runValidators: true,
+      setDefaultsOnInsert: true,
+      context: 'query',
+    });
 
     if (!rawResult || !rawResult.value) continue;
     const createdService = rawResult.value.toObject();
@@ -219,58 +286,77 @@ export const seedServices = async () => {
 
 export const seedProjects = async () => {
   for (const project of PROJECTS_DATA) {
-    const rawResult = await Project.findOneAndUpdate(
-      { slug: project.slug },
-      {
-        $set: {
-          title: project.title,
-          description: project.description,
-          shortDescription: project.shortDescription,
-          featuredImage: project.featuredImage,
-          cardImage: project.cardImage,
-          bannerImage: project.bannerImage,
-          images: project.images,
-          technologies: project.technologies,
-          category: project.category,
-          status: project.status,
-          clientName: project.clientName,
-          clientWebsite: project.clientWebsite,
-          projectUrl: project.projectUrl,
-          githubUrl: project.githubUrl,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          challenge: project.challenge,
-          solution: project.solution,
-          approach: project.approach,
-          results: project.results,
-          metrics: project.metrics,
-          timeline: project.timeline,
-          teamMembers: project.teamMembers,
-          challengesFaced: project.challengesFaced,
-          lessonsLearned: project.lessonsLearned,
-          videoUrl: project.videoUrl,
-          additionalContent: project.additionalContent,
-          relatedProjects: project.relatedProjects,
-          testimonials: project.testimonials,
-          tags: project.tags,
-          budget: project.budget,
-          isFeatured: project.isFeatured,
-          displayOrder: project.displayOrder,
-          seo: project.seo,
-        },
-        $setOnInsert: {
-          slug: project.slug,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        includeResultMetadata: true,
-        runValidators: true,
-        setDefaultsOnInsert: true,
-        context: 'query',
+    // Find existing project to check which fields exist
+    const existingProject = await Project.findOne({ slug: project.slug });
+
+    // Build update object with only missing fields
+    const setFields: Record<string, unknown> = {};
+    const setOnInsertFields: Record<string, unknown> = {
+      slug: project.slug,
+    };
+
+    const fieldsToCheck = [
+      'title',
+      'description',
+      'shortDescription',
+      'featuredImage',
+      'cardImage',
+      'bannerImage',
+      'images',
+      'technologies',
+      'category',
+      'status',
+      'clientName',
+      'clientWebsite',
+      'projectUrl',
+      'githubUrl',
+      'startDate',
+      'endDate',
+      'challenge',
+      'solution',
+      'approach',
+      'results',
+      'metrics',
+      'timeline',
+      'teamMembers',
+      'challengesFaced',
+      'lessonsLearned',
+      'videoUrl',
+      'additionalContent',
+      'relatedProjects',
+      'testimonials',
+      'tags',
+      'budget',
+      'isFeatured',
+      'displayOrder',
+      'seo',
+    ];
+
+    for (const field of fieldsToCheck) {
+      const existingValue = existingProject?.get(field);
+      const seedValue = (project as Record<string, unknown>)[field];
+      if (!existingProject || isFieldMissing(existingValue)) {
+        if (seedValue !== undefined && seedValue !== null) {
+          setFields[field] = seedValue;
+        }
       }
-    );
+    }
+
+    const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+      $setOnInsert: setOnInsertFields,
+    };
+    if (Object.keys(setFields).length > 0) {
+      updateObj.$set = setFields;
+    }
+
+    const rawResult = await Project.findOneAndUpdate({ slug: project.slug }, updateObj, {
+      upsert: true,
+      new: true,
+      includeResultMetadata: true,
+      runValidators: true,
+      setDefaultsOnInsert: true,
+      context: 'query',
+    });
 
     if (!rawResult || !rawResult.value) continue;
     const createdProject = rawResult.value.toObject();
@@ -283,27 +369,53 @@ export const seedProjects = async () => {
 
 export const seedTestimonials = async () => {
   for (const testimonial of TESTIMONIALS_DATA) {
+    // Find existing testimonial to check which fields exist
+    const existingTestimonial = await Testimonial.findOne({
+      clientName: testimonial.clientName,
+      companyName: testimonial.companyName,
+    });
+
+    // Build update object with only missing fields
+    const setFields: Record<string, unknown> = {};
+    const setOnInsertFields: Record<string, unknown> = {
+      clientName: testimonial.clientName,
+      companyName: testimonial.companyName,
+    };
+
+    const fieldsToCheck = [
+      'clientRole',
+      'companyLogo',
+      'clientImage',
+      'testimonial',
+      'rating',
+      'isFeatured',
+      'displayOrder',
+      'projectId',
+    ];
+
+    for (const field of fieldsToCheck) {
+      const existingValue = existingTestimonial?.get(field);
+      const seedValue = (testimonial as Record<string, unknown>)[field];
+      if (!existingTestimonial || isFieldMissing(existingValue)) {
+        if (seedValue !== undefined && seedValue !== null) {
+          setFields[field] = seedValue;
+        }
+      }
+    }
+
+    const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+      $setOnInsert: setOnInsertFields,
+    };
+    if (Object.keys(setFields).length > 0) {
+      updateObj.$set = setFields;
+    }
+
     const rawResult = await Testimonial.findOneAndUpdate(
       {
         clientName: testimonial.clientName,
         companyName: testimonial.companyName,
       },
-      {
-        $set: {
-          clientRole: testimonial.clientRole,
-          companyLogo: testimonial.companyLogo,
-          clientImage: testimonial.clientImage,
-          testimonial: testimonial.testimonial,
-          rating: testimonial.rating,
-          isFeatured: testimonial.isFeatured,
-          displayOrder: testimonial.displayOrder,
-          projectId: testimonial.projectId,
-        },
-        $setOnInsert: {
-          clientName: testimonial.clientName,
-          companyName: testimonial.companyName,
-        },
-      },
+      updateObj,
       {
         upsert: true,
         new: true,
@@ -325,38 +437,41 @@ export const seedTestimonials = async () => {
 
 export const seedBrands = async () => {
   for (const brand of BRANDS_DATA) {
+    // Find existing brand to check which fields exist
+    const existingBrand = await Brand.findOne({ name: brand.name });
+
     // Use placeholder logo if empty (required field)
     const logoUrl = brand.logo || 'https://via.placeholder.com/200x200?text=Logo';
 
-    // Build update object conditionally to avoid conflict
-    // If logo is provided, update it in $set; otherwise, set placeholder in $setOnInsert
-    const updateObj: {
-      $set: {
-        websiteUrl: string;
-        isActive: boolean;
-        displayOrder: number;
-        logo?: string;
-      };
-      $setOnInsert: {
-        name: string;
-        logo?: string;
-      };
-    } = {
-      $set: {
-        websiteUrl: brand.websiteUrl,
-        isActive: brand.isActive,
-        displayOrder: brand.displayOrder,
-      },
-      $setOnInsert: {
-        name: brand.name,
-      },
+    // Build update object with only missing fields
+    const setFields: Record<string, unknown> = {};
+    const setOnInsertFields: Record<string, unknown> = {
+      name: brand.name,
     };
 
-    // Only set logo in $set if provided, otherwise set placeholder in $setOnInsert
-    if (brand.logo) {
-      updateObj.$set.logo = brand.logo;
-    } else {
-      updateObj.$setOnInsert.logo = logoUrl;
+    // Check each field and only add if missing
+    if (!existingBrand || isFieldMissing(existingBrand.websiteUrl)) {
+      setFields.websiteUrl = brand.websiteUrl;
+    }
+    if (!existingBrand || isFieldMissing(existingBrand.isActive)) {
+      setFields.isActive = brand.isActive;
+    }
+    if (!existingBrand || isFieldMissing(existingBrand.displayOrder)) {
+      setFields.displayOrder = brand.displayOrder;
+    }
+    if (!existingBrand || isFieldMissing(existingBrand.logo)) {
+      if (brand.logo) {
+        setFields.logo = brand.logo;
+      } else {
+        setOnInsertFields.logo = logoUrl;
+      }
+    }
+
+    const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+      $setOnInsert: setOnInsertFields,
+    };
+    if (Object.keys(setFields).length > 0) {
+      updateObj.$set = setFields;
     }
 
     const rawResult = await Brand.findOneAndUpdate({ name: brand.name }, updateObj, {
@@ -457,34 +572,53 @@ export const seedSiteSettings = async () => {
     socials: [],
   };
 
-  const rawResult = await SiteSettings.findOneAndUpdate(
-    { name: 'settings' },
-    {
-      $set: {
-        appDetails: defaultSettings.appDetails,
-        seo: defaultSettings.seo,
-        legal: defaultSettings.legal,
-        email: defaultSettings.email,
-        features: defaultSettings.features,
-        analytics: defaultSettings.analytics,
-        localization: defaultSettings.localization,
-        branding: defaultSettings.branding,
-        contactInfo: defaultSettings.contactInfo,
-        socials: defaultSettings.socials,
-      },
-      $setOnInsert: {
-        name: defaultSettings.name,
-      },
-    },
-    {
-      upsert: true,
-      new: true,
-      includeResultMetadata: true,
-      runValidators: true,
-      setDefaultsOnInsert: true,
-      context: 'query',
+  // Find existing settings to check which fields exist
+  const existingSettings = await SiteSettings.findOne({ name: 'settings' });
+
+  // Build update object with only missing fields
+  const setFields: Record<string, unknown> = {};
+  const setOnInsertFields: Record<string, unknown> = {
+    name: defaultSettings.name,
+  };
+
+  const topLevelFields = [
+    'appDetails',
+    'seo',
+    'legal',
+    'email',
+    'features',
+    'analytics',
+    'localization',
+    'branding',
+    'contactInfo',
+    'socials',
+  ];
+
+  for (const field of topLevelFields) {
+    const existingValue = existingSettings?.get(field);
+    const seedValue = (defaultSettings as Record<string, unknown>)[field];
+    if (!existingSettings || isFieldMissing(existingValue)) {
+      if (seedValue !== undefined && seedValue !== null) {
+        setFields[field] = seedValue;
+      }
     }
-  );
+  }
+
+  const updateObj: { $set?: Record<string, unknown>; $setOnInsert: Record<string, unknown> } = {
+    $setOnInsert: setOnInsertFields,
+  };
+  if (Object.keys(setFields).length > 0) {
+    updateObj.$set = setFields;
+  }
+
+  const rawResult = await SiteSettings.findOneAndUpdate({ name: 'settings' }, updateObj, {
+    upsert: true,
+    new: true,
+    includeResultMetadata: true,
+    runValidators: true,
+    setDefaultsOnInsert: true,
+    context: 'query',
+  });
 
   if (!rawResult || !rawResult.value) {
     throw new AppError('Error seeding site settings: findOneAndUpdate failed!', 500);
@@ -500,9 +634,9 @@ export const seedDb = async () => {
   // Add seed functions here
   // await seedRolesAndPermissions();
   // await seedSuperAdmin();
-  await seedSiteSettings();
-  await seedServices();
-  await seedProjects();
+  // await seedSiteSettings();
+  // await seedServices();
+  // await seedProjects();
   // await seedTestimonials();
   // await seedBrands();
 };

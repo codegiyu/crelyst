@@ -65,8 +65,9 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
           <div className="flex items-center">
             <GhostBtn
               linkProps={{ href: '/' }}
+              size="none"
               className={isTransparent ? 'text-white hover:text-white/80' : ''}>
-              <i className={cn('text-[1.5rem] lg:text-[2.5rem]', isTransparent && 'text-white')}>
+              <i className={cn('text-[1.25rem] lg:text-[2rem]', isTransparent && 'text-white')}>
                 <LogoFull />
               </i>
             </GhostBtn>

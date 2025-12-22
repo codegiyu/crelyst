@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -51,7 +51,7 @@ const ProfileMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex items-center gap-2 h-auto px-2 py-1">
+        <RegularBtn variant="ghost" className="flex items-center gap-2 h-auto px-2 py-1">
           <Avatar className="h-8 w-8">
             <AvatarImage src={user?.avatar ?? ''} alt="User avatar" />
             <AvatarFallback className="bg-primary text-primary-foreground">
@@ -59,7 +59,7 @@ const ProfileMenu = () => {
             </AvatarFallback>
           </Avatar>
           <span className="text-sm font-medium hidden sm:inline-block">{name}</span>
-        </Button>
+        </RegularBtn>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>

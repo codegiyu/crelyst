@@ -70,13 +70,8 @@ export const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
     }
   }, [user, isChecking, initLoading, pathname, router, pauseNavigatingAwayFromAuth, redirectTo]);
 
-  useEffect(() => {
-    console.log({ user, isProtectedRoute });
-  }, [user, isProtectedRoute]);
-
   // Show loading spinner while checking auth
   if (isChecking || initLoading) {
-    console.log({ isChecking, initLoading });
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -89,7 +84,6 @@ export const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
 
   // If on protected route without auth, show loading (redirect is happening)
   if (!user && isProtectedRoute) {
-    console.log({ user, isProtectedRoute });
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">

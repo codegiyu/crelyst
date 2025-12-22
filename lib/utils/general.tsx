@@ -371,6 +371,15 @@ export const getErrorMessage = (resError: ApiErrorResponse) => {
   return message;
 };
 
+export const formatDateForInput = (date: string | undefined) => {
+  if (!date) return '';
+  try {
+    return new Date(date).toISOString().split('T')[0];
+  } catch {
+    return '';
+  }
+};
+
 // Re-export utilities from other files for convenience
 export * from './metadata';
 export * from './animations';

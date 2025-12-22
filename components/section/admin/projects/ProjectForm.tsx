@@ -10,12 +10,13 @@ import { z } from 'zod';
 import { callApi } from '@/lib/services/callApi';
 import { toast } from 'sonner';
 import type { ClientProject } from '@/lib/constants/endpoints';
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useFileUpload } from '@/lib/hooks/use-file-upload';
 import { PROJECT_STATUSES, ProjectStatus } from '@/app/_server/lib/types/constants';
+import { formatDateForInput } from '@/lib/utils/general';
 
 const projectSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -24,12 +25,13 @@ const projectSchema = z.object({
   category: z.string().optional(),
   status: z.enum(['draft', 'in-progress', 'completed', 'on-hold', 'cancelled']).optional(),
   clientName: z.string().optional(),
-  clientWebsite: z.string().url('Invalid URL').optional().or(z.literal('')),
-  projectUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  githubUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  clientWebsite: z.url('Invalid URL').optional().or(z.literal('')),
+  projectUrl: z.url('Invalid URL').optional().or(z.literal('')),
+  githubUrl: z.url('Invalid URL').optional().or(z.literal('')),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   isFeatured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
   // SEO fields
   seoMetaTitle: z.string().max(100, 'Meta title is too long').optional(),
   seoMetaDescription: z.string().max(300, 'Meta description is too long').optional(),
@@ -69,6 +71,38 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
   const [cardImageUrl, setCardImageUrl] = useState<string>(project?.cardImage || '');
   const [bannerImageUrl, setBannerImageUrl] = useState<string>(project?.bannerImage || '');
 
+  const {
+    formValues,
+    formErrors,
+    errorsVisible,
+    loading,
+    handleInputChange,
+    handleSubmit,
+    setFormErrors,
+    onChange,
+  } = useForm<typeof projectSchema>({
+    formSchema: projectSchema,
+    defaultFormValues: {
+      title: project?.title || '',
+      description: project?.description || '',
+      shortDescription: project?.shortDescription || '',
+      category: project?.category || '',
+      status: project?.status || 'draft',
+      clientName: project?.clientName || '',
+      clientWebsite: project?.clientWebsite || '',
+      projectUrl: project?.projectUrl || '',
+      githubUrl: project?.githubUrl || '',
+      startDate: formatDateForInput(project?.startDate),
+      endDate: formatDateForInput(project?.endDate),
+      isFeatured: project?.isFeatured ?? false,
+      isActive: project?.isActive ?? false,
+      seoMetaTitle: project?.seo?.metaTitle || '',
+      seoMetaDescription: project?.seo?.metaDescription || '',
+      seoKeywords: project?.seo?.keywords?.join(', ') || '',
+    },
+    onSubmit,
+  });
+
   // Upload hooks for editing mode (immediate upload)
   const featuredUpload = useFileUpload({
     entityType: 'project',
@@ -98,58 +132,49 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
   });
 
   // Handle featured file selection
-  const handleFeaturedFileSelect = useCallback(
-    (file: File | null) => {
-      if (isEditing && file) {
-        featuredUpload.handleFileSelect(file);
-        featuredUpload.uploadFile({ file });
-      } else {
-        if (pendingFeaturedPreview) {
-          URL.revokeObjectURL(pendingFeaturedPreview);
-        }
-        setPendingFeaturedFile(file);
-        setPendingFeaturedPreview(file ? URL.createObjectURL(file) : null);
+  const handleFeaturedFileSelect = (file: File | null) => {
+    if (isEditing && file) {
+      featuredUpload.handleFileSelect(file);
+      featuredUpload.uploadFile({ file });
+    } else {
+      if (pendingFeaturedPreview) {
+        URL.revokeObjectURL(pendingFeaturedPreview);
       }
-    },
-    [isEditing, featuredUpload, pendingFeaturedPreview]
-  );
+      setPendingFeaturedFile(file);
+      setPendingFeaturedPreview(file ? URL.createObjectURL(file) : null);
+    }
+  };
 
   // Handle card file selection
-  const handleCardFileSelect = useCallback(
-    (file: File | null) => {
-      if (isEditing && file) {
-        cardUpload.handleFileSelect(file);
-        cardUpload.uploadFile({ file });
-      } else {
-        if (pendingCardPreview) {
-          URL.revokeObjectURL(pendingCardPreview);
-        }
-        setPendingCardFile(file);
-        setPendingCardPreview(file ? URL.createObjectURL(file) : null);
+  const handleCardFileSelect = (file: File | null) => {
+    if (isEditing && file) {
+      cardUpload.handleFileSelect(file);
+      cardUpload.uploadFile({ file });
+    } else {
+      if (pendingCardPreview) {
+        URL.revokeObjectURL(pendingCardPreview);
       }
-    },
-    [isEditing, cardUpload, pendingCardPreview]
-  );
+      setPendingCardFile(file);
+      setPendingCardPreview(file ? URL.createObjectURL(file) : null);
+    }
+  };
 
   // Handle banner file selection
-  const handleBannerFileSelect = useCallback(
-    (file: File | null) => {
-      if (isEditing && file) {
-        bannerUpload.handleFileSelect(file);
-        bannerUpload.uploadFile({ file });
-      } else {
-        if (pendingBannerPreview) {
-          URL.revokeObjectURL(pendingBannerPreview);
-        }
-        setPendingBannerFile(file);
-        setPendingBannerPreview(file ? URL.createObjectURL(file) : null);
+  const handleBannerFileSelect = (file: File | null) => {
+    if (isEditing && file) {
+      bannerUpload.handleFileSelect(file);
+      bannerUpload.uploadFile({ file });
+    } else {
+      if (pendingBannerPreview) {
+        URL.revokeObjectURL(pendingBannerPreview);
       }
-    },
-    [isEditing, bannerUpload, pendingBannerPreview]
-  );
+      setPendingBannerFile(file);
+      setPendingBannerPreview(file ? URL.createObjectURL(file) : null);
+    }
+  };
 
   // Clear handlers
-  const handleFeaturedClear = useCallback(() => {
+  const handleFeaturedClear = () => {
     if (isEditing) {
       featuredUpload.clearFile();
     } else if (pendingFeaturedPreview) {
@@ -158,9 +183,9 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     setPendingFeaturedFile(null);
     setPendingFeaturedPreview(null);
     setFeaturedImageUrl('');
-  }, [isEditing, featuredUpload, pendingFeaturedPreview]);
+  };
 
-  const handleCardClear = useCallback(() => {
+  const handleCardClear = () => {
     if (isEditing) {
       cardUpload.clearFile();
     } else if (pendingCardPreview) {
@@ -169,9 +194,9 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     setPendingCardFile(null);
     setPendingCardPreview(null);
     setCardImageUrl('');
-  }, [isEditing, cardUpload, pendingCardPreview]);
+  };
 
-  const handleBannerClear = useCallback(() => {
+  const handleBannerClear = () => {
     if (isEditing) {
       bannerUpload.clearFile();
     } else if (pendingBannerPreview) {
@@ -180,188 +205,154 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     setPendingBannerFile(null);
     setPendingBannerPreview(null);
     setBannerImageUrl('');
-  }, [isEditing, bannerUpload, pendingBannerPreview]);
-
-  const formatDateForInput = (date: string | undefined) => {
-    if (!date) return '';
-    try {
-      return new Date(date).toISOString().split('T')[0];
-    } catch {
-      return '';
-    }
   };
 
-  const {
-    formValues,
-    formErrors,
-    errorsVisible,
-    loading,
-    handleInputChange,
-    handleSubmit,
-    setFormErrors,
-    onChange,
-  } = useForm<typeof projectSchema>({
-    formSchema: projectSchema,
-    defaultFormValues: {
-      title: project?.title || '',
-      description: project?.description || '',
-      shortDescription: project?.shortDescription || '',
-      category: project?.category || '',
-      status: project?.status || 'draft',
-      clientName: project?.clientName || '',
-      clientWebsite: project?.clientWebsite || '',
-      projectUrl: project?.projectUrl || '',
-      githubUrl: project?.githubUrl || '',
-      startDate: formatDateForInput(project?.startDate),
-      endDate: formatDateForInput(project?.endDate),
-      isFeatured: project?.isFeatured ?? false,
-      seoMetaTitle: project?.seo?.metaTitle || '',
-      seoMetaDescription: project?.seo?.metaDescription || '',
-      seoKeywords: project?.seo?.keywords?.join(', ') || '',
-    },
-    onSubmit: async (values: ProjectFormValues) => {
-      try {
-        // Build SEO object
-        const seo = {
-          metaTitle: values.seoMetaTitle || undefined,
-          metaDescription: values.seoMetaDescription || undefined,
-          keywords: values.seoKeywords
-            ? values.seoKeywords
-                .split(',')
-                .map(k => k.trim())
-                .filter(Boolean)
-            : undefined,
+  async function onSubmit(values: ProjectFormValues) {
+    try {
+      // Build SEO object
+      const seo = {
+        metaTitle: values.seoMetaTitle || undefined,
+        metaDescription: values.seoMetaDescription || undefined,
+        keywords: values.seoKeywords
+          ? values.seoKeywords
+              .split(',')
+              .map(k => k.trim())
+              .filter(Boolean)
+          : undefined,
+      };
+
+      if (isEditing) {
+        // Update existing project
+        const payload = {
+          title: values.title,
+          description: values.description,
+          shortDescription: values.shortDescription,
+          category: values.category,
+          status: (values.status || 'draft') as ProjectStatus,
+          clientName: values.clientName,
+          clientWebsite: values.clientWebsite || undefined,
+          projectUrl: values.projectUrl || undefined,
+          githubUrl: values.githubUrl || undefined,
+          startDate: values.startDate || undefined,
+          endDate: values.endDate || undefined,
+          featuredImage: featuredImageUrl || undefined,
+          cardImage: cardImageUrl || undefined,
+          bannerImage: bannerImageUrl || undefined,
+          isFeatured: values.isFeatured,
+          isActive: values.isActive ?? false,
+          technologies,
+          seo,
         };
 
-        if (isEditing) {
-          // Update existing project
-          const payload = {
-            title: values.title,
-            description: values.description,
-            shortDescription: values.shortDescription,
-            category: values.category,
-            status: (values.status || 'draft') as ProjectStatus,
-            clientName: values.clientName,
-            clientWebsite: values.clientWebsite || undefined,
-            projectUrl: values.projectUrl || undefined,
-            githubUrl: values.githubUrl || undefined,
-            startDate: values.startDate || undefined,
-            endDate: values.endDate || undefined,
-            featuredImage: featuredImageUrl || undefined,
-            cardImage: cardImageUrl || undefined,
-            bannerImage: bannerImageUrl || undefined,
-            isFeatured: values.isFeatured,
-            technologies,
-            seo,
-          };
+        const identifier = project.slug || project._id;
+        const { data, error } = await callApi('ADMIN_UPDATE_PROJECT', {
+          query: `/${identifier}`,
+          payload,
+        });
 
-          const { data, error } = await callApi('ADMIN_UPDATE_PROJECT', {
-            query: `/${project.slug}`,
-            payload,
-          });
-
-          if (error || !data) {
-            setFormErrors({ root: [error?.message || 'Failed to update project'] });
-            return false;
-          }
-
-          toast.success('Project updated successfully');
-        } else {
-          // Create new project first (without images)
-          const payload = {
-            title: values.title,
-            description: values.description,
-            shortDescription: values.shortDescription,
-            category: values.category,
-            status: (values.status || 'draft') as ProjectStatus,
-            clientName: values.clientName,
-            clientWebsite: values.clientWebsite || undefined,
-            projectUrl: values.projectUrl || undefined,
-            githubUrl: values.githubUrl || undefined,
-            startDate: values.startDate || undefined,
-            endDate: values.endDate || undefined,
-            isFeatured: values.isFeatured,
-            technologies,
-            seo,
-          };
-
-          const { data, error } = await callApi('ADMIN_CREATE_PROJECT', {
-            payload,
-          });
-
-          if (error || !data) {
-            setFormErrors({ root: [error?.message || 'Failed to create project'] });
-            return false;
-          }
-
-          const createdProject = data.project;
-          let finalFeaturedUrl = '';
-          let finalCardUrl = '';
-          let finalBannerUrl = '';
-
-          // Now upload pending images with the real project ID
-          if (pendingFeaturedFile) {
-            toast.info('Uploading featured image...');
-            const result = await featuredUpload.uploadFile({
-              file: pendingFeaturedFile,
-              entityId: createdProject._id,
-              intent: 'image',
-            });
-            if (result?.url) {
-              finalFeaturedUrl = result.url;
-            }
-          }
-
-          if (!useFeaturedAsCard && pendingCardFile) {
-            toast.info('Uploading card image...');
-            const result = await cardUpload.uploadFile({
-              file: pendingCardFile,
-              entityId: createdProject._id,
-              intent: 'card-image',
-            });
-            if (result?.url) {
-              finalCardUrl = result.url;
-            }
-          } else if (useFeaturedAsCard && finalFeaturedUrl) {
-            finalCardUrl = finalFeaturedUrl;
-          }
-
-          if (pendingBannerFile) {
-            toast.info('Uploading banner image...');
-            const result = await bannerUpload.uploadFile({
-              file: pendingBannerFile,
-              entityId: createdProject._id,
-              intent: 'banner-image',
-            });
-            if (result?.url) {
-              finalBannerUrl = result.url;
-            }
-          }
-
-          // Update project with image URLs if we uploaded any
-          if (finalFeaturedUrl || finalCardUrl || finalBannerUrl) {
-            const updatePayload: Record<string, string> = {};
-            if (finalFeaturedUrl) updatePayload.featuredImage = finalFeaturedUrl;
-            if (finalCardUrl) updatePayload.cardImage = finalCardUrl;
-            if (finalBannerUrl) updatePayload.bannerImage = finalBannerUrl;
-
-            await callApi('ADMIN_UPDATE_PROJECT', {
-              query: `/${createdProject.slug}`,
-              payload: updatePayload,
-            });
-          }
-
-          toast.success('Project created successfully');
+        if (error || !data) {
+          setFormErrors({ root: [error?.message || 'Failed to update project'] });
+          return false;
         }
 
-        onSuccess();
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
-        return false;
+        toast.success('Project updated successfully');
+      } else {
+        // Create new project first (without images)
+        const payload = {
+          title: values.title,
+          description: values.description,
+          shortDescription: values.shortDescription,
+          category: values.category,
+          status: (values.status || 'draft') as ProjectStatus,
+          clientName: values.clientName,
+          clientWebsite: values.clientWebsite || undefined,
+          projectUrl: values.projectUrl || undefined,
+          githubUrl: values.githubUrl || undefined,
+          startDate: values.startDate || undefined,
+          endDate: values.endDate || undefined,
+          isFeatured: values.isFeatured,
+          isActive: values.isActive ?? false,
+          technologies,
+          seo,
+        };
+
+        const { data, error } = await callApi('ADMIN_CREATE_PROJECT', {
+          payload,
+        });
+
+        if (error || !data) {
+          setFormErrors({ root: [error?.message || 'Failed to create project'] });
+          return false;
+        }
+
+        const createdProject = data.project;
+        let finalFeaturedUrl = '';
+        let finalCardUrl = '';
+        let finalBannerUrl = '';
+
+        // Now upload pending images with the real project ID
+        if (pendingFeaturedFile) {
+          toast.info('Uploading featured image...');
+          const result = await featuredUpload.uploadFile({
+            file: pendingFeaturedFile,
+            entityId: createdProject._id,
+            intent: 'image',
+          });
+          if (result?.url) {
+            finalFeaturedUrl = result.url;
+          }
+        }
+
+        if (!useFeaturedAsCard && pendingCardFile) {
+          toast.info('Uploading card image...');
+          const result = await cardUpload.uploadFile({
+            file: pendingCardFile,
+            entityId: createdProject._id,
+            intent: 'card-image',
+          });
+          if (result?.url) {
+            finalCardUrl = result.url;
+          }
+        } else if (useFeaturedAsCard && finalFeaturedUrl) {
+          finalCardUrl = finalFeaturedUrl;
+        }
+
+        if (pendingBannerFile) {
+          toast.info('Uploading banner image...');
+          const result = await bannerUpload.uploadFile({
+            file: pendingBannerFile,
+            entityId: createdProject._id,
+            intent: 'banner-image',
+          });
+          if (result?.url) {
+            finalBannerUrl = result.url;
+          }
+        }
+
+        // Update project with image URLs if we uploaded any
+        if (finalFeaturedUrl || finalCardUrl || finalBannerUrl) {
+          const updatePayload: Record<string, string> = {};
+          if (finalFeaturedUrl) updatePayload.featuredImage = finalFeaturedUrl;
+          if (finalCardUrl) updatePayload.cardImage = finalCardUrl;
+          if (finalBannerUrl) updatePayload.bannerImage = finalBannerUrl;
+
+          const identifier = createdProject.slug || createdProject._id;
+          await callApi('ADMIN_UPDATE_PROJECT', {
+            query: `/${identifier}`,
+            payload: updatePayload,
+          });
+        }
+
+        toast.success('Project created successfully');
       }
-    },
-  });
+
+      onSuccess();
+      return true;
+    } catch {
+      setFormErrors({ root: ['An unexpected error occurred'] });
+      return false;
+    }
+  }
 
   const addTechnology = () => {
     if (newTechnology.trim() && !technologies.includes(newTechnology.trim())) {
@@ -633,6 +624,33 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
               className={cn(
                 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-background shadow-lg ring-0 transition-transform',
                 formValues.isFeatured ? 'translate-x-5' : 'translate-x-0'
+              )}
+            />
+          </button>
+        </div>
+
+        {/* Active Toggle */}
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <label className="text-sm font-medium text-foreground">Active</label>
+            <p className="text-xs text-muted-foreground">
+              Make this project visible on the website
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={formValues.isActive}
+            onClick={() => onChange('isActive', !formValues.isActive)}
+            className={cn(
+              'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              formValues.isActive ? 'bg-primary' : 'bg-input'
+            )}>
+            <span
+              className={cn(
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-background shadow-lg ring-0 transition-transform',
+                formValues.isActive ? 'translate-x-5' : 'translate-x-0'
               )}
             />
           </button>

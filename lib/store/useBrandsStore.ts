@@ -16,8 +16,16 @@ export interface BrandsStore {
 
   // Actions
   actions: {
-    fetchBrands: (options?: { force?: boolean; page?: number; limit?: number }) => Promise<void>;
-    getBrandById: (id: string, options?: { force?: boolean }) => Promise<ClientBrand | null>;
+    fetchBrands: (options?: {
+      force?: boolean;
+      page?: number;
+      limit?: number;
+      useAdminEndpoint?: boolean;
+    }) => Promise<void>;
+    getBrandById: (
+      id: string,
+      options?: { force?: boolean; useAdminEndpoint?: boolean }
+    ) => Promise<ClientBrand | null>;
     setBrands: (brands: ClientBrand[], pagination?: IBrandsListRes['pagination']) => void;
     updateBrand: (brand: ClientBrand) => void;
     removeBrand: (id: string) => void;
@@ -47,7 +55,7 @@ export const useInitBrandsStore = create<BrandsStore>()((set, get) => ({
   ...initialData,
   actions: {
     fetchBrands: async (options = {}) => {
-      const { force = false, page = 1, limit = 100 } = options;
+      const { force = false, page = 1, limit = 100, useAdminEndpoint = false } = options;
       const { lastFetched, isLoading } = get();
 
       // Return early if cache is valid and not forcing refresh
@@ -61,9 +69,12 @@ export const useInitBrandsStore = create<BrandsStore>()((set, get) => ({
       set({ isLoading: true });
 
       try {
-        const { data, error } = await callApi('LIST_BRANDS', {
-          query: `?page=${page}&limit=${limit}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_LIST_BRANDS' : 'LIST_BRANDS',
+          {
+            query: `?page=${page}&limit=${limit}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch brands:', error?.message);
@@ -93,7 +104,7 @@ export const useInitBrandsStore = create<BrandsStore>()((set, get) => ({
     },
 
     getBrandById: async (id, options = {}) => {
-      const { force = false } = options;
+      const { force = false, useAdminEndpoint = false } = options;
       const { brandsById, lastFetched } = get();
 
       // Return from cache if valid
@@ -102,7 +113,7 @@ export const useInitBrandsStore = create<BrandsStore>()((set, get) => ({
       }
 
       try {
-        const { data, error } = await callApi('GET_BRAND', {
+        const { data, error } = await callApi(useAdminEndpoint ? 'ADMIN_GET_BRAND' : 'GET_BRAND', {
           query: `/${id}`,
         });
 
