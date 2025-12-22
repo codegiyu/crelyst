@@ -1,46 +1,53 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Job } from 'bullmq';
 import nodemailer from 'nodemailer';
-import { render } from '@react-email/render';
-import { type JSX } from 'react';
-import { OTPCode } from '../templates/OTP';
+// Lazy-load render to avoid React 19 compatibility issues during build
+// Use require at runtime instead of import to prevent build-time analysis
+// import { type JSX } from 'react';
+// #region agent log
+import React from 'react';
+// #endregion
+
+// Lazy-load isolated renderer to avoid build-time analysis
+// This module uses require() internally to prevent Next.js/Turbopack from analyzing @react-email/render
 import { logger } from '../../lib/utils/logger';
 import { ENVIRONMENT } from '../../lib/config/environment';
 import { JOB_TYPE } from '../../lib/types/queues';
-import { ChangePasswordLink } from '../templates/ResetPassword';
-import { NotificationEmail } from '../templates/NotificationEmail';
-import { InviteAdmin } from '../templates/InviteAdmin';
 import { validateCompany, getCompanyBranding, getCompanySender } from '../../lib/utils/branding';
 import { createEmailLog, updateEmailStatus } from '../../lib/utils/emailTracking';
 import { updateNotificationEmailDelivery } from '../../lib/utils/notificationEmailDelivery';
 import { EmailLog } from '../../models/emailLog';
 
-const TEMPLATES: Partial<
-  Record<
-    JOB_TYPE,
-    {
-      subject: string;
-      template: (data: any) => JSX.Element;
-    }
-  >
-> = {
-  verificationCode: {
-    subject: 'Account verification code',
-    template: OTPCode,
-  },
-  resetPassword: {
-    subject: 'Your password has been reset',
-    template: ChangePasswordLink,
-  },
-  notificationEmail: {
-    subject: 'You have a new notification',
-    template: NotificationEmail,
-  },
-  inviteAdmin: {
-    subject: 'Your Invitation to Company Name Admin Dashboard',
-    template: InviteAdmin,
-  },
-};
+// Lazy-load templates to avoid importing @react-email/components during build
+// This prevents Next.js/Turbopack from analyzing React 19 incompatible code
+async function getTemplates() {
+  const [{ OTPCode }, { ChangePasswordLink }, { NotificationEmail }, { InviteAdmin }] =
+    await Promise.all([
+      import('../templates/OTP'),
+      import('../templates/ResetPassword'),
+      import('../templates/NotificationEmail'),
+      import('../templates/InviteAdmin'),
+    ]);
+
+  return {
+    verificationCode: {
+      subject: 'Account verification code',
+      template: OTPCode,
+    },
+    resetPassword: {
+      subject: 'Your password has been reset',
+      template: ChangePasswordLink,
+    },
+    notificationEmail: {
+      subject: 'You have a new notification',
+      template: NotificationEmail,
+    },
+    inviteAdmin: {
+      subject: 'Your Invitation to Company Name Admin Dashboard',
+      template: InviteAdmin,
+    },
+  } as const;
+}
 
 export const sendEmail = async (job: Job) => {
   const { type, to, company } = job.data;
@@ -59,8 +66,9 @@ export const sendEmail = async (job: Job) => {
   const branding = getCompanyBranding(company);
   const senderName = getCompanySender(company);
 
-  // Get template options
-  const options = TEMPLATES[type as JOB_TYPE];
+  // Lazy-load templates to avoid build-time analysis
+  const templates = await getTemplates();
+  const options = templates[type as keyof typeof templates];
 
   logger.info(`Processing email job: ${job.id} of type ${type}`, { to, type, company });
 
@@ -182,7 +190,64 @@ export const sendEmail = async (job: Job) => {
       branding,
     };
 
-    const htmlContent = await render(options.template(templateData));
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a9eb2e23-6629-45c9-a242-faa9256446d5', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'sendEmail.ts:218',
+        message: 'Before render call',
+        data: {
+          type,
+          reactVersion: React?.version,
+          hasTemplate: !!options.template,
+          templateType: typeof options.template,
+          templateName: options.template?.name,
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'A',
+      }),
+    }).catch(() => {});
+    const templateComponent = options.template(templateData);
+    fetch('http://127.0.0.1:7242/ingest/a9eb2e23-6629-45c9-a242-faa9256446d5', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'sendEmail.ts:220',
+        message: 'Template component created',
+        data: {
+          type,
+          componentType: typeof templateComponent,
+          isValidElement: React.isValidElement ? React.isValidElement(templateComponent) : 'N/A',
+          componentKeys: templateComponent ? Object.keys(templateComponent) : [],
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'B',
+      }),
+    }).catch(() => {});
+    // #endregion
+    // Lazy-load renderer module to avoid build-time analysis
+    const { renderEmailComponent } = await import('./renderEmail');
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a9eb2e23-6629-45c9-a242-faa9256446d5', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'sendEmail.ts:224',
+        message: 'About to render email component',
+        data: { type, hasRenderFunction: typeof renderEmailComponent },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'A',
+      }),
+    }).catch(() => {});
+    // #endregion
+    const htmlContent = await renderEmailComponent(templateComponent);
 
     const mailOptions = {
       from: senderName,
@@ -244,6 +309,29 @@ export const sendEmail = async (job: Job) => {
       }
     }
   } catch (error: any) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a9eb2e23-6629-45c9-a242-faa9256446d5', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'sendEmail.ts:246',
+        message: 'Error caught in sendEmail',
+        data: {
+          type,
+          errorMessage: error?.message,
+          errorName: error?.name,
+          errorStack: error?.stack?.substring(0, 500),
+          errorString: String(error),
+          hasVersion: !!error?.version,
+          errorKeys: error ? Object.keys(error) : [],
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'C',
+      }),
+    }).catch(() => {});
+    // #endregion
     logger.error(`Failed to send ${type} email to ${to}`, {
       jobId: job.id,
       type,
