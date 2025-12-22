@@ -11,7 +11,7 @@ function setupReactCompatibility() {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
-    
+
     // Ensure React.version exists and is accessible
     if (React && !React.version) {
       // React 19 might not expose version the same way
@@ -37,7 +37,7 @@ function setupReactCompatibility() {
         });
       }
     }
-    
+
     return React;
   } catch (error) {
     // If React isn't available, that's a bigger problem
@@ -49,7 +49,7 @@ function getRenderFunction() {
   try {
     // Set up React compatibility before loading @react-email/render
     setupReactCompatibility();
-    
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const renderModule = require('@react-email/render');
     return renderModule.render || renderModule.default || renderModule;

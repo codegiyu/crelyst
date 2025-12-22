@@ -332,9 +332,9 @@ The template uses a role-based permission system:
 
 ### Authentication Endpoints
 
-- `POST /api/auth/login` - Admin login
-- `POST /api/auth/logout` - Admin logout
-- `GET /api/auth/session` - Get current session
+- `POST /api/admin/auth/login` - Admin login
+- `POST /api/admin/auth/logout` - Admin logout
+- `GET /api/admin/auth/session` - Get current session
 
 ### Public Endpoints
 

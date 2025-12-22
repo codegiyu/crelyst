@@ -29,7 +29,6 @@ function getRedisCache(): IORedis {
     logger.error(errorMsg);
     throw new Error(errorMsg);
   }
-
   // const redisInstance = new IORedis(ENVIRONMENT.REDIS.URL, {
   //   maxRetriesPerRequest: null,
   //   enableOfflineQueue: false,
@@ -67,9 +66,9 @@ function getRedisCache(): IORedis {
   });
 
   // Store in global to prevent Next.js hot reload from creating new instances
-  if (process.env.NODE_ENV !== 'production') {
-    global._redisCache = redisInstance;
-  }
+  // Always set global cache to reuse the same instance across all environments
+  // This prevents multiple Redis connections during builds and runtime
+  global._redisCache = redisInstance;
 
   return redisInstance;
 }
