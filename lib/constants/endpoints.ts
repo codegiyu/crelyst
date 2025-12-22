@@ -206,16 +206,16 @@ export interface AllEndpoints {
 export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   // Authentication
   AUTH_LOGIN: {
-    path: '/auth/login',
+    path: '/admin/auth/login',
     method: 'POST',
     isNotAuthenticated: true,
   },
   AUTH_LOGOUT: {
-    path: '/auth/logout',
+    path: '/admin/auth/logout',
     method: 'POST',
   },
   AUTH_SESSION: {
-    path: '/auth/session',
+    path: '/admin/auth/session',
     method: 'GET',
   },
 
