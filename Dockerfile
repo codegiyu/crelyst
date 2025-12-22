@@ -1,5 +1,5 @@
 # ---- Base Stage ----
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 WORKDIR /app
 COPY package*.json ./
 
@@ -13,7 +13,7 @@ COPY . .
 RUN npm run build
 
 # ---- Production Stage ----
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
