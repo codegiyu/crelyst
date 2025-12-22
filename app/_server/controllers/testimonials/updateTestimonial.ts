@@ -35,6 +35,7 @@ export const updateTestimonial = withRequestContext({ protect: true, accessType:
       testimonial: testimonialText,
       rating,
       isFeatured,
+      isActive,
       displayOrder,
       projectId,
     } = body;
@@ -50,6 +51,7 @@ export const updateTestimonial = withRequestContext({ protect: true, accessType:
     if (testimonialText !== undefined) updateData.testimonial = testimonialText;
     if (rating !== undefined) updateData.rating = rating;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
+    if (isActive !== undefined) updateData.isActive = isActive;
     if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
     if (projectId !== undefined) {
       updateData.projectId = projectId ? new mongoose.Types.ObjectId(projectId) : null;

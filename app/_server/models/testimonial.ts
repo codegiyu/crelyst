@@ -39,6 +39,11 @@ const TestimonialSchema = new Schema<ModelTestimonial>(
       default: false,
       index: true,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     displayOrder: {
       type: Number,
       default: 0,
@@ -57,7 +62,7 @@ const TestimonialSchema = new Schema<ModelTestimonial>(
 );
 
 // Index for common queries
-TestimonialSchema.index({ isFeatured: 1, displayOrder: 1 });
+TestimonialSchema.index({ isFeatured: 1, isActive: 1, displayOrder: 1 });
 TestimonialSchema.index({ projectId: 1 });
 
 export const Testimonial =

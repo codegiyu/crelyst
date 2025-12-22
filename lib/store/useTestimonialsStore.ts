@@ -20,10 +20,11 @@ export interface TestimonialsStore {
       force?: boolean;
       page?: number;
       limit?: number;
+      useAdminEndpoint?: boolean;
     }) => Promise<void>;
     getTestimonialById: (
       id: string,
-      options?: { force?: boolean }
+      options?: { force?: boolean; useAdminEndpoint?: boolean }
     ) => Promise<ClientTestimonial | null>;
     setTestimonials: (
       testimonials: ClientTestimonial[],
@@ -57,7 +58,7 @@ export const useInitTestimonialsStore = create<TestimonialsStore>()((set, get) =
   ...initialData,
   actions: {
     fetchTestimonials: async (options = {}) => {
-      const { force = false, page = 1, limit = 100 } = options;
+      const { force = false, page = 1, limit = 100, useAdminEndpoint = false } = options;
       const { lastFetched, isLoading } = get();
 
       // Return early if cache is valid and not forcing refresh
@@ -71,9 +72,12 @@ export const useInitTestimonialsStore = create<TestimonialsStore>()((set, get) =
       set({ isLoading: true });
 
       try {
-        const { data, error } = await callApi('LIST_TESTIMONIALS', {
-          query: `?page=${page}&limit=${limit}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_LIST_TESTIMONIALS' : 'LIST_TESTIMONIALS',
+          {
+            query: `?page=${page}&limit=${limit}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch testimonials:', error?.message);
@@ -103,7 +107,7 @@ export const useInitTestimonialsStore = create<TestimonialsStore>()((set, get) =
     },
 
     getTestimonialById: async (id, options = {}) => {
-      const { force = false } = options;
+      const { force = false, useAdminEndpoint = false } = options;
       const { testimonialsById, lastFetched } = get();
 
       // Return from cache if valid
@@ -112,9 +116,12 @@ export const useInitTestimonialsStore = create<TestimonialsStore>()((set, get) =
       }
 
       try {
-        const { data, error } = await callApi('GET_TESTIMONIAL', {
-          query: `/${id}`,
-        });
+        const { data, error } = await callApi(
+          useAdminEndpoint ? 'ADMIN_GET_TESTIMONIAL' : 'GET_TESTIMONIAL',
+          {
+            query: `/${id}`,
+          }
+        );
 
         if (error || !data) {
           console.error('Failed to fetch testimonial:', error?.message);

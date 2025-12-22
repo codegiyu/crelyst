@@ -32,6 +32,7 @@ export const createProject = withRequestContext({ protect: true, accessType: 'co
       startDate,
       endDate,
       isFeatured,
+      isActive,
       displayOrder,
       seo,
     } = body;
@@ -68,6 +69,7 @@ export const createProject = withRequestContext({ protect: true, accessType: 'co
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
       isFeatured: isFeatured !== undefined ? isFeatured : false,
+      isActive: isActive !== undefined ? isActive : true,
       displayOrder: displayOrder || 0,
       seo: seo || {},
     });

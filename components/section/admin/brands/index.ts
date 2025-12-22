@@ -1,3 +1,3 @@
 export { BrandsPageClient } from './BrandsPageClient';
-export { BrandForm } from './BrandForm';
+export { BrandFormModal } from './BrandFormModal';
 export { DeleteBrandDialog } from './DeleteBrandDialog';

@@ -30,7 +30,7 @@ export const HomePageClient = () => {
   }, []);
 
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <HeroSection />
       <BrandsSection />
       <ServicesPreviewSection />

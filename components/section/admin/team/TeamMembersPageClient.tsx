@@ -24,7 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { TeamMemberForm } from './TeamMemberForm';
 import { DeleteTeamMemberDialog } from './DeleteTeamMemberDialog';
 import { ReorderTeamMembersModal } from './ReorderTeamMembersModal';
@@ -44,7 +43,7 @@ export const TeamMembersPageClient = () => {
   const [isReorderOpen, setIsReorderOpen] = useState(false);
 
   useEffect(() => {
-    fetchTeamMembers({ force: true });
+    fetchTeamMembers({ force: true, useAdminEndpoint: true });
   }, []);
 
   const handleCreate = () => {
@@ -60,7 +59,7 @@ export const TeamMembersPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingMember(null);
-    fetchTeamMembers({ force: true });
+    fetchTeamMembers({ force: true, useAdminEndpoint: true });
   };
 
   const handleToggleActive = async (member: ClientTeamMember) => {
@@ -172,7 +171,7 @@ export const TeamMembersPageClient = () => {
         onOpenChange={open => !open && setDeleteMember(null)}
         onSuccess={() => {
           setDeleteMember(null);
-          fetchTeamMembers({ force: true });
+          fetchTeamMembers({ force: true, useAdminEndpoint: true });
         }}
       />
 
@@ -181,7 +180,7 @@ export const TeamMembersPageClient = () => {
         members={sortedMembers}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchTeamMembers({ force: true })}
+        onSuccess={() => fetchTeamMembers({ force: true, useAdminEndpoint: true })}
       />
     </DashboardPageWrapper>
   );
@@ -237,9 +236,9 @@ const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMember
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <RegularBtn variant="ghost" size="icon" className="shrink-0">
                 <MoreHorizontal className="size-4" />
-              </Button>
+              </RegularBtn>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onEdit}>

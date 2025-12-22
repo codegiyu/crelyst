@@ -1,3 +1,3 @@
 export { TestimonialsPageClient } from './TestimonialsPageClient';
-export { TestimonialForm } from './TestimonialForm';
+export { TestimonialFormModal } from './TestimonialFormModal';
 export { DeleteTestimonialDialog } from './DeleteTestimonialDialog';

@@ -112,14 +112,17 @@ export const ProjectsPreviewSection = () => {
     isLoading: state.isLoading,
   }));
 
-  // Get featured projects first, then recent ones
-  const sortedProjects = [...projects].sort((a, b) => {
-    if (a.isFeatured && !b.isFeatured) return -1;
-    if (!a.isFeatured && b.isFeatured) return 1;
-    return (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
-  });
+  // Filter to only show active projects, then sort by featured and display order
+  const sortedProjects = [...projects]
+    .filter(project => project.isActive !== false)
+    .sort((a, b) => {
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
+    })
+    .slice(0, 6);
 
-  const displayProjects = sortedProjects.slice(0, 5);
+  const displayProjects = sortedProjects.slice(0, 6);
   const featuredProject = displayProjects[0];
   const otherProjects = displayProjects.slice(1);
 
@@ -158,7 +161,7 @@ export const ProjectsPreviewSection = () => {
             ))}
           </div>
 
-          {projects.length > 5 && (
+          {projects.length > 6 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}

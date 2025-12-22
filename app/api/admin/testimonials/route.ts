@@ -2,5 +2,5 @@ import { listTestimonials } from '@/app/_server/controllers/testimonials/listTes
 import { createTestimonial } from '@/app/_server/controllers/testimonials/createTestimonial';
 import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
 
-export const GET = applyMiddlewares(listTestimonials);
+export const GET = applyMiddlewares(listTestimonials('console'));
 export const POST = applyMiddlewares(createTestimonial);

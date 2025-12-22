@@ -50,11 +50,11 @@ export const DashboardHomeClient = () => {
   } = useTeamMembersStore(state => state);
 
   useEffect(() => {
-    servicesActions.fetchServices();
-    projectsActions.fetchProjects();
-    testimonialsActions.fetchTestimonials();
-    brandsActions.fetchBrands();
-    teamMembersActions.fetchTeamMembers();
+    servicesActions.fetchServices({ useAdminEndpoint: true });
+    projectsActions.fetchProjects({ useAdminEndpoint: true });
+    testimonialsActions.fetchTestimonials({ useAdminEndpoint: true });
+    brandsActions.fetchBrands({ useAdminEndpoint: true });
+    teamMembersActions.fetchTeamMembers({ useAdminEndpoint: true });
   }, []);
 
   const stats = [

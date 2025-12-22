@@ -7,15 +7,19 @@ import { updateCacheToken } from '../seed';
 const MAX_RETRIES = 10;
 const RETRY_DELAY_MS = 3000; // 3 seconds
 
-let _redisCache: IORedis | null = null;
+declare global {
+  var _redisCache: IORedis | undefined;
+}
 
 /**
  * Get or create Redis cache instance (lazy initialization)
  * Validation only happens when Redis is actually accessed, not at module load time
+ * Uses global variable to prevent Next.js hot reloads from creating new instances
  */
 function getRedisCache(): IORedis {
-  if (_redisCache) {
-    return _redisCache;
+  // Check global first (for Next.js hot reload prevention)
+  if (global._redisCache) {
+    return global._redisCache;
   }
 
   // Validate Redis configuration only when actually needed
@@ -26,11 +30,24 @@ function getRedisCache(): IORedis {
     throw new Error(errorMsg);
   }
 
-  _redisCache = new IORedis(ENVIRONMENT.REDIS.URL, {
-    maxRetriesPerRequest: null,
-    enableOfflineQueue: false,
-    offlineQueue: false,
-    retryStrategy: times => {
+  // const redisInstance = new IORedis(ENVIRONMENT.REDIS.URL, {
+  //   maxRetriesPerRequest: null,
+  //   enableOfflineQueue: false,
+  //   offlineQueue: false,
+  //   retryStrategy: times => {
+  //     if (times >= MAX_RETRIES) {
+  //       // Give up after MAX_RETRIES
+  //       logger.error('Unable to connect to Redis after maximum retries');
+  //       return null;
+  //     }
+  //     // Retry after RETRY_DELAY_MS milliseconds
+  //     return RETRY_DELAY_MS;
+  //   },
+  // });
+  const redisInstance = new IORedis(ENVIRONMENT.REDIS.URL, {
+    enableOfflineQueue: true, // REQUIRED
+    maxRetriesPerRequest: null, // BullMQ wants it null
+    retryStrategy(times) {
       if (times >= MAX_RETRIES) {
         // Give up after MAX_RETRIES
         logger.error('Unable to connect to Redis after maximum retries');
@@ -41,15 +58,20 @@ function getRedisCache(): IORedis {
     },
   });
 
-  _redisCache.on('connect', () => {
+  redisInstance.on('connect', () => {
     logger.info('Connected to Main Redis cluster');
   });
 
-  _redisCache.on('error', err => {
+  redisInstance.on('error', err => {
     logger.error('Redis error', err);
   });
 
-  return _redisCache;
+  // Store in global to prevent Next.js hot reload from creating new instances
+  if (process.env.NODE_ENV !== 'production') {
+    global._redisCache = redisInstance;
+  }
+
+  return redisInstance;
 }
 
 // Lazy Redis cache - only initializes when actually accessed
@@ -217,14 +239,24 @@ export const flushCache = async ({
  */
 export async function disconnectRedis(): Promise<void> {
   try {
-    if (_redisCache) {
-      await _redisCache.quit();
-      _redisCache = null;
+    const redisInstance = global._redisCache;
+    if (redisInstance) {
+      await redisInstance.quit();
+      global._redisCache = undefined;
       logger.info('Redis disconnected');
     }
   } catch (error) {
     logger.error('Error disconnecting from Redis:', error);
     // Reset cache even if disconnect fails
-    _redisCache = null;
+    global._redisCache = undefined;
   }
 }
+
+// Gracefully close Redis connection on SIGTERM
+process.on('SIGTERM', async () => {
+  const redisInstance = global._redisCache;
+  if (redisInstance) {
+    await redisInstance.quit();
+    logger.info('Redis disconnected on SIGTERM');
+  }
+});

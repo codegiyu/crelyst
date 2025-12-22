@@ -124,6 +124,7 @@ export interface AllEndpoints {
   ADMIN_GET_BRAND: EndpointDefinition<undefined, { brand: ClientBrand }, `/${string}`>;
   ADMIN_UPDATE_BRAND: EndpointDefinition<IBrandUpdatePayload, { brand: ClientBrand }, `/${string}`>;
   ADMIN_DELETE_BRAND: EndpointDefinition<undefined, { success: boolean }, `/${string}`>;
+  ADMIN_REORDER_BRANDS: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
 
   // Testimonial Management (Public)
   LIST_TESTIMONIALS: EndpointDefinition<undefined, ITestimonialsListRes, PageAndSizeQuery>;
@@ -147,6 +148,7 @@ export interface AllEndpoints {
     `/${string}`
   >;
   ADMIN_DELETE_TESTIMONIAL: EndpointDefinition<undefined, { success: boolean }, `/${string}`>;
+  ADMIN_REORDER_TESTIMONIALS: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
 
   // Team Member Management (Public)
   LIST_TEAM_MEMBERS: EndpointDefinition<undefined, ITeamMembersListRes, PageAndSizeQuery>;
@@ -326,6 +328,10 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
     path: '/admin/brands', // /:id
     method: 'DELETE',
   },
+  ADMIN_REORDER_BRANDS: {
+    path: '/admin/brands/reorder',
+    method: 'PATCH',
+  },
 
   // Testimonial Management (Public)
   LIST_TESTIMONIALS: {
@@ -359,6 +365,10 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   ADMIN_DELETE_TESTIMONIAL: {
     path: '/admin/testimonials', // /:id
     method: 'DELETE',
+  },
+  ADMIN_REORDER_TESTIMONIALS: {
+    path: '/admin/testimonials/reorder',
+    method: 'PATCH',
   },
 
   // Team Member Management (Public)
@@ -578,6 +588,7 @@ export interface IProjectCreatePayload {
     range?: string;
   };
   isFeatured?: boolean;
+  isActive?: boolean;
   displayOrder?: number;
   seo?: {
     metaTitle?: string;
@@ -609,6 +620,7 @@ export interface ITestimonialCreatePayload {
   testimonial: string;
   rating?: number; // 1-5 stars
   isFeatured?: boolean;
+  isActive?: boolean;
   displayOrder?: number;
   projectId?: string; // Optional reference to a project
 }

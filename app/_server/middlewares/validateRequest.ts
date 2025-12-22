@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { partialMainSchema } from '../lib/validation/main';
 import { AppError } from '../lib/utils/appError';
 import { NextRequest } from 'next/server';
+import { catchAsync } from './catchAsync';
+import { RequestContext } from '../lib/context/withRequestContext';
 
 const methodsToSkipValidation = ['GET'];
 const routesToSkipValidation: string[] = [];
@@ -34,29 +36,32 @@ const validateData = (data: any, schema: z.ZodSchema, _url: string) => {
 
 export type RequestBody = Record<string, any>;
 
-export const validateRequest = async (req: NextRequest): Promise<RequestBody> => {
-  let body: RequestBody = {};
+export const validateRequest = catchAsync(
+  async (request: NextRequest | RequestContext): Promise<RequestBody> => {
+    const req = request as NextRequest;
+    let body: RequestBody = {};
 
-  // ✅ Parse body safely if the request has one
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    try {
-      body = await req.json(); // Parses JSON body
-    } catch {
-      body = {}; // If no valid JSON body
+    // ✅ Parse body safely if the request has one
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      try {
+        body = await req.json(); // Parses JSON body
+      } catch {
+        body = {}; // If no valid JSON body
+      }
     }
-  }
 
-  // Skip validation for defined methods and routes
-  if (req.url.includes('/webhook')) return body;
+    // Skip validation for defined methods and routes
+    if (req.url.includes('/webhook')) return body;
 
-  if (methodsToSkipValidation.includes(req.method) || routesToSkipValidation.includes(req.url))
+    if (methodsToSkipValidation.includes(req.method) || routesToSkipValidation.includes(req.url))
+      return body;
+
+    if (body) {
+      body = validateData(body, partialMainSchema, req?.url) as any;
+
+      if (body?.email) body.email = body.email.toLowerCase().trim();
+    }
+
     return body;
-
-  if (body) {
-    body = validateData(body, partialMainSchema, req?.url) as any;
-
-    if (body?.email) body.email = body.email.toLowerCase().trim();
   }
-
-  return body;
-};
+);

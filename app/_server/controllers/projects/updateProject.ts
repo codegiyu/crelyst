@@ -44,6 +44,7 @@ export const updateProject = withRequestContext({ protect: true, accessType: 'co
       startDate,
       endDate,
       isFeatured,
+      isActive,
       displayOrder,
       seo,
     } = body;
@@ -74,6 +75,7 @@ export const updateProject = withRequestContext({ protect: true, accessType: 'co
     if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : undefined;
     if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : undefined;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
+    if (isActive !== undefined) updateData.isActive = isActive;
     if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
     if (seo !== undefined) updateData.seo = seo;
 

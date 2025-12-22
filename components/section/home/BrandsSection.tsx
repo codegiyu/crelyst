@@ -21,7 +21,7 @@ export const BrandsSection = () => {
   }
 
   return (
-    <section className="py-12 md:py-16 bg-muted/30 border-y border-border overflow-hidden">
+    <section className="py-12 md:py-16 bg-black/90 border-y border-border overflow-hidden -mt-1">
       <div className="regular-container">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -41,8 +41,8 @@ export const BrandsSection = () => {
         ) : (
           <div className="relative">
             {/* Gradient masks for infinite scroll effect */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-muted/30 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-muted/30 to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-black/30 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-black/30 to-transparent z-10 pointer-events-none" />
 
             {/* Marquee container */}
             <div className="flex overflow-hidden">
@@ -58,7 +58,7 @@ export const BrandsSection = () => {
                 {[...activeBrands, ...activeBrands].map((brand, index) => (
                   <div
                     key={`${brand._id}-${index}`}
-                    className="shrink-0 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300">
+                    className="shrink-0 grayscale-0 hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300">
                     {brand.websiteUrl ? (
                       <a
                         href={brand.websiteUrl}

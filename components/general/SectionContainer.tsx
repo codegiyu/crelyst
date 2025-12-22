@@ -7,6 +7,7 @@ export interface SectionContainerProps {
   containerClassName?: string;
   background?: 'default' | 'muted' | 'primary';
   customContainer?: boolean;
+  fullWidth?: boolean;
 }
 
 const backgroundClasses = {
@@ -24,12 +25,13 @@ export const SectionContainer = ({
   containerClassName,
   background = 'default',
   customContainer = false,
+  fullWidth = false,
 }: SectionContainerProps) => {
   return (
     <section className={cn('w-full section-padding', backgroundClasses[background], className)}>
       <div
         className={cn(
-          customContainer ? 'container-custom' : 'regular-container',
+          !fullWidth && (customContainer ? 'container-custom' : 'regular-container'),
           containerClassName
         )}>
         {children}

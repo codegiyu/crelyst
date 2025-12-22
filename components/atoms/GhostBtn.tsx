@@ -21,12 +21,13 @@ export const GhostBtn = ({
   LucideIcon,
   iconClass,
   className,
+  size = 'icon',
   ...props
 }: GhostBtnProps) => {
   return (
     <RegularBtn
       variant="none"
-      size="icon"
+      size={size}
       typo="custom"
       className={cn('p-0 flex-none', className)}
       {...props}>

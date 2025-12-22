@@ -197,6 +197,7 @@ export interface IProject {
     range?: string;
   };
   isFeatured: boolean;
+  isActive: boolean;
   displayOrder: number;
   seo?: {
     metaTitle?: string;
@@ -218,6 +219,7 @@ export interface ITestimonial {
   testimonial: string;
   rating?: number; // 1-5 stars
   isFeatured: boolean;
+  isActive: boolean;
   displayOrder: number;
   projectId?: mongoose.Types.ObjectId; // Optional reference to a project
   createdAt: Date;

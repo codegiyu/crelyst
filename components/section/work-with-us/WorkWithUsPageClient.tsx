@@ -6,7 +6,7 @@ import { WorkWithUsFormSection } from './WorkWithUsFormSection';
 
 export const WorkWithUsPageClient = () => {
   return (
-    <MainLayout>
+    <MainLayout transparentHeader>
       <WorkWithUsHeroSection />
       <WorkWithUsFormSection />
     </MainLayout>

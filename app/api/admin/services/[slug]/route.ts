@@ -3,6 +3,6 @@ import { updateService } from '@/app/_server/controllers/services/updateService'
 import { deleteService } from '@/app/_server/controllers/services/deleteService';
 import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
 
-export const GET = applyMiddlewares(getService);
+export const GET = applyMiddlewares(getService('console'));
 export const PATCH = applyMiddlewares(updateService);
 export const DELETE = applyMiddlewares(deleteService);

@@ -29,8 +29,9 @@ export const DeleteProjectDialog = ({
 
     setLoading(true);
     try {
+      const identifier = project.slug || project._id;
       const { error } = await callApi('ADMIN_DELETE_PROJECT', {
-        query: `/${project.slug}`,
+        query: `/${identifier}`,
       });
 
       if (error) {
@@ -38,7 +39,7 @@ export const DeleteProjectDialog = ({
         return;
       }
 
-      actions.removeProject(project.slug);
+      actions.removeProject(project.slug || project._id);
       toast.success('Project deleted successfully');
       onSuccess();
     } catch {

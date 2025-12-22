@@ -3,10 +3,18 @@
 
 import { useEffect, useState } from 'react';
 import { useBrandsStore } from '@/lib/store/useBrandsStore';
-import { Plus, Pencil, Trash2, MoreHorizontal, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  ArrowUpDown,
+} from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Modal } from '@/components/ui/Modal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +22,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { BrandForm } from './BrandForm';
+import { BrandFormModal } from './BrandFormModal';
 import { DeleteBrandDialog } from './DeleteBrandDialog';
+import { ReorderBrandsModal } from './ReorderBrandsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientBrand } from '@/lib/constants/endpoints';
 import Image from 'next/image';
@@ -30,9 +38,10 @@ export const BrandsPageClient = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<ClientBrand | null>(null);
   const [deleteBrand, setDeleteBrand] = useState<ClientBrand | null>(null);
+  const [isReorderOpen, setIsReorderOpen] = useState(false);
 
   useEffect(() => {
-    fetchBrands({ force: true });
+    fetchBrands({ force: true, useAdminEndpoint: true });
   }, []);
 
   const handleCreate = () => {
@@ -48,7 +57,7 @@ export const BrandsPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingBrand(null);
-    fetchBrands({ force: true });
+    fetchBrands({ force: true, useAdminEndpoint: true });
   };
 
   const handleToggleActive = async (brand: ClientBrand) => {
@@ -77,12 +86,23 @@ export const BrandsPageClient = () => {
         description: 'Manage your partner and client brands',
       }}
       headerActions={
-        <RegularBtn
-          text="Add Brand"
-          LeftIcon={Plus}
-          leftIconProps={{ className: 'size-5' }}
-          onClick={handleCreate}
-        />
+        <div className="flex items-center gap-2">
+          {brands.length > 1 && (
+            <RegularBtn
+              text="Reorder"
+              variant="outline"
+              LeftIcon={ArrowUpDown}
+              leftIconProps={{ className: 'size-4' }}
+              onClick={() => setIsReorderOpen(true)}
+            />
+          )}
+          <RegularBtn
+            text="Add Brand"
+            LeftIcon={Plus}
+            leftIconProps={{ className: 'size-5' }}
+            onClick={handleCreate}
+          />
+        </div>
       }>
       {/* Brands Grid */}
       {isLoading ? (
@@ -107,35 +127,27 @@ export const BrandsPageClient = () => {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {brands.map(brand => (
-            <BrandCard
-              key={brand._id}
-              brand={brand}
-              onEdit={() => handleEdit(brand)}
-              onDelete={() => setDeleteBrand(brand)}
-              onToggleActive={() => handleToggleActive(brand)}
-            />
-          ))}
+          {[...brands]
+            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+            .map(brand => (
+              <BrandCard
+                key={brand._id}
+                brand={brand}
+                onEdit={() => handleEdit(brand)}
+                onDelete={() => setDeleteBrand(brand)}
+                onToggleActive={() => handleToggleActive(brand)}
+              />
+            ))}
         </div>
       )}
 
       {/* Create/Edit Modal */}
-      <Modal
+      <BrandFormModal
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        maxWidth="md"
-        header={{
-          title: editingBrand ? 'Edit Brand' : 'Add Brand',
-          description: editingBrand
-            ? 'Update the brand details below'
-            : 'Fill in the details to add a new brand',
-        }}>
-        <BrandForm
-          brand={editingBrand}
-          onSuccess={handleFormSuccess}
-          onCancel={() => setIsFormOpen(false)}
-        />
-      </Modal>
+        brand={editingBrand}
+        onSuccess={handleFormSuccess}
+      />
 
       {/* Delete Dialog */}
       <DeleteBrandDialog
@@ -144,8 +156,16 @@ export const BrandsPageClient = () => {
         onOpenChange={open => !open && setDeleteBrand(null)}
         onSuccess={() => {
           setDeleteBrand(null);
-          fetchBrands({ force: true });
+          fetchBrands({ force: true, useAdminEndpoint: true });
         }}
+      />
+
+      {/* Reorder Modal */}
+      <ReorderBrandsModal
+        brands={brands}
+        open={isReorderOpen}
+        onOpenChange={setIsReorderOpen}
+        onSuccess={() => fetchBrands({ force: true, useAdminEndpoint: true })}
       />
     </DashboardPageWrapper>
   );
@@ -203,9 +223,9 @@ const BrandCard = ({ brand, onEdit, onDelete, onToggleActive }: BrandCardProps) 
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <RegularBtn variant="ghost" size="icon" className="shrink-0">
                 <MoreHorizontal className="size-4" />
-              </Button>
+              </RegularBtn>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onEdit}>
