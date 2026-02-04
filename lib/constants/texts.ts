@@ -48,7 +48,7 @@ export const SEO_DETAILS = {
 export const CRELYST_TAGLINE = 'Where Ideas Take Shape and Colors Speak.';
 
 export const NAV_LINKS: HeaderLinkProps[] = [
-  { text: 'Home', href: '/' },
+  // { text: 'Home', href: '/' },
   { text: 'About', href: '/about' },
   { text: 'Services', href: '/services' },
   { text: 'Projects', href: '/projects' },

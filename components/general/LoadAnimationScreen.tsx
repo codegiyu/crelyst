@@ -74,13 +74,13 @@ export const LoadAnimationScreen = () => {
           className="w-full h-screen grid place-items-center fixed inset-0 z-[99] overflow-hidden">
           {/* Animated background gradient */}
           <motion.div
-            className="absolute inset-0 bg-white"
+            className="absolute inset-0 bg-background"
             animate={{
               backgroundColor: [
-                'rgb(255, 255, 255)',
-                'rgb(255, 245, 240)',
-                'rgb(255, 245, 240)',
-                'rgb(255, 255, 255)',
+                'hsl(240, 10%, 8%)',
+                'hsl(240, 10%, 9%)',
+                'hsl(240, 10%, 9%)',
+                'hsl(240, 10%, 8%)',
               ],
             }}
             transition={{
@@ -94,10 +94,10 @@ export const LoadAnimationScreen = () => {
             className="absolute inset-0 opacity-0"
             style={{
               background:
-                'linear-gradient(135deg, rgba(255, 228, 214, 0) 0%, rgba(255, 212, 179, 0.3) 50%, rgba(255, 228, 214, 0) 100%)',
+                'linear-gradient(135deg, rgba(242, 123, 53, 0) 0%, rgba(242, 123, 53, 0.08) 50%, rgba(242, 123, 53, 0) 100%)',
             }}
             animate={{
-              opacity: [0, 0.6, 0.6, 0],
+              opacity: [0, 0.4, 0.4, 0],
             }}
             transition={{
               duration: 5,
