@@ -5,30 +5,39 @@ import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { ArrowRight, Play, Palette } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 import { CRELYST_TAGLINE } from '@/lib/constants/texts';
+import { LightRays } from '@/components/backgrounds/LightRays';
 
 export const HeroSection = () => {
   const { siteLoading } = useSiteStore(state => state);
 
-  const bannerImage =
-    'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?q=80&w=1920&auto=format&fit=crop';
-
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Banner Image - Full Height Background */}
-      {bannerImage && (
-        <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${bannerImage})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
-        </div>
-      )}
+      {/* Dark Background */}
+      <div className="absolute inset-0 w-full h-full bg-background" />
+
+      {/* Light Rays Background */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        <LightRays
+          raysOrigin="top-center"
+          raysColor="#F27B35"
+          raysSpeed={1}
+          lightSpread={0.5}
+          rayLength={3}
+          followMouse={true}
+          mouseInfluence={0.1}
+          noiseAmount={0}
+          distortion={0}
+          className="absolute inset-0"
+          pulsating={false}
+          fadeDistance={1}
+          saturation={1}
+        />
+      </div>
 
       {/* Floating Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
@@ -49,26 +58,26 @@ export const HeroSection = () => {
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute bottom-20 right-[25%] w-24 h-24 rounded-full bg-primary/5"
         />
-      </div>
+      </div> */}
 
       <SectionContainer className="relative z-10 py-20 md:py-28">
         <div className="max-w-5xl mx-auto text-center">
           {/* Badge */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-white/20 rounded-full border border-white/30 backdrop-blur-sm">
-            <Palette className="w-4 h-4 text-white" />
-            <span className="text-sm font-medium text-white">Creative Design Agency</span>
-          </motion.div>
+            className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-foreground/10 rounded-full border border-foreground/20 backdrop-blur-sm">
+            <Palette className="w-4 h-4 text-foreground" />
+            <span className="text-sm font-medium text-foreground">Creative Design Agency</span>
+          </motion.div> */}
 
           {/* Tagline - Prominent */}
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="text-xl sm:text-2xl md:text-3xl font-light text-white/90 mb-4 font-serif italic">
+            className="inline-flex text-sm sm:text-sm md:text-base font-light text-foreground/90 mb-4 px-4 py-1.5 font-serif italic bg-foreground/10 rounded-full border border-foreground/20 backdrop-blur-sm">
             {CRELYST_TAGLINE}
           </motion.h2>
 
@@ -77,7 +86,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 font-sans leading-[1.1]">
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 font-sans leading-[1.1]">
             Where{' '}
             <span className="relative">
               <span className="text-primary">Creativity</span>
@@ -105,7 +114,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto mb-10 leading-relaxed">
+            className="text-base md:text-lg lg:text-xl text-foreground/90 max-w-3xl mx-auto mb-10 leading-relaxed">
             We're a full-service design and branding agency specializing in photography, brand
             design, product design, packaging, and visual identity. We help brands express their
             unique personality through powerful visuals and storytelling.
@@ -130,8 +139,8 @@ export const HeroSection = () => {
             <GhostBtn
               linkProps={{ href: '/projects' }}
               size="none"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:text-primary transition-colors group">
-              <span className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-colors">
+              className="flex items-center gap-3 px-6 py-3 text-foreground hover:text-primary transition-colors group">
+              <span className="w-12 h-12 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
                 <Play className="w-5 h-5 ml-0.5" />
               </span>
               <span className="font-medium">View Our Work</span>
@@ -139,11 +148,11 @@ export const HeroSection = () => {
           </motion.div>
 
           {/* Stats */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-16 pt-16 border-t border-white/20">
+            className="mt-16 pt-16 border-t border-foreground/20">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
                 { value: '150+', label: 'Projects Delivered' },
@@ -160,11 +169,11 @@ export const HeroSection = () => {
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-white/80">{stat.label}</div>
+                  <div className="text-sm text-foreground/80">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
       </SectionContainer>
     </section>
