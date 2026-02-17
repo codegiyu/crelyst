@@ -654,6 +654,24 @@
     }
   }
 
+  /* Mild twinkling stars - gentle opacity pulse + shine in bright phase */
+  @keyframes star-twinkle {
+    0%,
+    100% {
+      opacity: 0.25;
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+    50% {
+      opacity: 0.85;
+      box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.4), 0 0 8px 4px rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .animate-star-twinkle {
+    animation: star-twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+    animation-delay: var(--twinkle-delay, 0s);
+  }
+
   @keyframes zoom-out {
     from {
       transform: scale(110%);

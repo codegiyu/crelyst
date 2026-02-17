@@ -8,6 +8,7 @@ import { useSiteStore } from '@/lib/store/siteStore';
 import { ArrowRight, Play } from 'lucide-react';
 import { CRELYST_TAGLINE } from '@/lib/constants/texts';
 import { LightRays } from '@/components/backgrounds/LightRays';
+import { TwinklingStars } from '@/components/backgrounds/TwinklingStars';
 
 export const HeroSection = () => {
   const { siteLoading } = useSiteStore(state => state);
@@ -16,6 +17,14 @@ export const HeroSection = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Dark Background */}
       <div className="absolute inset-0 w-full h-full bg-background" />
+
+      {/* Twinkling Stars */}
+      <TwinklingStars
+        count={80}
+        starColor="rgba(255, 255, 255, 0.85)"
+        speed="medium"
+        size="mixed"
+      />
 
       {/* Light Rays Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
