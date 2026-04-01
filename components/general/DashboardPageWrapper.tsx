@@ -21,7 +21,7 @@ export function DashboardPageWrapper({
   contentClassName,
 }: DashboardPageWrapperProps) {
   return (
-    <div className={cn('space-y-6 overflow-hidden', className)}>
+    <div className={cn('grid gap-6 overflow-hidden', className)}>
       <PageHeader {...header}>{headerActions}</PageHeader>
       <div className={cn(contentClassName)}>{children}</div>
     </div>

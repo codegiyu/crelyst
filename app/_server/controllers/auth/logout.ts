@@ -1,16 +1,20 @@
-import { catchAsync } from '../../middlewares/catchAsync';
+import { cookies } from 'next/headers';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { clearAuthTokens } from '../../lib/utils/tokens';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import type { RouteHandler } from '../../lib/api/routeHandler';
 
-// Logout controller (protected endpoint)
-export const logout = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { req, user } = context as RequestContext;
+const AUTH_COOKIE = 'authToken';
 
-    // Clear auth tokens and update user's refreshTokenJTI
-    await clearAuthTokens(req, user, 'console');
-
-    return sendResponse(200, { success: true }, 'Logged out successfully');
-  })
-);
+/**
+ * Clears HttpOnly Firebase session cookie. Client should also call Firebase signOut.
+ */
+export const logout: RouteHandler = async () => {
+  const cookieStore = await cookies();
+  cookieStore.set(AUTH_COOKIE, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
+  return sendResponse(200, { success: true }, 'Logged out successfully');
+};

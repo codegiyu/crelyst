@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useProjectsStore } from '@/lib/store/useProjectsStore';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Pencil,
@@ -17,7 +16,6 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Modal } from '@/components/ui/Modal';
 import {
   DropdownMenu,
@@ -32,22 +30,22 @@ import { ReorderProjectsModal } from './ReorderProjectsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientProject } from '@/lib/constants/endpoints';
 import Image from 'next/image';
-import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { cn } from '@/lib/utils';
 
-export const ProjectsPageClient = () => {
-  const { projects, actions, isLoading } = useProjectsStore(state => state);
-  const { fetchProjects, updateProject } = actions;
+export const ProjectsPageClient = ({ initialProjects }: { initialProjects: ClientProject[] }) => {
+  const router = useRouter();
+  const [projects, setProjects] = useState<ClientProject[]>(initialProjects);
+
+  useEffect(() => {
+    setProjects(initialProjects);
+  }, [initialProjects]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ClientProject | null>(null);
   const [deleteProject, setDeleteProject] = useState<ClientProject | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-
-  useEffect(() => {
-    fetchProjects({ force: true, useAdminEndpoint: true });
-  }, []);
 
   const handleCreate = () => {
     setEditingProject(null);
@@ -62,46 +60,38 @@ export const ProjectsPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingProject(null);
-    fetchProjects({ force: true, useAdminEndpoint: true });
+    router.refresh();
   };
 
   const handleToggleFeatured = async (project: ClientProject) => {
-    try {
-      const identifier = project.slug || project._id;
-      const { data, error } = await callApi('ADMIN_UPDATE_PROJECT', {
-        query: `/${identifier}`,
-        payload: { isFeatured: !project.isFeatured },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update project');
-        return;
-      }
-
-      updateProject(data.project);
-      toast.success(`Project ${data.project.isFeatured ? 'featured' : 'unfeatured'}`);
-    } catch {
-      toast.error('Failed to update project');
+    const identifier = project.slug || project._id;
+    const data = await adminCallApiToast(
+      'Updating project…',
+      () =>
+        callApi('ADMIN_UPDATE_PROJECT', {
+          query: `/${identifier}`,
+          payload: { isFeatured: !project.isFeatured },
+        }),
+      d => `Project ${d.project.isFeatured ? 'featured' : 'unfeatured'}`
+    );
+    if (data) {
+      setProjects(prev => prev.map(p => (p.slug === data.project.slug ? data.project : p)));
     }
   };
 
   const handleToggleActive = async (project: ClientProject) => {
-    try {
-      const identifier = project.slug || project._id;
-      const { data, error } = await callApi('ADMIN_UPDATE_PROJECT', {
-        query: `/${identifier}`,
-        payload: { isActive: !project.isActive },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update project');
-        return;
-      }
-
-      updateProject(data.project);
-      toast.success(`Project ${data.project.isActive ? 'activated' : 'deactivated'}`);
-    } catch {
-      toast.error('Failed to update project');
+    const identifier = project.slug || project._id;
+    const data = await adminCallApiToast(
+      'Updating project…',
+      () =>
+        callApi('ADMIN_UPDATE_PROJECT', {
+          query: `/${identifier}`,
+          payload: { isActive: !project.isActive },
+        }),
+      d => `Project ${d.project.isActive ? 'activated' : 'deactivated'}`
+    );
+    if (data) {
+      setProjects(prev => prev.map(p => (p.slug === data.project.slug ? data.project : p)));
     }
   };
 
@@ -130,14 +120,7 @@ export const ProjectsPageClient = () => {
           />
         </div>
       }>
-      {/* Projects Grid */}
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <ProjectCardSkeleton key={idx} />
-          ))}
-        </div>
-      ) : projects.length === 0 ? (
+      {projects.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-muted p-4 mb-4">
             <Plus className="size-8 text-muted-foreground" />
@@ -170,7 +153,7 @@ export const ProjectsPageClient = () => {
       <Modal
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        maxWidth="2xl"
+        maxWidth="4xl"
         header={{
           title: editingProject ? 'Edit Project' : 'Create Project',
           description: editingProject
@@ -178,6 +161,7 @@ export const ProjectsPageClient = () => {
             : 'Fill in the details to create a new project',
         }}>
         <ProjectForm
+          key={editingProject?._id ?? 'new-project'}
           project={editingProject}
           onSuccess={handleFormSuccess}
           onCancel={() => setIsFormOpen(false)}
@@ -191,7 +175,7 @@ export const ProjectsPageClient = () => {
         onOpenChange={open => !open && setDeleteProject(null)}
         onSuccess={() => {
           setDeleteProject(null);
-          fetchProjects({ force: true, useAdminEndpoint: true });
+          router.refresh();
         }}
       />
 
@@ -200,7 +184,7 @@ export const ProjectsPageClient = () => {
         projects={projects}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchProjects({ force: true, useAdminEndpoint: true })}
+        onSuccess={() => router.refresh()}
       />
     </DashboardPageWrapper>
   );
@@ -268,6 +252,11 @@ const ProjectCard = ({
             <div className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
               <Star className="size-3 fill-current" />
               Featured
+            </div>
+          )}
+          {project.caseStudy && (
+            <div className="px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300">
+              Case study
             </div>
           )}
         </div>
@@ -366,14 +355,3 @@ const ProjectCard = ({
     </div>
   );
 };
-
-const ProjectCardSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-    <Skeleton className="h-40 rounded-none" />
-    <div className="p-4 grid gap-3">
-      <Skeleton className="h-5 w-3/4" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-1/2" />
-    </div>
-  </div>
-);

@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useBrandsStore } from '@/lib/store/useBrandsStore';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Pencil,
@@ -14,7 +13,6 @@ import {
   ArrowUpDown,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,21 +26,21 @@ import { ReorderBrandsModal } from './ReorderBrandsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientBrand } from '@/lib/constants/endpoints';
 import Image from 'next/image';
-import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 
-export const BrandsPageClient = () => {
-  const { brands, actions, isLoading } = useBrandsStore(state => state);
-  const { fetchBrands, updateBrand } = actions;
+export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand[] }) => {
+  const router = useRouter();
+  const [brands, setBrands] = useState<ClientBrand[]>(initialBrands);
+
+  useEffect(() => {
+    setBrands(initialBrands);
+  }, [initialBrands]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<ClientBrand | null>(null);
   const [deleteBrand, setDeleteBrand] = useState<ClientBrand | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-
-  useEffect(() => {
-    fetchBrands({ force: true, useAdminEndpoint: true });
-  }, []);
 
   const handleCreate = () => {
     setEditingBrand(null);
@@ -57,25 +55,21 @@ export const BrandsPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingBrand(null);
-    fetchBrands({ force: true, useAdminEndpoint: true });
+    router.refresh();
   };
 
   const handleToggleActive = async (brand: ClientBrand) => {
-    try {
-      const { data, error } = await callApi('ADMIN_UPDATE_BRAND', {
-        query: `/${brand._id}`,
-        payload: { isActive: !brand.isActive },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update brand');
-        return;
-      }
-
-      updateBrand(data.brand);
-      toast.success(`Brand ${data.brand.isActive ? 'activated' : 'deactivated'}`);
-    } catch {
-      toast.error('Failed to update brand');
+    const data = await adminCallApiToast(
+      'Updating brand…',
+      () =>
+        callApi('ADMIN_UPDATE_BRAND', {
+          query: `/${brand._id}`,
+          payload: { isActive: !brand.isActive },
+        }),
+      d => `Brand ${d.brand.isActive ? 'activated' : 'deactivated'}`
+    );
+    if (data) {
+      setBrands(prev => prev.map(b => (b._id === data.brand._id ? data.brand : b)));
     }
   };
 
@@ -104,14 +98,7 @@ export const BrandsPageClient = () => {
           />
         </div>
       }>
-      {/* Brands Grid */}
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, idx) => (
-            <BrandCardSkeleton key={idx} />
-          ))}
-        </div>
-      ) : brands.length === 0 ? (
+      {brands.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-muted p-4 mb-4">
             <Plus className="size-8 text-muted-foreground" />
@@ -156,7 +143,7 @@ export const BrandsPageClient = () => {
         onOpenChange={open => !open && setDeleteBrand(null)}
         onSuccess={() => {
           setDeleteBrand(null);
-          fetchBrands({ force: true, useAdminEndpoint: true });
+          router.refresh();
         }}
       />
 
@@ -165,7 +152,7 @@ export const BrandsPageClient = () => {
         brands={brands}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchBrands({ force: true, useAdminEndpoint: true })}
+        onSuccess={() => router.refresh()}
       />
     </DashboardPageWrapper>
   );
@@ -259,13 +246,3 @@ const BrandCard = ({ brand, onEdit, onDelete, onToggleActive }: BrandCardProps) 
     </div>
   );
 };
-
-const BrandCardSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-    <Skeleton className="h-32 rounded-none" />
-    <div className="p-4 grid gap-2">
-      <Skeleton className="h-5 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
-    </div>
-  </div>
-);

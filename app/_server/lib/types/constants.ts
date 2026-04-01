@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import mongoose, { Document } from 'mongoose';
+import type { ProjectCaseStudy } from '@/lib/types/project-case-study';
 import { JOB_TYPE } from './queues';
 
 export interface IUser {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   googleId?: string;
   firstName: string;
   middleName?: string;
@@ -20,7 +20,7 @@ export interface IUser {
   isDeleted?: boolean;
   deleteRequestedAt?: Date;
   deletionApprovedAt?: Date;
-  deletionApprovedBy?: mongoose.Types.ObjectId;
+  deletionApprovedBy?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,7 +41,7 @@ export interface AuthUserRole {
 }
 
 export interface IAdmin {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -53,7 +53,7 @@ export interface IAdmin {
 }
 
 export interface IRole {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   name: string;
   slug: string;
   description: string;
@@ -81,17 +81,63 @@ export interface KYC {
 }
 
 // Service Types
+
+export interface IServiceExpertiseBreakdown {
+  title: string;
+  services: string[];
+}
+
+export interface IServiceExpertise {
+  title: string;
+  breakdown: IServiceExpertiseBreakdown[];
+  highlightImage?: string;
+  marqueeText?: string;
+}
+
+export interface IServiceUniqueGroup {
+  title: string;
+  text: string;
+}
+
+export interface IServiceWhatMakesUsUnique {
+  title: string;
+  groups: IServiceUniqueGroup[];
+}
+
+export interface IServiceMenu {
+  image?: string;
+  className?: string;
+}
+
+export interface IServicePackage {
+  id: string;
+  priceRange: number[];
+  benefits: string[];
+}
+
+export interface IServicePackagePricing {
+  id: string;
+  packages: IServicePackage[];
+}
+
 export interface IService {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   title: string;
   slug: string;
+  pageTitle?: string;
   description: string;
   shortDescription?: string;
   icon?: string;
   image?: string;
   cardImage?: string;
   bannerImage?: string;
+  gallery?: string[];
   features: string[];
+  expertise?: IServiceExpertise;
+  breakdownSummary?: string[];
+  whatMakesUsUnique?: IServiceWhatMakesUsUnique;
+  menu?: IServiceMenu;
+  packagePricing?: IServicePackagePricing[];
   process?: Array<{
     title: string;
     description: string;
@@ -110,7 +156,6 @@ export interface IService {
     maxWeeks?: number;
     typicalDuration?: string;
   };
-  videoUrl?: string;
   faq?: Array<{
     question: string;
     answer: string;
@@ -122,9 +167,9 @@ export interface IService {
     type?: 'text' | 'html' | 'markdown';
     order: number;
   }>;
-  relatedServices?: mongoose.Types.ObjectId[];
-  testimonials?: mongoose.Types.ObjectId[];
-  caseStudies?: mongoose.Types.ObjectId[];
+  relatedServices?: string[];
+  testimonials?: string[];
+  caseStudies?: string[];
   tags?: string[];
   isActive: boolean;
   displayOrder: number;
@@ -132,13 +177,32 @@ export interface IService {
     metaTitle?: string;
     metaDescription?: string;
     keywords?: string[];
+    canonicalPath?: string;
+    openGraph?: {
+      title?: string;
+      description?: string;
+      type?: string;
+      image?: string;
+      siteName?: string;
+      locale?: string;
+    };
+    twitter?: {
+      card?: string;
+      title?: string;
+      description?: string;
+      image?: string;
+    };
+    robots?: {
+      index?: boolean;
+      follow?: boolean;
+    };
   };
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IProject {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   title: string;
   slug: string;
   description: string;
@@ -146,7 +210,11 @@ export interface IProject {
   featuredImage?: string;
   cardImage?: string;
   bannerImage?: string;
+  /** Large hero image below the title block (case-study layout) */
+  heroImage?: string;
   images: string[];
+  /** Bold-brand-style case study sections; when set, public detail uses case-study layout */
+  caseStudy?: ProjectCaseStudy;
   technologies: string[];
   category?: string;
   status: ProjectStatus;
@@ -174,7 +242,7 @@ export interface IProject {
     status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
     order: number;
   }>;
-  teamMembers?: mongoose.Types.ObjectId[];
+  teamMembers?: string[];
   challengesFaced?: Array<{
     challenge: string;
     solution: string;
@@ -188,8 +256,8 @@ export interface IProject {
     type?: 'text' | 'html' | 'markdown';
     order: number;
   }>;
-  relatedProjects?: mongoose.Types.ObjectId[];
-  testimonials?: mongoose.Types.ObjectId[];
+  relatedProjects?: string[];
+  testimonials?: string[];
   tags?: string[];
   budget?: {
     amount?: number;
@@ -210,7 +278,7 @@ export interface IProject {
 
 // Testimonial Types
 export interface ITestimonial {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   clientName: string;
   clientRole?: string;
   companyName?: string;
@@ -221,14 +289,14 @@ export interface ITestimonial {
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: number;
-  projectId?: mongoose.Types.ObjectId; // Optional reference to a project
+  projectId?: string; // Optional reference to a project
   createdAt: Date;
   updatedAt: Date;
 }
 
 // Brand Types (for marquee/logo display)
 export interface IBrand {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   name: string;
   logo: string;
   websiteUrl?: string;
@@ -240,7 +308,7 @@ export interface IBrand {
 
 // Team Member Types
 export interface ITeamMember {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   name: string;
   role: string;
   bio?: string;
@@ -344,7 +412,7 @@ export interface Branding {
 }
 
 export interface ISiteSettings {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   name: string;
   appDetails: AppDetails;
   seo: SEODetails;
@@ -361,9 +429,9 @@ export interface ISiteSettings {
 }
 
 export interface IDocument {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
   entityType: EntityType;
-  entityId: mongoose.Types.ObjectId;
+  entityId: string;
   intent: UploadIntent;
   filename: string;
   key: string;
@@ -377,19 +445,19 @@ export interface IDocument {
   expiresAt: Date;
   size?: number;
   metadata?: Record<string, unknown>;
-  uploadedBy?: mongoose.Types.ObjectId;
+  uploadedBy?: string;
   uploadedByModel?: 'Customer' | 'Admin';
   errorMessage?: string;
   isDeleted?: boolean;
   deletedAt?: Date;
-  deletedBy?: mongoose.Types.ObjectId;
+  deletedBy?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IEmailLog {
-  _id: mongoose.Types.ObjectId;
-  jobId: string; // BullMQ job ID
+  _id: string;
+  jobId: string; // Correlation id for this send attempt
   company: CompanyKey;
   type: JOB_TYPE;
   to: string; // Recipient email
@@ -406,21 +474,23 @@ export interface IEmailLog {
   openedAt?: Date;
   clickedAt?: Date;
   metadata?: Record<string, any>;
+  /** Denormalized for queries (hard / soft bounce). */
+  bounceType?: 'hard' | 'soft';
   isDeleted?: boolean;
   deleteRequestedAt?: Date;
   deletionApprovedAt?: Date;
-  deletionApprovedBy?: mongoose.Types.ObjectId;
+  deletionApprovedBy?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IAuditLog {
-  _id: mongoose.Types.ObjectId;
-  actor: mongoose.Types.ObjectId;
+  _id: string;
+  actor: string;
   actorEmail?: string;
   action: AuditAction;
   resource: AuditLogResource;
-  resourceId?: mongoose.Types.ObjectId | string;
+  resourceId?: string;
   description?: string;
   metadata?: Record<string, unknown>;
   changes?: Record<string, unknown>;
@@ -434,11 +504,11 @@ export interface IAuditLog {
 }
 
 export interface IUserActivityLog {
-  _id: mongoose.Types.ObjectId;
-  user: mongoose.Types.ObjectId;
+  _id: string;
+  user: string;
   action: UserActivityAction;
   resource: UserActivityResource;
-  resourceId?: mongoose.Types.ObjectId | string;
+  resourceId?: string;
   performedBy: ActivitySource;
   description?: string;
   metadata?: Record<string, unknown>;
@@ -451,8 +521,11 @@ export interface IUserActivityLog {
   updatedAt: Date;
 }
 
+/** Subset of delivery states stored on notification documents (email pipeline). */
+export type NotificationEmailDeliveryStatus = EmailStatus | 'queued' | 'skipped' | 'disabled';
+
 export type NotificationEmailDelivery = {
-  status: EmailStatus;
+  status: NotificationEmailDeliveryStatus;
   jobId?: string;
   lastAttemptAt?: Date;
   lastSentAt?: Date;
@@ -463,8 +536,8 @@ export type NotificationEmailDelivery = {
 export type NotificationStatus = 'active' | 'expired';
 
 export type INotification = {
-  _id: mongoose.Types.ObjectId;
-  user: mongoose.Types.ObjectId;
+  _id: string;
+  user: string;
   userModel: 'User' | 'Admin';
   eventType?: string;
   title?: string;
@@ -548,6 +621,19 @@ export const ENTITY_TYPES = [
 ] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
+/** Entity types that support file uploads (presigned URL flow). Subset of ENTITY_TYPES. */
+export const UPLOAD_ENTITY_TYPES: EntityType[] = [
+  'user',
+  'admin',
+  'service',
+  'project',
+  'testimonial',
+  'brand',
+];
+
+/** Upload intents allowed for client (non-admin) users. */
+export const ALLOWED_USER_UPLOAD_INTENTS: readonly UploadIntent[] = ['avatar', 'other'];
+
 export const AUDIT_LOG_RESOURCES = [
   'admin',
   'user',
@@ -613,24 +699,23 @@ export const PROJECT_STATUSES = [
   'completed',
   'on-hold',
   'cancelled',
+  /** Legacy value still allowed in Firestore / imports from older API */
+  'archived',
 ] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
-export interface IModelIndex {
-  find: any;
-}
-
-export type ModelUser = IUser & IModelIndex & Document;
-export type ModelAdmin = IAdmin & IModelIndex & Document;
-export type ModelRole = IRole & IModelIndex & Document;
-export type ModelSiteSettings = ISiteSettings & IModelIndex & Document;
-export type ModelService = IService & IModelIndex & Document;
-export type ModelProject = IProject & IModelIndex & Document;
-export type ModelTestimonial = ITestimonial & IModelIndex & Document;
-export type ModelBrand = IBrand & IModelIndex & Document;
-export type ModelTeamMember = ITeamMember & IModelIndex & Document;
-export type ModelDocument = IDocument & IModelIndex & Document;
-export type ModelEmailLog = IEmailLog & IModelIndex & Document;
-export type ModelAuditLog = IAuditLog & IModelIndex & Document;
-export type ModelUserActivityLog = IUserActivityLog & IModelIndex & Document;
-export type ModelNotification = INotification & IModelIndex & Document;
+/** Legacy aliases — domain types without ORM document methods (Firestore uses plain objects). */
+export type ModelUser = IUser;
+export type ModelAdmin = IAdmin;
+export type ModelRole = IRole;
+export type ModelSiteSettings = ISiteSettings;
+export type ModelService = IService;
+export type ModelProject = IProject;
+export type ModelTestimonial = ITestimonial;
+export type ModelBrand = IBrand;
+export type ModelTeamMember = ITeamMember;
+export type ModelDocument = IDocument;
+export type ModelEmailLog = IEmailLog;
+export type ModelAuditLog = IAuditLog;
+export type ModelUserActivityLog = IUserActivityLog;
+export type ModelNotification = INotification;

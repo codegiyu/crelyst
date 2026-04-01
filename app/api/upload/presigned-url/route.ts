@@ -1,4 +1,10 @@
 import { generatePresignedUrlController } from '@/app/_server/controllers/upload/generatePresignedUrl';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { handleApiRoute } from '@/app/_server/lib/api/routeHandler';
+import type { NextRequest } from 'next/server';
 
-export const POST = applyMiddlewares(generatePresignedUrlController('client'));
+export const POST = (request: NextRequest) =>
+  handleApiRoute(
+    request,
+    { protect: true, accessType: 'client' },
+    generatePresignedUrlController('client')
+  );

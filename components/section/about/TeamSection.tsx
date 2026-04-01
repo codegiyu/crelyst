@@ -1,15 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useTeamMembersStore } from '@/lib/store/useTeamMembersStore';
-import { ClientTeamMember } from '@/lib/constants/endpoints';
+import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import { Linkedin, Twitter, Github, Globe } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface TeamMemberCardProps {
   member: ClientTeamMember;
@@ -106,24 +102,14 @@ const TeamMemberCard = ({ member, index }: TeamMemberCardProps) => {
   );
 };
 
-export const TeamSection = () => {
+export const TeamSection = ({ teamMembers }: { teamMembers: ClientTeamMember[] }) => {
   const { siteLoading } = useSiteStore(state => state);
-  const { teamMembers, isLoading, fetchTeamMembers } = useTeamMembersStore(state => ({
-    teamMembers: state.teamMembers,
-    isLoading: state.isLoading,
-    fetchTeamMembers: state.actions.fetchTeamMembers,
-  }));
-
-  useEffect(() => {
-    fetchTeamMembers();
-  }, []);
 
   const activeMembers = teamMembers
     .filter(m => m.isActive)
     .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
-  // Don't render if no team members and not loading
-  if (!isLoading && activeMembers.length === 0) {
+  if (activeMembers.length === 0) {
     return null;
   }
 
@@ -131,26 +117,14 @@ export const TeamSection = () => {
     <SectionContainer background="muted">
       <SectionHeading title="Meet Our Team" text="The talented people behind our success" />
 
-      {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="text-center">
-              <Skeleton className="aspect-[3/4] rounded-xl mb-4" />
-              <Skeleton className="h-6 w-3/4 mx-auto mb-2" />
-              <Skeleton className="h-4 w-1/2 mx-auto" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={siteLoading ? {} : { opacity: 1 }}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {activeMembers.map((member, index) => (
-            <TeamMemberCard key={member._id} member={member} index={index} />
-          ))}
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={siteLoading ? {} : { opacity: 1 }}
+        className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {activeMembers.map((member, index) => (
+          <TeamMemberCard key={member._id} member={member} index={index} />
+        ))}
+      </motion.div>
     </SectionContainer>
   );
 };

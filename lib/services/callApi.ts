@@ -5,6 +5,21 @@ import { type AllEndpoints, ENDPOINTS } from '../constants/endpoints';
 import { getRouter } from '../utils/navigation';
 import { useInitAuthStore } from '../store/useAuthStore';
 
+// Lazy import to avoid loading Firebase on server
+let authModule: { auth: { currentUser: { getIdToken: () => Promise<string> } | null } } | null =
+  null;
+const getAuth = async () => {
+  if (typeof window === 'undefined') return null;
+  if (!authModule) {
+    try {
+      authModule = (await import('@/lib/firebase/config')) as unknown as typeof authModule;
+    } catch {
+      return null;
+    }
+  }
+  return authModule?.auth ?? null;
+};
+
 // Base URL for API routes - using relative path since we're using Next.js API routes
 const BASE_URL = '/api';
 
@@ -13,6 +28,22 @@ export const api = axios.create({
   timeout: 120000,
   withCredentials: true, // Include credentials (cookies) with requests
 });
+
+// Add Firebase id token to admin API requests
+api.interceptors.request.use(
+  async config => {
+    const url = config.url ?? '';
+    if (url.startsWith('/admin/') && typeof window !== 'undefined') {
+      const auth = await getAuth();
+      const token = await auth?.currentUser?.getIdToken?.();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  err => Promise.reject(err)
+);
 
 export const callApi = async <T extends keyof AllEndpoints>(
   endpoint: T,
@@ -73,7 +104,6 @@ export const callApi = async <T extends keyof AllEndpoints>(
     }
 
     if (axios.isAxiosError(error) && error.response) {
-      console.log({ errRes: error.response.data });
       apiError = error.response.data as ApiErrorResponse;
 
       if (error.response.status === 401) {
@@ -103,14 +133,10 @@ export const callApi = async <T extends keyof AllEndpoints>(
         console.warn('Rate limit exceeded');
       }
       if (error.response.status === 403) {
-        console.error({ _403Err: error.message });
+        console.error('Forbidden:', error.message);
       }
       if (error.response.status === 500) {
-        const errMessage = error.response.data.message;
-        console.error({ err: errMessage });
-      }
-      if (error.response.status == null) {
-        console.log('null status');
+        console.error('Server error:', error.response.data?.message ?? error.message);
       }
 
       apiError = error.response.data;

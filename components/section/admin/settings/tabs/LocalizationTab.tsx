@@ -9,7 +9,7 @@ import { useForm } from '@/lib/hooks/use-form';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 
 const localizationSchema = z.object({
@@ -52,33 +52,32 @@ export const LocalizationTab = ({ settings }: LocalizationTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: LocalizationFormValues) => {
-      try {
-        const localizationValue = {
-          ...values,
-          supportedLanguages: values.supportedLanguages
-            .split(',')
-            .map(l => l.trim())
-            .filter(Boolean),
-        };
+      const localizationValue = {
+        ...values,
+        supportedLanguages: values.supportedLanguages
+          .split(',')
+          .map(l => l.trim())
+          .filter(Boolean),
+      };
 
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'localization', value: localizationValue }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving localization…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'localization', value: localizationValue }],
+            },
+          }),
+        'Localization settings updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update localization settings'] });
-          return false;
-        }
-
-        updateSettings({ localization: localizationValue });
-        toast.success('Localization settings updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update localization settings'] });
         return false;
       }
+
+      updateSettings({ localization: localizationValue });
+      return true;
     },
   });
 

@@ -4,8 +4,12 @@ import type { SelectorFn } from '../types/general';
 import { useShallow } from 'zustand/react/shallow';
 import type { Permission } from '@/app/_server/lib/types/constants';
 import type { ClientAdmin } from '../constants/endpoints';
-import { callApi } from '../services/callApi';
+import { auth } from '@/lib/firebase/config';
+import { signInAdmin, signOutUser } from '@/lib/firebase/auth';
 import { getRouter } from '../utils/navigation';
+import { clearAdminSessionCookie, syncAdminSessionCookie } from '@/lib/auth/adminSessionCookie';
+
+const SESSION_URL = '/api/admin/auth/session';
 
 export interface AuthStore {
   initLoading: boolean;
@@ -38,6 +42,17 @@ const initialData: Omit<AuthStore, 'actions'> = {
   permissions: [],
 };
 
+async function fetchSessionWithToken(idToken: string): Promise<ClientAdmin | null> {
+  const res = await fetch(SESSION_URL, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  const json = await res.json();
+  const admin = json?.data?.admin ?? json?.admin ?? null;
+  return admin && (admin.id || admin._id) ? admin : null;
+}
+
 export const useInitAuthStore = create<AuthStore>()((set, get) => ({
   ...initialData,
   actions: {
@@ -61,14 +76,17 @@ export const useInitAuthStore = create<AuthStore>()((set, get) => ({
       const { setUser } = get().actions;
 
       try {
-        const { data, error } = await callApi('AUTH_SESSION', {});
-
-        if (error || !data) {
+        const currentUser = auth?.currentUser;
+        if (!currentUser) {
           setUser(null);
           return;
         }
-
-        setUser(data.admin?._id ? data.admin : null);
+        const idToken = await currentUser.getIdToken();
+        const admin = await fetchSessionWithToken(idToken);
+        if (admin) {
+          await syncAdminSessionCookie(idToken);
+        }
+        setUser(admin);
       } catch (error) {
         console.error('Failed to initialize session:', error);
         setUser(null, {});
@@ -84,45 +102,41 @@ export const useInitAuthStore = create<AuthStore>()((set, get) => ({
       const { setUser } = get().actions;
 
       try {
-        const { data, error } = await callApi('AUTH_LOGIN', {
-          payload: { email, password },
-        });
+        const userCredential = await signInAdmin(email, password);
+        const idToken = await userCredential.user.getIdToken();
+        const admin = await fetchSessionWithToken(idToken);
 
-        if (error || !data) {
+        if (!admin) {
+          await signOutUser();
           return {
             success: false,
-            error: error?.message || 'Login failed',
+            error: 'Access denied. Admin privileges required.',
           };
         }
 
-        setUser(data.admin, {
-          pauseNavigatingAwayFromAuth: true,
-        });
-
+        await syncAdminSessionCookie(idToken);
+        setUser(admin, { pauseNavigatingAwayFromAuth: true });
         return { success: true };
-      } catch (error) {
-        console.error('Login failed:', error);
-        return {
-          success: false,
-          error: 'An unexpected error occurred',
-        };
+      } catch (error: unknown) {
+        const err = error as { message?: string; code?: string };
+        const message =
+          err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'
+            ? 'Invalid email or password'
+            : err.message || 'Login failed';
+        return { success: false, error: message };
       } finally {
         set({ loginLoading: false });
       }
     },
     logout: async () => {
-      const {
-        actions: { clearSession },
-      } = get();
-
+      const { clearSession } = get().actions;
       try {
-        await callApi('AUTH_LOGOUT', {});
+        await clearAdminSessionCookie();
+        await signOutUser();
       } catch (error) {
         console.error('Logout error:', error);
       } finally {
         clearSession();
-
-        // Redirect to login page
         const router = getRouter();
         if (router) {
           router.replace('/admin/auth/login');

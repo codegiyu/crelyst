@@ -1,13 +1,29 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Document } from '../../models/document';
+import {
+  getDocumentById,
+  getDocumentByKey,
+  updateDocumentById,
+} from '../../lib/firestore/collections';
 import { S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { ENVIRONMENT } from '../../lib/config/environment';
-import mongoose from 'mongoose';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { assertWebhookSecretConfigured } from '../../lib/utils/verifyWebhookSecret';
 
-// Initialize S3 client for Cloudflare R2
+const verifyDocumentUploadBodySchema = z
+  .object({
+    documentId: z.string().trim().optional(),
+    key: z.string().trim().optional(),
+  })
+  .refine(
+    data =>
+      (data.documentId !== undefined && data.documentId.length > 0) ||
+      (data.key !== undefined && data.key.length > 0),
+    { message: 'Either documentId or key is required' }
+  );
+
 const r2Client = new S3Client({
   region: 'auto',
   endpoint: `https://${ENVIRONMENT.R2.ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -17,126 +33,112 @@ const r2Client = new S3Client({
   },
 });
 
-/**
- * Verify that a document was successfully uploaded to R2
- * This can be called via webhook or manually
- */
-export const verifyDocumentUpload = withRequestContext({ protect: false })(
-  catchAsync(async context => {
-    const { body } = context as RequestContext;
-    const { documentId, key } = body || {};
+export const verifyDocumentUpload: RouteHandler = async ({ body, request }) => {
+  assertWebhookSecretConfigured(request);
+  const payload = validateBody(verifyDocumentUploadBodySchema, body ?? {});
 
-    if (!documentId && !key) {
-      throw new AppError('Either documentId or key is required', 400);
-    }
+  const { documentId, key } = payload;
 
-    let document;
+  type DocRecord = {
+    id: string;
+    status: string;
+    key: string;
+    publicUrl: string;
+    uploadedAt?: Date;
+    verifiedAt?: Date;
+  };
+  let document: DocRecord | null = null;
 
-    if (documentId) {
-      if (!mongoose.Types.ObjectId.isValid(documentId)) {
-        throw new AppError('Invalid documentId format', 400);
-      }
+  if (documentId && documentId.trim().length > 0) {
+    document = (await getDocumentById(documentId)) as DocRecord | null;
+  } else if (key && key.trim().length > 0) {
+    document = (await getDocumentByKey(key)) as DocRecord | null;
+  }
 
-      document = await Document.findById(documentId);
+  if (!document) {
+    throw new AppError(
+      documentId ? 'Document not found' : 'Document not found with the provided key',
+      404
+    );
+  }
 
-      if (!document) {
-        throw new AppError('Document not found', 404);
-      }
-    } else {
-      document = await Document.findOne({ key });
-
-      if (!document) {
-        throw new AppError('Document not found with the provided key', 404);
-      }
-    }
-
-    if (document.status === 'verified') {
-      return sendResponse(
-        200,
-        {
-          document: {
-            id: document._id,
-            status: document.status,
-            key: document.key,
-            publicUrl: document.publicUrl,
-            verifiedAt: document.verifiedAt,
-          },
+  if (document.status === 'verified') {
+    return sendResponse(
+      200,
+      {
+        document: {
+          id: document.id,
+          status: document.status,
+          key: document.key,
+          publicUrl: document.publicUrl,
+          verifiedAt: document.verifiedAt,
         },
-        'Document already verified'
-      );
+      },
+      'Document already verified'
+    );
+  }
+
+  if (document.status === 'expired') {
+    throw new AppError('Document upload URL has expired', 410);
+  }
+
+  try {
+    const command = new HeadObjectCommand({
+      Bucket: ENVIRONMENT.R2.BUCKET_NAME,
+      Key: document.key,
+    });
+
+    const headResult = await r2Client.send(command);
+
+    const updateData: Record<string, unknown> = {
+      status: 'verified',
+      verifiedAt: new Date(),
+    };
+
+    if (!document.uploadedAt) {
+      updateData.uploadedAt = new Date();
     }
 
-    if (document.status === 'expired') {
-      throw new AppError('Document upload URL has expired', 410);
+    if (headResult.ContentLength !== undefined) {
+      updateData.size = headResult.ContentLength;
     }
 
-    // Check if file exists in R2
-    try {
-      const command = new HeadObjectCommand({
-        Bucket: ENVIRONMENT.R2.BUCKET_NAME,
-        Key: document.key,
-      });
+    await updateDocumentById(document.id, updateData);
 
-      const headResult = await r2Client.send(command);
+    const updatedDoc = (await getDocumentById(document.id)) as DocRecord & Record<string, unknown>;
 
-      // File exists, update document status
-      const updateData: {
-        status: 'uploaded' | 'verified';
-        uploadedAt?: Date;
-        verifiedAt?: Date;
-        size?: number;
-      } = {
-        status: 'verified',
-        verifiedAt: new Date(),
-      };
-
-      // If not already set, set uploadedAt
-      if (!document.uploadedAt) {
-        updateData.uploadedAt = new Date();
-      }
-
-      // Update size if available
-      if (headResult.ContentLength !== undefined) {
-        updateData.size = headResult.ContentLength;
-      }
-
-      await Document.findByIdAndUpdate(document._id, updateData);
-
-      // Fetch updated document
-      const updatedDocument = await Document.findById(document._id);
-
-      return sendResponse(
-        200,
-        {
-          document: {
-            id: updatedDocument!._id,
-            status: updatedDocument!.status,
-            key: updatedDocument!.key,
-            publicUrl: updatedDocument!.publicUrl,
-            size: updatedDocument!.size,
-            uploadedAt: updatedDocument!.uploadedAt,
-            verifiedAt: updatedDocument!.verifiedAt,
-          },
+    return sendResponse(
+      200,
+      {
+        document: {
+          id: updatedDoc?.id,
+          status: updatedDoc?.status,
+          key: updatedDoc?.key,
+          publicUrl: updatedDoc?.publicUrl,
+          size: updatedDoc?.size,
+          uploadedAt: updatedDoc?.uploadedAt,
+          verifiedAt: updatedDoc?.verifiedAt,
         },
-        'Document upload verified successfully'
-      );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      // If file doesn't exist (404) or other error
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        // Update status to failed if still pending
-        if (document.status === 'pending') {
-          await Document.findByIdAndUpdate(document._id, {
-            status: 'failed',
-            errorMessage: 'File not found in storage',
-          });
-        }
-
-        throw new AppError('File not found in storage. Upload may not have completed.', 404);
+      },
+      'Document upload verified successfully'
+    );
+  } catch (error: unknown) {
+    const err = error as {
+      name?: string;
+      $metadata?: { httpStatusCode?: number };
+      message?: string;
+    };
+    if (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) {
+      if (document.status === 'pending') {
+        await updateDocumentById(document.id, {
+          status: 'failed',
+          errorMessage: 'File not found in storage',
+        });
       }
 
-      // Other errors
-      throw new AppError(`Error verifying upload: ${error.message}`, 500);
+      throw new AppError('File not found in storage. Upload may not have completed.', 404);
     }
-  })
-);
+
+    throw new AppError(`Error verifying upload: ${err.message || 'Unknown error'}`, 500);
+  }
+};

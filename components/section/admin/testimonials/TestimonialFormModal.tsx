@@ -393,9 +393,9 @@ export const TestimonialFormModal = ({
           </div>
         )}
 
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {/* Client Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <RegularInput
               label="Client Name"
               name="clientName"
@@ -437,7 +437,7 @@ export const TestimonialFormModal = ({
           />
 
           {/* Rating */}
-          <div className="grid gap-2">
+          <div className="flex flex-col gap-2">
             <label className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
               Rating
             </label>
@@ -464,7 +464,7 @@ export const TestimonialFormModal = ({
           </div>
 
           {/* Images */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ImageUpload
               label="Client Photo"
               value={clientImageUrl}

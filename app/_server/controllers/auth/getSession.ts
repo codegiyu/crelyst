@@ -1,33 +1,26 @@
-import { catchAsync } from '../../middlewares/catchAsync';
 import { sendResponse } from '../../lib/utils/appResponse';
 import { deleteFields } from '../../middlewares/protectRoutes';
-import { unselectedFields } from '../../models/user';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import { unselectedFields } from '../../lib/constants/sessionFields';
+import type { RouteHandler } from '../../lib/api/routeHandler';
 
-// Get session controller (protected endpoint)
-export const getSession = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { user } = context as RequestContext;
-
-    if (!user) {
-      return sendResponse(
-        200,
-        {
-          admin: null,
-        },
-        'No active session'
-      );
-    }
-
-    // Remove sensitive fields before returning
-    const sanitizedAdmin = await deleteFields(user, unselectedFields);
-
+export const getSession: RouteHandler = async ({ user }) => {
+  if (!user) {
     return sendResponse(
       200,
       {
-        admin: sanitizedAdmin,
+        admin: null,
       },
-      'Session retrieved successfully'
+      'No active session'
     );
-  })
-);
+  }
+
+  const sanitizedAdmin = await deleteFields(user as Record<string, unknown>, unselectedFields);
+
+  return sendResponse(
+    200,
+    {
+      admin: sanitizedAdmin,
+    },
+    'Session retrieved successfully'
+  );
+};

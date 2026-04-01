@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { projectStatusSchema } from './projectStatus';
 
 // Reusable schemas
 const seoSchema = z.object({
@@ -62,13 +63,16 @@ export const mainSchema = z.object({
   companyLogo: z.url('Invalid company logo URL').or(z.literal('')),
 
   // ===== Service fields =====
+  pageTitle: z.string().max(300, 'Page title is too long'),
   features: z.array(z.string()),
+  gallery: z.array(z.url('Invalid gallery image URL').or(z.literal(''))),
+  breakdownSummary: z.array(z.string()),
   seo: seoSchema,
 
   // ===== Project fields =====
   technologies: z.array(z.string()),
   category: z.string().max(100),
-  status: z.enum(['draft', 'in-progress', 'completed', 'archived']),
+  status: projectStatusSchema,
   clientName: z.string().max(100),
   clientWebsite: z.url('Invalid client website URL').or(z.literal('')),
   projectUrl: z.url('Invalid project URL').or(z.literal('')),

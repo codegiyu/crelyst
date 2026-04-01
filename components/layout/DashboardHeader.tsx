@@ -11,9 +11,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { RegularSelect } from '@/components/atoms/RegularSelect';
-import type { SelectOption } from '@/lib/types/general';
+// import { useTheme } from 'next-themes';
+// import { RegularSelect } from '@/components/atoms/RegularSelect';
+// import type { SelectOption } from '@/lib/types/general';
 import { SidebarTrigger } from '../ui/sidebar';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useRouter } from 'next/navigation';
@@ -37,7 +37,7 @@ const ProfileMenu = () => {
     user,
     actions: { logout },
   } = useAuthStore(state => state);
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
   const { push } = useRouter();
 
   const name = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
@@ -61,7 +61,7 @@ const ProfileMenu = () => {
           <span className="text-sm font-medium hidden sm:inline-block">{name}</span>
         </RegularBtn>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-auto">
         <DropdownMenuLabel>
           <div className="flex flex-col">
             <span className="font-medium">{name}</span>
@@ -77,7 +77,7 @@ const ProfileMenu = () => {
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {/* <DropdownMenuSeparator />
         <div className="px-2 py-2">
           <RegularSelect
             label="Theme"
@@ -92,7 +92,7 @@ const ProfileMenu = () => {
             }
             wrapClassName="w-full"
           />
-        </div>
+        </div> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <HelpCircle className="mr-2 h-4 w-4" />

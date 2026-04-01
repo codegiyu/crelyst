@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
 import { DynamicIcon, LucideIconName, LucideIcons } from '../general/DynamicIcon';
 
 export interface IconSelectProps {
@@ -124,8 +123,8 @@ export const IconSelect = ({
           </button>
         </DialogTrigger>
 
-        <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b">
+        <DialogContent className="flex max-h-[85vh] min-h-0 w-full max-w-4xl flex-col gap-0 overflow-hidden p-0">
+          <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4 pr-14">
             <DialogTitle>Select an Icon</DialogTitle>
             <div className="relative mt-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -159,8 +158,8 @@ export const IconSelect = ({
             </div>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 max-h-[calc(85vh-200px)]">
-            <div className="p-6 grid gap-8">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <div className="grid gap-8 p-6">
               {(activeGroup
                 ? filteredGroups.filter(g => g.name === activeGroup)
                 : filteredGroups
@@ -174,14 +173,14 @@ export const IconSelect = ({
               ))}
 
               {filteredGroups.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Search className="size-12 mx-auto mb-4 opacity-50" />
+                <div className="py-12 text-center text-muted-foreground">
+                  <Search className="mx-auto mb-4 size-12 opacity-50" />
                   <p className="text-lg font-medium">No icons found</p>
                   <p className="text-sm">Try a different search term</p>
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
     </InputWrapper>

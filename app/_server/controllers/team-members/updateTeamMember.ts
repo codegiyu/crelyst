@@ -1,54 +1,74 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { TeamMember } from '../../models/teamMember';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getTeamMemberById,
+  updateTeamMember as updateTeamMemberRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Update team member (admin only)
-export const updateTeamMember = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, req, user } = context as RequestContext;
+const updateTeamMemberBodySchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  role: z.string().min(1).max(100).optional(),
+  bio: z.string().max(1000).optional(),
+  image: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  socials: z.record(z.string(), z.string()).optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+export const updateTeamMember: RouteHandler = async ({ request, body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
 
-    if (!identifier) {
-      throw new AppError('Team member identifier is required', 400);
-    }
+  if (!identifier) {
+    throw new AppError('Team member identifier is required', 400);
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(identifier)) {
-      throw new AppError('Invalid team member ID format', 400);
-    }
+  const payload = validateBody(updateTeamMemberBodySchema, body);
 
-    const { name, role, bio, image, email, phone, socials, isActive, displayOrder } = body;
+  const current = await getTeamMemberById(identifier);
+  if (!current) {
+    throw new AppError('Team member not found', 404);
+  }
 
-    // Build update object with only provided fields
-    const updateData: Record<string, unknown> = {};
-    if (name !== undefined) updateData.name = name;
-    if (role !== undefined) updateData.role = role;
-    if (bio !== undefined) updateData.bio = bio;
-    if (image !== undefined) updateData.image = image;
-    if (email !== undefined) updateData.email = email;
-    if (phone !== undefined) updateData.phone = phone;
-    if (socials !== undefined) updateData.socials = socials;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
+  const updateData: Record<string, unknown> = {};
+  const fields = [
+    'name',
+    'role',
+    'bio',
+    'image',
+    'email',
+    'phone',
+    'socials',
+    'isActive',
+    'displayOrder',
+  ] as const;
+  for (const f of fields) {
+    const val = payload[f];
+    if (val !== undefined) updateData[f] = val;
+  }
 
-    const teamMember = await TeamMember.findByIdAndUpdate(identifier, updateData, {
-      new: true,
-      runValidators: true,
-    });
+  const teamMember = await updateTeamMemberRepo(current.id, updateData);
 
-    if (!teamMember) {
-      throw new AppError('Team member not found', 404);
-    }
+  if (!teamMember) {
+    throw new AppError('Team member not found', 404);
+  }
 
-    return sendResponse(200, { teamMember }, 'Team member updated successfully');
-  })
-);
+  revalidateAboutAndHome();
+
+  return sendResponse(
+    200,
+    { teamMember: { ...teamMember, _id: teamMember.id } },
+    'Team member updated successfully'
+  );
+};

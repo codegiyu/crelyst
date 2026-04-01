@@ -1,4 +1,16 @@
-import { login } from '@/app/_server/controllers/auth/login';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { NextResponse } from 'next/server';
 
-export const POST = applyMiddlewares(login);
+/**
+ * POST /api/admin/auth/login
+ * Firebase Auth handles login client-side.
+ * This endpoint is deprecated - use signInWithEmailAndPassword or signInWithGoogle from Firebase.
+ */
+export async function POST() {
+  return NextResponse.json(
+    {
+      success: false,
+      message: 'Use Firebase Auth for login. Call signInAdmin or signInWithGoogle from the client.',
+    },
+    { status: 400 }
+  );
+}

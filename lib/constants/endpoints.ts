@@ -11,30 +11,24 @@ import {
   EntityType,
   ProjectStatus,
 } from '@/app/_server/lib/types/constants';
-import mongoose from 'mongoose';
+import type { ProjectCaseStudy } from '@/lib/types/project-case-study';
 
 export type HttpMethods = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 /**
  * Utility type that converts backend-oriented types to client-friendly types.
- * Converts:
- * - mongoose.Types.ObjectId -> string
- * - Date -> string
- * Recursively applies to nested objects and arrays.
- * Preserves optional (undefined) and null types appropriately.
+ * Converts Date, Firestore Timestamp, and MongoDB ObjectId to string; recurses into arrays and objects.
  */
-export type ClientFriendly<T> = T extends mongoose.Types.ObjectId
+export type ClientFriendly<T> = T extends Date
   ? string
-  : T extends Date
-    ? string
+  : T extends { toDate(): Date }
+    ? string // Firestore Timestamp
     : T extends (infer U)[]
       ? ClientFriendly<U>[]
       : T extends readonly (infer U)[]
         ? readonly ClientFriendly<U>[]
         : T extends Record<string, any>
-          ? {
-              [K in keyof T]: ClientFriendly<T[K]>;
-            }
+          ? { [K in keyof T]: ClientFriendly<T[K]> }
           : T;
 
 // Client-friendly type aliases for backend types
@@ -201,6 +195,10 @@ export interface AllEndpoints {
     Partial<ClientSiteSettings>,
     undefined
   >;
+
+  // Public lead forms
+  SUBMIT_QUOTE_REQUEST: EndpointDefinition<IQuoteRequestPayload, { ok: boolean }, undefined>;
+  SUBMIT_WORK_WITH_US: EndpointDefinition<IWorkWithUsPayload, { ok: boolean }, undefined>;
 }
 
 export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
@@ -434,6 +432,17 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
     path: '/admin/site-settings',
     method: 'PATCH',
   },
+
+  SUBMIT_QUOTE_REQUEST: {
+    path: '/public/quote-request',
+    method: 'POST',
+    isNotAuthenticated: true,
+  },
+  SUBMIT_WORK_WITH_US: {
+    path: '/public/work-with-us',
+    method: 'POST',
+    isNotAuthenticated: true,
+  },
 };
 
 // Pagination Query Type
@@ -462,14 +471,21 @@ export type ITeamMembersListRes = GetListRes<ClientTeamMember, 'teamMembers'>;
 // Service Payloads
 export interface IServiceCreatePayload {
   title: string;
-  slug?: string; // Optional - auto-generated from title if not provided
+  slug?: string;
+  pageTitle?: string;
   description: string;
   shortDescription?: string;
   icon?: string;
   image?: string;
   cardImage?: string;
   bannerImage?: string;
+  gallery?: string[];
   features?: string[];
+  expertise?: IService['expertise'];
+  breakdownSummary?: string[];
+  whatMakesUsUnique?: IService['whatMakesUsUnique'];
+  menu?: IService['menu'];
+  packagePricing?: IService['packagePricing'];
   process?: Array<{
     title: string;
     description: string;
@@ -488,7 +504,6 @@ export interface IServiceCreatePayload {
     maxWeeks?: number;
     typicalDuration?: string;
   };
-  videoUrl?: string;
   faq?: Array<{
     question: string;
     answer: string;
@@ -506,11 +521,7 @@ export interface IServiceCreatePayload {
   tags?: string[];
   isActive?: boolean;
   displayOrder?: number;
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-    keywords?: string[];
-  };
+  seo?: IService['seo'];
 }
 
 export type IServiceUpdatePayload = Partial<IServiceCreatePayload>;
@@ -537,7 +548,9 @@ export interface IProjectCreatePayload {
   featuredImage?: string;
   cardImage?: string;
   bannerImage?: string;
+  heroImage?: string;
   images?: string[];
+  caseStudy?: ProjectCaseStudy;
   technologies?: string[];
   category?: string;
   status?: ProjectStatus;
@@ -597,7 +610,10 @@ export interface IProjectCreatePayload {
   };
 }
 
-export type IProjectUpdatePayload = Partial<IProjectCreatePayload>;
+export type IProjectUpdatePayload = Omit<Partial<IProjectCreatePayload>, 'caseStudy'> & {
+  /** Pass `null` to remove case study from the document */
+  caseStudy?: ProjectCaseStudy | null;
+};
 
 // Brand Payloads
 export interface IBrandCreatePayload {
@@ -758,6 +774,23 @@ export interface ISiteSettingsUpdatePayload {
       | 'socials';
     value: any; // The value structure depends on the slice name
   }>;
+}
+
+export interface IQuoteRequestPayload {
+  name: string;
+  company: string;
+  email: string;
+  projectType: string;
+  budget: string;
+  message: string;
+}
+
+export interface IWorkWithUsPayload {
+  name: string;
+  email: string;
+  portfolio: string;
+  experience: string;
+  message: string;
 }
 
 // Authentication Payloads

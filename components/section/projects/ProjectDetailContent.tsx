@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
+import { PublicContactCTASection } from '@/components/section/shared';
 
 interface ProjectDetailContentProps {
   project: ClientProject;
@@ -24,6 +25,22 @@ interface ProjectDetailContentProps {
 
 export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => {
   const { siteLoading } = useSiteStore(state => state);
+
+  if (project.caseStudy) {
+    return (
+      <PublicContactCTASection
+        title="Interested in a Similar Project?"
+        description={
+          <>
+            Let&apos;s discuss how we can bring your vision to life with the same level of quality
+            and attention to detail.
+          </>
+        }
+        buttonLabel="Start Your Project"
+        motionDelay={0.2}
+      />
+    );
+  }
 
   const formatDate = (date: string | Date | undefined) => {
     if (!date) return '';
@@ -334,7 +351,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
                 Project Timeline
               </h2>
             </div>
-            <div className="space-y-4">
+            <div className="grid gap-4">
               {project.timeline
                 .sort((a, b) => (a.order || 0) - (b.order || 0))
                 .map((phase, index) => (
@@ -395,7 +412,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-serif">
               Challenges & Solutions
             </h2>
-            <div className="space-y-6">
+            <div className="grid gap-6">
               {project.challengesFaced
                 .sort((a, b) => (a.order || 0) - (b.order || 0))
                 .map((item, index) => (
@@ -435,7 +452,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
                 Lessons Learned
               </h2>
             </div>
-            <div className="space-y-3">
+            <div className="grid gap-3">
               {project.lessonsLearned.map((lesson, index) => (
                 <motion.div
                   key={index}
@@ -489,7 +506,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             viewport={{ once: true }}
-            className="space-y-8">
+            className="grid gap-8">
             {project.additionalContent
               .sort((a, b) => (a.order || 0) - (b.order || 0))
               .map((section, index) => (
@@ -539,26 +556,17 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
         </SectionContainer>
       )}
 
-      {/* CTA */}
-      <SectionContainer>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center p-8 md:p-12 bg-gradient-to-br from-accent/5 to-primary/5 rounded-2xl border border-border">
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
-            Interested in a Similar Project?
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+      <PublicContactCTASection
+        title="Interested in a Similar Project?"
+        description={
+          <>
             Let&apos;s discuss how we can bring your vision to life with the same level of quality
             and attention to detail.
-          </p>
-          <RegularBtn linkProps={{ href: '/contact' }} className="px-8">
-            Start Your Project
-          </RegularBtn>
-        </motion.div>
-      </SectionContainer>
+          </>
+        }
+        buttonLabel="Start Your Project"
+        motionDelay={0.6}
+      />
     </>
   );
 };

@@ -7,7 +7,7 @@ import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { RegularSelect } from '@/components/atoms/RegularSelect';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SOCIAL_PLATFORMS, type SocialPlatform, type Social } from '@/lib/types/site-settings';
@@ -59,19 +59,23 @@ export const SocialsTab = ({ settings }: SocialsTabProps) => {
     try {
       const validSocials = socials.filter(s => s.href.trim());
 
-      const { data, error: apiError } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-        payload: {
-          settingsPayload: [{ name: 'socials', value: validSocials }],
-        },
-      });
+      const data = await adminCallApiToast(
+        'Saving social links…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'socials', value: validSocials }],
+            },
+          }),
+        'Social links updated successfully'
+      );
 
-      if (apiError || !data) {
-        setError(apiError?.message || 'Failed to update social links');
+      if (!data) {
+        setError('Failed to update social links');
         return;
       }
 
       updateSettings({ socials: validSocials });
-      toast.success('Social links updated successfully');
     } catch {
       setError('An unexpected error occurred');
     } finally {
@@ -86,14 +90,14 @@ export const SocialsTab = ({ settings }: SocialsTabProps) => {
         <p className="text-sm text-muted-foreground mt-1">Connect your social media profiles</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="p-6 grid gap-6">
         {error && (
           <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
             {error}
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="grid gap-6">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-foreground">Social Profiles</label>
             <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
@@ -110,7 +114,7 @@ export const SocialsTab = ({ settings }: SocialsTabProps) => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid gap-6">
               {socials.map((social, index) => (
                 <div key={index} className="flex gap-3 items-start">
                   <RegularSelect

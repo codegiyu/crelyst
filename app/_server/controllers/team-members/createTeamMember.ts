@@ -1,40 +1,51 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { TeamMember } from '../../models/teamMember';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import { createTeamMember as createTeamMemberRepo } from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Create team member (admin only)
-export const createTeamMember = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, user } = context as RequestContext;
+const createTeamMemberBodySchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100),
+  role: z.string().min(1, 'Role is required').max(100),
+  bio: z.string().max(1000).optional(),
+  image: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  socials: z.record(z.string(), z.string()).optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+export const createTeamMember: RouteHandler = async ({ body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    const { name, role, bio, image, email, phone, socials, isActive, displayOrder } = body;
+  const payload = validateBody(createTeamMemberBodySchema, body);
 
-    if (!name || !role) {
-      throw new AppError('Name and role are required', 400);
-    }
+  const newTeamMember = await createTeamMemberRepo({
+    name: payload.name,
+    role: payload.role,
+    bio: payload.bio ?? '',
+    image: payload.image ?? '',
+    email: payload.email ?? '',
+    phone: payload.phone ?? '',
+    socials: payload.socials ?? {},
+    isActive: payload.isActive ?? true,
+    displayOrder: payload.displayOrder ?? 0,
+  });
 
-    const newTeamMember = await TeamMember.create({
-      name,
-      role,
-      bio: bio || '',
-      image: image || '',
-      email: email || '',
-      phone: phone || '',
-      socials: socials || {},
-      isActive: isActive !== undefined ? isActive : true,
-      displayOrder: displayOrder || 0,
-    });
+  if (!newTeamMember) {
+    throw new AppError('Failed to create team member', 500);
+  }
 
-    if (!newTeamMember) {
-      throw new AppError('Failed to create team member', 500);
-    }
+  revalidateAboutAndHome();
 
-    return sendResponse(201, { teamMember: newTeamMember }, 'Team member created successfully');
-  })
-);
+  return sendResponse(
+    201,
+    { teamMember: { ...newTeamMember, _id: newTeamMember.id } },
+    'Team member created successfully'
+  );
+};

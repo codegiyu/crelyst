@@ -1,14 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
-import { catchAsync } from '../../middlewares/catchAsync';
 import { getSettingsSlice, Portion } from './fetchSettings';
-import { SiteSettings } from '../../models/siteSettings';
+import { updateSiteSettingsSlice } from '../../lib/firestore/collections';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidatePublicLayout } from '../../lib/utils/revalidateSiteCache';
 
-// intentionally using a stack to avoid being attacked by a large object
-// that could cause a stack overflow that can crash the server
+const updateSettingsBodySchema = z.object({
+  settingsPayload: z.array(
+    z.object({
+      name: z.string().min(1, 'Setting slice name is required'),
+      value: z.record(z.string(), z.unknown(), { error: 'Setting value must be a valid object' }),
+    })
+  ),
+});
+
 function getAllKeys(obj: any): string[] {
   const keys: string[] = [];
   const stack: { obj: any; prefix: string }[] = [{ obj, prefix: '' }];
@@ -28,79 +36,52 @@ function getAllKeys(obj: any): string[] {
   return keys;
 }
 
-export const updateSettings = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const ctx = context as RequestContext;
-    const { settingsPayload } = ctx.body;
+export const updateSettings: RouteHandler = async ({ body, user }) => {
+  if (!user || !(user as { _id?: string })._id) throw new AppError('Unauthorized', 401);
 
-    if (!ctx.user || !ctx.user._id) throw new AppError('Unauthorized', 401);
+  const payload = validateBody(updateSettingsBodySchema, body);
 
-    if (!settingsPayload) throw new AppError('Payload is required', 400);
+  const updatedSettings: { [key: string]: any } = {};
 
-    if (!Array.isArray(settingsPayload))
-      throw new AppError('Payload must be an array of objects', 400);
+  for (const setting of payload.settingsPayload) {
+    if (!setting.name || !setting.value) throw new AppError('name and value are required', 400);
 
-    const updatedSettings: { [key: string]: any } = {};
-
-    // Process each setting update in the payload
-    for (const setting of settingsPayload) {
-      if (!setting.name || !setting.value) throw new AppError('name and value are required', 400);
-
-      // Validate slice name
-      const validSlices: Portion[] = [
-        'appDetails',
-        'seo',
-        'legal',
-        'email',
-        'features',
-        'analytics',
-        'localization',
-        'branding',
-        'contactInfo',
-        'socials',
-      ];
-      if (!validSlices.includes(setting.name as Portion)) {
-        throw new AppError(`Invalid slice name. Must be one of: ${validSlices.join(', ')}`, 400);
-      }
-
-      // Fetch the current settings to compare with the payload
-      const currentSettings = await getSettingsSlice(setting.name as Portion);
-
-      if (!currentSettings) throw new AppError('Current setting not found', 404);
-
-      // Flatten the keys of the current settings and compare with the keys of the payload
-      const currentSliceData = (currentSettings as any)[setting.name];
-      const currentKeysSet = new Set(getAllKeys(currentSliceData));
-      const payloadKeysSet = new Set(getAllKeys(setting.value));
-
-      if (
-        currentKeysSet.size !== payloadKeysSet.size ||
-        ![...currentKeysSet].every(key => payloadKeysSet.has(key))
-      ) {
-        throw new AppError('Payload does not match current settings structure', 400);
-      }
-
-      const settingsName = setting.name;
-
-      // Update the setting in the database
-      const update = await SiteSettings.findOneAndUpdate(
-        { name: 'settings' },
-        { [`${settingsName}`]: setting.value },
-        { new: true }
-      ).lean();
-
-      if (!update) throw new AppError('Setting not updated', 500);
-
-      updatedSettings[settingsName] = (update as any)[settingsName];
+    const validSlices: Portion[] = [
+      'appDetails',
+      'seo',
+      'legal',
+      'email',
+      'features',
+      'analytics',
+      'localization',
+      'branding',
+      'contactInfo',
+      'socials',
+    ];
+    if (!validSlices.includes(setting.name as Portion)) {
+      throw new AppError(`Invalid slice name. Must be one of: ${validSlices.join(', ')}`, 400);
     }
 
-    // Clean up the response object
-    delete updatedSettings?._id;
-    delete updatedSettings?.__v;
-    delete updatedSettings?.name;
-    delete updatedSettings?.createdAt;
-    delete updatedSettings?.updatedAt;
+    const currentSettings = await getSettingsSlice(setting.name as Portion);
 
-    return sendResponse(200, updatedSettings, 'Settings updated successfully');
-  })
-);
+    if (!currentSettings) throw new AppError('Current setting not found', 404);
+
+    const currentSliceData = (currentSettings as any)[setting.name];
+    const currentKeysSet = new Set(getAllKeys(currentSliceData));
+    const payloadKeysSet = new Set(getAllKeys(setting.value));
+
+    if (
+      currentKeysSet.size !== payloadKeysSet.size ||
+      ![...currentKeysSet].every(key => payloadKeysSet.has(key))
+    ) {
+      throw new AppError('Payload does not match current settings structure', 400);
+    }
+
+    await updateSiteSettingsSlice('settings', setting.name, setting.value);
+    updatedSettings[setting.name] = setting.value;
+  }
+
+  revalidatePublicLayout();
+
+  return sendResponse(200, updatedSettings, 'Settings updated successfully');
+};

@@ -1,46 +1,30 @@
 /* eslint-disable react-hooks/immutability */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useProjectsStore } from '@/lib/store/useProjectsStore';
-import { useServicesStore } from '@/lib/store/useServicesStore';
 import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServiceImages';
 import { Image } from 'lucide-react';
+import type { ClientProject, ClientService } from '@/lib/constants/endpoints';
 
-export const GallerySection = () => {
+export const GallerySection = ({
+  projects,
+  services,
+}: {
+  projects: ClientProject[];
+  services: ClientService[];
+}) => {
   const { siteLoading } = useSiteStore(state => state);
-  const { projects, actions: projectActions } = useProjectsStore(state => ({
-    projects: state.projects,
-    actions: state.actions,
-  }));
-  const { services, actions: serviceActions } = useServicesStore(state => ({
-    services: state.services,
-    actions: state.actions,
-  }));
 
-  const [images, setImages] = useState<string[]>([]);
+  const images = useMemo(
+    () => getAllProjectAndServiceImages(projects, services),
+    [projects, services]
+  );
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    // Fetch projects and services if not already loaded
-    if (projects.length === 0) {
-      projectActions.fetchProjects({ limit: 100 });
-    }
-    if (services.length === 0) {
-      serviceActions.fetchServices({ limit: 100 });
-    }
-  }, [projects.length, services.length, projectActions, serviceActions]);
-
-  useEffect(() => {
-    // Compile images whenever projects or services change
-    const compiledImages = getAllProjectAndServiceImages(projects, services);
-    setImages(compiledImages);
-  }, [projects, services]);
 
   const openLightbox = (index: number) => {
     setCurrentIndex(index);

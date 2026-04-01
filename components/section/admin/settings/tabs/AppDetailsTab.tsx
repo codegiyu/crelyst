@@ -12,6 +12,7 @@ import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { ImageUpload } from '@/components/atoms/ImageUpload';
 import { callApi } from '@/lib/services/callApi';
 import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 import { useFileUpload } from '@/lib/hooks/use-file-upload';
 
@@ -50,25 +51,24 @@ export const AppDetailsTab = ({ settings }: AppDetailsTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: AppDetailsFormValues) => {
-      try {
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'appDetails', value: values }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving app details…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'appDetails', value: values }],
+            },
+          }),
+        'App details updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update app details'] });
-          return false;
-        }
-
-        updateSettings({ appDetails: values });
-        toast.success('App details updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update app details'] });
         return false;
       }
+
+      updateSettings({ appDetails: values });
+      return true;
     },
   });
 
@@ -126,7 +126,7 @@ export const AppDetailsTab = ({ settings }: AppDetailsTabProps) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="p-6 grid gap-6">
         {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
           <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
             {formErrors.root[0]}

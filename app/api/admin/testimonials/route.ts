@@ -1,6 +1,9 @@
 import { listTestimonials } from '@/app/_server/controllers/testimonials/listTestimonials';
 import { createTestimonial } from '@/app/_server/controllers/testimonials/createTestimonial';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { handleApiRoute } from '@/app/_server/lib/api/routeHandler';
+import type { NextRequest } from 'next/server';
 
-export const GET = applyMiddlewares(listTestimonials('console'));
-export const POST = applyMiddlewares(createTestimonial);
+export const GET = (request: NextRequest) =>
+  handleApiRoute(request, { protect: true, accessType: 'console' }, listTestimonials('console'));
+export const POST = (request: NextRequest) =>
+  handleApiRoute(request, { protect: true, accessType: 'console' }, createTestimonial);

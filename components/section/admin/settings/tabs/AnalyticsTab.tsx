@@ -10,7 +10,7 @@ import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 
 const analyticsSchema = z.object({
@@ -48,34 +48,33 @@ export const AnalyticsTab = ({ settings }: AnalyticsTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: AnalyticsFormValues) => {
-      try {
-        const analyticsValue = {
-          googleAnalyticsId: values.googleAnalyticsId,
-          facebookPixelId: values.facebookPixelId,
-          otherTrackingIds: values.otherTrackingIds
-            .split('\n')
-            .map(id => id.trim())
-            .filter(Boolean),
-        };
+      const analyticsValue = {
+        googleAnalyticsId: values.googleAnalyticsId,
+        facebookPixelId: values.facebookPixelId,
+        otherTrackingIds: values.otherTrackingIds
+          .split('\n')
+          .map(id => id.trim())
+          .filter(Boolean),
+      };
 
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'analytics', value: analyticsValue }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving analytics…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'analytics', value: analyticsValue }],
+            },
+          }),
+        'Analytics settings updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update analytics settings'] });
-          return false;
-        }
-
-        updateSettings({ analytics: analyticsValue });
-        toast.success('Analytics settings updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update analytics settings'] });
         return false;
       }
+
+      updateSettings({ analytics: analyticsValue });
+      return true;
     },
   });
 

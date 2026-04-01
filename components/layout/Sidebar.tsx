@@ -36,7 +36,7 @@ export function AppSidebar() {
           </i>
           {!isCollapsed && (
             <div className="flex-1">
-              <h1 className="text-lg font-semibold">Admin Dashboard</h1>
+              {/* <h1 className="text-lg font-semibold">Admin Dashboard</h1> */}
               <p className="text-xs text-muted-foreground">Management Console</p>
             </div>
           )}

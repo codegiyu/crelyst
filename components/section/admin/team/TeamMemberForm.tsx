@@ -200,14 +200,14 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
   });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 py-4">
+    <form onSubmit={handleSubmit} className="grid gap-6 py-4">
       {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
         <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
           {formErrors.root[0]}
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="grid gap-6">
         {/* Profile Image */}
         <ImageUpload
           label="Profile Image"
@@ -224,7 +224,7 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
           subtext="Recommended: Portrait orientation (3:4 aspect ratio)"
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           <RegularInput
             label="Name"
             name="name"
@@ -256,7 +256,7 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
           rows={3}
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           <RegularInput
             label="Email"
             name="email"
@@ -278,10 +278,10 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
         </div>
 
         {/* Social Links */}
-        <div className="space-y-4 pt-4 border-t">
+        <div className="grid gap-8 pt-4 border-t">
           <h3 className="text-sm font-semibold text-foreground">Social Links</h3>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2">
             <RegularInput
               label="LinkedIn"
               name="linkedinUrl"

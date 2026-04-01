@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientProject } from '@/lib/constants/endpoints';
 import { AlertTriangle } from 'lucide-react';
 import { useProjectsStore } from '@/lib/store/useProjectsStore';
@@ -30,20 +30,18 @@ export const DeleteProjectDialog = ({
     setLoading(true);
     try {
       const identifier = project.slug || project._id;
-      const { error } = await callApi('ADMIN_DELETE_PROJECT', {
-        query: `/${identifier}`,
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to delete project');
-        return;
+      const data = await adminCallApiToast(
+        'Deleting project…',
+        () =>
+          callApi('ADMIN_DELETE_PROJECT', {
+            query: `/${identifier}`,
+          }),
+        'Project deleted successfully'
+      );
+      if (data) {
+        actions.removeProject(project.slug || project._id);
+        onSuccess();
       }
-
-      actions.removeProject(project.slug || project._id);
-      toast.success('Project deleted successfully');
-      onSuccess();
-    } catch {
-      toast.error('Failed to delete project');
     } finally {
       setLoading(false);
     }

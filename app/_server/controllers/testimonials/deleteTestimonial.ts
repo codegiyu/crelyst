@@ -1,37 +1,37 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Testimonial } from '../../models/testimonial';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getTestimonialById,
+  deleteTestimonial as deleteTestimonialRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Delete testimonial (admin only)
-export const deleteTestimonial = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { req, user } = context as RequestContext;
+export const deleteTestimonial: RouteHandler = async ({ request, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  if (!identifier) {
+    throw new AppError('Testimonial identifier is required', 400);
+  }
 
-    if (!identifier) {
-      throw new AppError('Testimonial identifier is required', 400);
-    }
+  const current = await getTestimonialById(identifier);
+  if (!current) {
+    throw new AppError('Testimonial not found', 404);
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(identifier)) {
-      throw new AppError('Invalid testimonial ID format', 400);
-    }
+  const deleted = await deleteTestimonialRepo(current.id);
 
-    const testimonial = await Testimonial.findByIdAndDelete(identifier);
+  if (!deleted) {
+    throw new AppError('Testimonial not found', 404);
+  }
 
-    if (!testimonial) {
-      throw new AppError('Testimonial not found', 404);
-    }
+  revalidateAboutAndHome();
 
-    return sendResponse(200, null, 'Testimonial deleted successfully');
-  })
-);
+  return sendResponse(200, null, 'Testimonial deleted successfully');
+};

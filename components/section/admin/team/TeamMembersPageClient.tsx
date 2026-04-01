@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTeamMembersStore } from '@/lib/store/useTeamMembersStore';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Pencil,
@@ -15,7 +14,6 @@ import {
   Phone,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Modal } from '@/components/ui/Modal';
 import {
   DropdownMenu,
@@ -30,21 +28,25 @@ import { ReorderTeamMembersModal } from './ReorderTeamMembersModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import Image from 'next/image';
-import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 
-export const TeamMembersPageClient = () => {
-  const { teamMembers, actions, isLoading } = useTeamMembersStore(state => state);
-  const { fetchTeamMembers, updateTeamMember } = actions;
+export const TeamMembersPageClient = ({
+  initialTeamMembers,
+}: {
+  initialTeamMembers: ClientTeamMember[];
+}) => {
+  const router = useRouter();
+  const [teamMembers, setTeamMembers] = useState<ClientTeamMember[]>(initialTeamMembers);
+
+  useEffect(() => {
+    setTeamMembers(initialTeamMembers);
+  }, [initialTeamMembers]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<ClientTeamMember | null>(null);
   const [deleteMember, setDeleteMember] = useState<ClientTeamMember | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-
-  useEffect(() => {
-    fetchTeamMembers({ force: true, useAdminEndpoint: true });
-  }, []);
 
   const handleCreate = () => {
     setEditingMember(null);
@@ -59,25 +61,21 @@ export const TeamMembersPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingMember(null);
-    fetchTeamMembers({ force: true, useAdminEndpoint: true });
+    router.refresh();
   };
 
   const handleToggleActive = async (member: ClientTeamMember) => {
-    try {
-      const { data, error } = await callApi('ADMIN_UPDATE_TEAM_MEMBER', {
-        query: `/${member._id}`,
-        payload: { isActive: !member.isActive },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update team member');
-        return;
-      }
-
-      updateTeamMember(data.teamMember);
-      toast.success(`Team member ${data.teamMember.isActive ? 'activated' : 'deactivated'}`);
-    } catch {
-      toast.error('Failed to update team member');
+    const data = await adminCallApiToast(
+      'Updating team member…',
+      () =>
+        callApi('ADMIN_UPDATE_TEAM_MEMBER', {
+          query: `/${member._id}`,
+          payload: { isActive: !member.isActive },
+        }),
+      d => `Team member ${d.teamMember.isActive ? 'activated' : 'deactivated'}`
+    );
+    if (data) {
+      setTeamMembers(prev => prev.map(m => (m._id === data.teamMember._id ? data.teamMember : m)));
     }
   };
 
@@ -111,14 +109,7 @@ export const TeamMembersPageClient = () => {
           />
         </div>
       }>
-      {/* Team Members Grid */}
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, idx) => (
-            <TeamMemberCardSkeleton key={idx} />
-          ))}
-        </div>
-      ) : teamMembers.length === 0 ? (
+      {teamMembers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-muted p-4 mb-4">
             <Plus className="size-8 text-muted-foreground" />
@@ -171,7 +162,7 @@ export const TeamMembersPageClient = () => {
         onOpenChange={open => !open && setDeleteMember(null)}
         onSuccess={() => {
           setDeleteMember(null);
-          fetchTeamMembers({ force: true, useAdminEndpoint: true });
+          router.refresh();
         }}
       />
 
@@ -180,7 +171,7 @@ export const TeamMembersPageClient = () => {
         members={sortedMembers}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchTeamMembers({ force: true, useAdminEndpoint: true })}
+        onSuccess={() => router.refresh()}
       />
     </DashboardPageWrapper>
   );
@@ -288,14 +279,3 @@ const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMember
     </div>
   );
 };
-
-const TeamMemberCardSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-    <Skeleton className="aspect-[3/4] rounded-none" />
-    <div className="p-4 grid gap-3">
-      <Skeleton className="h-5 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
-      <Skeleton className="h-3 w-full" />
-    </div>
-  </div>
-);

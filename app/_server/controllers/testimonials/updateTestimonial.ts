@@ -1,71 +1,78 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Testimonial } from '../../models/testimonial';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getTestimonialById,
+  updateTestimonial as updateTestimonialRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Update testimonial (admin only)
-export const updateTestimonial = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, req, user } = context as RequestContext;
+const updateTestimonialBodySchema = z.object({
+  clientName: z.string().max(100).optional(),
+  clientRole: z.string().max(100).optional(),
+  companyName: z.string().max(100).optional(),
+  companyLogo: z.string().optional(),
+  clientImage: z.string().optional(),
+  testimonial: z.string().min(1).optional(),
+  rating: z.number().int().min(1).max(5).optional(),
+  isFeatured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+  projectId: z.string().nullable().optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+export const updateTestimonial: RouteHandler = async ({ request, body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
 
-    if (!identifier) {
-      throw new AppError('Testimonial identifier is required', 400);
-    }
+  if (!identifier) {
+    throw new AppError('Testimonial identifier is required', 400);
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(identifier)) {
-      throw new AppError('Invalid testimonial ID format', 400);
-    }
+  const payload = validateBody(updateTestimonialBodySchema, body);
 
-    const {
-      clientName,
-      clientRole,
-      companyName,
-      companyLogo,
-      clientImage,
-      testimonial: testimonialText,
-      rating,
-      isFeatured,
-      isActive,
-      displayOrder,
-      projectId,
-    } = body;
+  const current = await getTestimonialById(identifier);
+  if (!current) {
+    throw new AppError('Testimonial not found', 404);
+  }
 
-    // Build update object with only provided fields
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: any = {};
-    if (clientName !== undefined) updateData.clientName = clientName;
-    if (clientRole !== undefined) updateData.clientRole = clientRole;
-    if (companyName !== undefined) updateData.companyName = companyName;
-    if (companyLogo !== undefined) updateData.companyLogo = companyLogo;
-    if (clientImage !== undefined) updateData.clientImage = clientImage;
-    if (testimonialText !== undefined) updateData.testimonial = testimonialText;
-    if (rating !== undefined) updateData.rating = rating;
-    if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
-    if (projectId !== undefined) {
-      updateData.projectId = projectId ? new mongoose.Types.ObjectId(projectId) : null;
-    }
+  const updateData: Record<string, unknown> = {};
+  const fields = [
+    'clientName',
+    'clientRole',
+    'companyName',
+    'companyLogo',
+    'clientImage',
+    'testimonial',
+    'rating',
+    'isFeatured',
+    'isActive',
+    'displayOrder',
+    'projectId',
+  ] as const;
+  for (const f of fields) {
+    const val = payload[f];
+    if (val !== undefined) updateData[f] = val;
+  }
 
-    const testimonial = await Testimonial.findByIdAndUpdate(identifier, updateData, {
-      new: true,
-      runValidators: true,
-    });
+  const testimonial = await updateTestimonialRepo(current.id, updateData);
 
-    if (!testimonial) {
-      throw new AppError('Testimonial not found', 404);
-    }
+  if (!testimonial) {
+    throw new AppError('Testimonial not found', 404);
+  }
 
-    return sendResponse(200, { testimonial }, 'Testimonial updated successfully');
-  })
-);
+  revalidateAboutAndHome();
+
+  return sendResponse(
+    200,
+    { testimonial: { ...testimonial, _id: testimonial.id } },
+    'Testimonial updated successfully'
+  );
+};

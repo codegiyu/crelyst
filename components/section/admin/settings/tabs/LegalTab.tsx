@@ -10,7 +10,7 @@ import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 
 const legalSchema = z.object({
@@ -50,25 +50,24 @@ export const LegalTab = ({ settings }: LegalTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: LegalFormValues) => {
-      try {
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'legal', value: values }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving legal settings…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'legal', value: values }],
+            },
+          }),
+        'Legal settings updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update legal settings'] });
-          return false;
-        }
-
-        updateSettings({ legal: values });
-        toast.success('Legal settings updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update legal settings'] });
         return false;
       }
+
+      updateSettings({ legal: values });
+      return true;
     },
   });
 

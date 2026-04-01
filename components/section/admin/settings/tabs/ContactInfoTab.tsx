@@ -9,7 +9,7 @@ import { useForm } from '@/lib/hooks/use-form';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -51,42 +51,41 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: ContactInfoFormValues) => {
-      try {
-        const contactInfoValue = {
-          address: addresses.filter(a => a.trim()),
-          tel: phones.filter(t => t.trim()),
-          email: emails.filter(e => e.trim()),
-          whatsapp: values.whatsapp,
-          locationUrl: values.locationUrl,
-          officeHours: settings.contactInfo?.officeHours || {
-            monday: null,
-            tuesday: null,
-            wednesday: null,
-            thursday: null,
-            friday: null,
-            saturday: null,
-            sunday: null,
-          },
-        };
+      const contactInfoValue = {
+        address: addresses.filter(a => a.trim()),
+        tel: phones.filter(t => t.trim()),
+        email: emails.filter(e => e.trim()),
+        whatsapp: values.whatsapp,
+        locationUrl: values.locationUrl,
+        officeHours: settings.contactInfo?.officeHours || {
+          monday: null,
+          tuesday: null,
+          wednesday: null,
+          thursday: null,
+          friday: null,
+          saturday: null,
+          sunday: null,
+        },
+      };
 
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'contactInfo', value: contactInfoValue }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving contact info…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'contactInfo', value: contactInfoValue }],
+            },
+          }),
+        'Contact info updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update contact info'] });
-          return false;
-        }
-
-        updateSettings({ contactInfo: contactInfoValue });
-        toast.success('Contact info updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update contact info'] });
         return false;
       }
+
+      updateSettings({ contactInfo: contactInfoValue });
+      return true;
     },
   });
 
@@ -144,7 +143,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
         )}
 
         {/* Addresses */}
-        <div className="grid gap-3">
+        <div className="grid gap-6">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-foreground">Addresses</label>
             <Button
@@ -179,7 +178,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
         </div>
 
         {/* Phone Numbers */}
-        <div className="grid gap-3">
+        <div className="grid gap-6">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-foreground">Phone Numbers</label>
             <Button
@@ -214,7 +213,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
         </div>
 
         {/* Emails */}
-        <div className="grid gap-3">
+        <div className="grid gap-6">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-foreground">Email Addresses</label>
             <Button

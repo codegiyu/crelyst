@@ -1,59 +1,31 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
-import { useProjectsStore } from '@/lib/store/useProjectsStore';
-import { useServicesStore } from '@/lib/store/useServicesStore';
 import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServiceImages';
 import { ArrowRight, MessageCircle, Phone } from 'lucide-react';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
+import type { ClientProject, ClientService, ClientSiteSettings } from '@/lib/constants/endpoints';
 
-export const CTASection = () => {
+export const CTASection = ({
+  contactInfo,
+  projects,
+  services,
+}: {
+  contactInfo?: ClientSiteSettings['contactInfo'];
+  projects: ClientProject[];
+  services: ClientService[];
+}) => {
   const { siteLoading } = useSiteStore(state => state);
 
-  const { settings, fetchSettings } = useSiteSettingsStore(state => ({
-    settings: state.settings,
-    fetchSettings: state.actions.fetchSettings,
-  }));
+  const images = useMemo(
+    () => getAllProjectAndServiceImages(projects, services),
+    [projects, services]
+  );
 
-  const { projects, actions: projectActions } = useProjectsStore(state => ({
-    projects: state.projects,
-    actions: state.actions,
-  }));
-
-  const { services, actions: serviceActions } = useServicesStore(state => ({
-    services: state.services,
-    actions: state.actions,
-  }));
-
-  const [images, setImages] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetchSettings('contactInfo');
-  }, []);
-
-  useEffect(() => {
-    // Fetch projects and services if not already loaded
-    if (projects.length === 0) {
-      projectActions.fetchProjects({ limit: 100 });
-    }
-    if (services.length === 0) {
-      serviceActions.fetchServices({ limit: 100 });
-    }
-  }, [projects.length, services.length, projectActions, serviceActions]);
-
-  useEffect(() => {
-    // Compile images whenever projects or services change
-    const compiledImages = getAllProjectAndServiceImages(projects, services);
-    setImages(compiledImages);
-  }, [projects, services]);
-
-  // Split images into three groups for the three marquees
   const getMarqueeImages = (marqueeIndex: number) => {
     if (images.length === 0) return [];
     // Distribute images across three marquees
@@ -62,7 +34,7 @@ export const CTASection = () => {
     return filtered.length > 0 ? filtered : images;
   };
 
-  const phoneNumber = settings?.contactInfo?.tel?.[0] || '';
+  const phoneNumber = contactInfo?.tel?.[0] || '';
   const phoneLink = phoneNumber
     ? `tel:${phoneNumber.replaceAll(' ', '').replaceAll('-', '').replaceAll('(', '').replaceAll(')', '')}`
     : '#';

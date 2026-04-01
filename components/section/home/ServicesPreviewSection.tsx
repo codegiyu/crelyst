@@ -4,12 +4,10 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useServicesStore } from '@/lib/store/useServicesStore';
-import { ClientService } from '@/lib/constants/endpoints';
+import type { ClientService } from '@/lib/constants/endpoints';
 import { DynamicIcon, LucideIconName } from '@/components/general/DynamicIcon';
 import { ArrowRight, Layers } from 'lucide-react';
 import Link from 'next/link';
-import { Skeleton } from '@/components/ui/skeleton';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 
 const ServicePreviewCard = ({ service, index }: { service: ClientService; index: number }) => {
@@ -79,12 +77,8 @@ const ServicePreviewCard = ({ service, index }: { service: ClientService; index:
   );
 };
 
-export const ServicesPreviewSection = () => {
+export const ServicesPreviewSection = ({ services }: { services: ClientService[] }) => {
   const { siteLoading } = useSiteStore(state => state);
-  const { services, isLoading } = useServicesStore(state => ({
-    services: state.services,
-    isLoading: state.isLoading,
-  }));
 
   const displayServices = services
     .filter(s => s.isActive)
@@ -99,15 +93,7 @@ export const ServicesPreviewSection = () => {
         text="From photography to packaging, we bring your brand's vision to life through powerful design and visual storytelling"
       />
 
-      {isLoading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="aspect-[4/3] rounded-2xl overflow-hidden border border-border">
-              <Skeleton className="w-full h-full" />
-            </div>
-          ))}
-        </div>
-      ) : displayServices.length === 0 ? (
+      {displayServices.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={siteLoading ? {} : { opacity: 1 }}

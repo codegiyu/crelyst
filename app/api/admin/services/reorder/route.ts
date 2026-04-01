@@ -1,4 +1,6 @@
 import { reorderServices } from '@/app/_server/controllers/services/reorderServices';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { handleApiRoute } from '@/app/_server/lib/api/routeHandler';
+import type { NextRequest } from 'next/server';
 
-export const PATCH = applyMiddlewares(reorderServices);
+export const PATCH = (request: NextRequest) =>
+  handleApiRoute(request, { protect: true, accessType: 'console' }, reorderServices);

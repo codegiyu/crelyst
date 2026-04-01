@@ -9,7 +9,7 @@ import { useForm } from '@/lib/hooks/use-form';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
@@ -55,25 +55,24 @@ export const BrandingTab = ({ settings }: BrandingTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: BrandingFormValues) => {
-      try {
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'branding', value: values }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving branding…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'branding', value: values }],
+            },
+          }),
+        'Branding updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update branding'] });
-          return false;
-        }
-
-        updateSettings({ branding: values });
-        toast.success('Branding updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update branding'] });
         return false;
       }
+
+      updateSettings({ branding: values });
+      return true;
     },
   });
 
@@ -115,7 +114,7 @@ export const BrandingTab = ({ settings }: BrandingTabProps) => {
         />
 
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-2">
+          <div className="grid gap-6">
             <Label className="text-sm font-medium">Primary Brand Color</Label>
             <div className="flex gap-3 items-center">
               <input
@@ -135,7 +134,7 @@ export const BrandingTab = ({ settings }: BrandingTabProps) => {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="grid gap-6">
             <Label className="text-sm font-medium">Secondary Brand Color</Label>
             <div className="flex gap-3 items-center">
               <input
@@ -157,7 +156,7 @@ export const BrandingTab = ({ settings }: BrandingTabProps) => {
         </div>
 
         {/* Preview */}
-        <div className="space-y-2">
+        <div className="grid gap-6">
           <Label className="text-sm font-medium">Preview</Label>
           <div className="p-4 border rounded-lg bg-muted/30">
             <div className="flex gap-4 items-center">

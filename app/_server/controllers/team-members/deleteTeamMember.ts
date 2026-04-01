@@ -1,37 +1,37 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { TeamMember } from '../../models/teamMember';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getTeamMemberById,
+  deleteTeamMember as deleteTeamMemberRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Delete team member (admin only)
-export const deleteTeamMember = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { req, user } = context as RequestContext;
+export const deleteTeamMember: RouteHandler = async ({ request, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  if (!identifier) {
+    throw new AppError('Team member identifier is required', 400);
+  }
 
-    if (!identifier) {
-      throw new AppError('Team member identifier is required', 400);
-    }
+  const current = await getTeamMemberById(identifier);
+  if (!current) {
+    throw new AppError('Team member not found', 404);
+  }
 
-    if (!mongoose.Types.ObjectId.isValid(identifier)) {
-      throw new AppError('Invalid team member ID format', 400);
-    }
+  const deleted = await deleteTeamMemberRepo(current.id);
 
-    const teamMember = await TeamMember.findByIdAndDelete(identifier);
+  if (!deleted) {
+    throw new AppError('Team member not found', 404);
+  }
 
-    if (!teamMember) {
-      throw new AppError('Team member not found', 404);
-    }
+  revalidateAboutAndHome();
 
-    return sendResponse(200, null, 'Team member deleted successfully');
-  })
-);
+  return sendResponse(200, null, 'Team member deleted successfully');
+};

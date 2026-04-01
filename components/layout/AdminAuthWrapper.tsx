@@ -4,9 +4,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import { unprotectedRoutes } from '@/lib/constants/routing';
+import { unprotectedRoutes, safeAdminRedirectPath } from '@/lib/constants/routing';
 import { Loader2 } from 'lucide-react';
-import { base64UrlDecode } from '@/lib/services/storage';
 
 interface AdminAuthWrapperProps {
   children: React.ReactNode;
@@ -28,6 +27,10 @@ export const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
   const [isChecking, setIsChecking] = useState(true);
   const sessionInitializedRef = useRef(false);
   const isProtectedRoute = !unprotectedRoutes.has(pathname);
+
+  useEffect(() => {
+    sessionInitializedRef.current = false;
+  }, [pathname]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -64,8 +67,7 @@ export const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
 
     // If authenticated and on auth route, redirect to dashboard or redirectTo
     if (user && isAuthRoute && !pauseNavigatingAwayFromAuth) {
-      const destination = redirectTo ? base64UrlDecode(redirectTo) : '/admin/dashboard/home';
-      router.replace(destination);
+      router.replace(safeAdminRedirectPath(redirectTo));
       return;
     }
   }, [user, isChecking, initLoading, pathname, router, pauseNavigatingAwayFromAuth, redirectTo]);

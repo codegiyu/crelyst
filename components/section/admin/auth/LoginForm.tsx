@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { safeAdminRedirectPath } from '@/lib/constants/routing';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useForm } from '@/lib/hooks/use-form';
 import { RegularInput } from '@/components/atoms/RegularInput';
@@ -18,6 +19,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     actions: { login },
   } = useAuthStore(state => state);
@@ -41,7 +43,7 @@ export const LoginForm = () => {
       const result = await login(values.email, values.password);
 
       if (result.success) {
-        router.replace('/admin/dashboard/home');
+        router.replace(safeAdminRedirectPath(searchParams.get('redirectTo')));
         resetForm();
         return true;
       } else {
@@ -59,7 +61,7 @@ export const LoginForm = () => {
         </div>
       )}
 
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         <RegularInput
           label="Email address"
           name="email"

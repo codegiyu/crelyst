@@ -77,7 +77,7 @@ export const ServiceDetailHero = ({ service }: ServiceDetailHeroProps) => {
                 'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-serif',
                 service.bannerImage ? 'text-white' : 'text-foreground'
               )}>
-              {service.title}
+              {service.pageTitle || service.title}
             </motion.h1>
 
             <motion.p

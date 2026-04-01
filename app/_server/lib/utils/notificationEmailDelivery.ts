@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { Notification } from '../../models/notification';
-import { logger } from '../../lib/utils/logger';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { adminDb } from '@/lib/firebase/admin';
+import { logger } from './logger';
 
 export type NotificationEmailDeliveryStatus =
   | 'pending'
@@ -22,54 +22,51 @@ export interface NotificationEmailDeliveryUpdate {
   statusReason?: NullableString;
 }
 
-const applyUnsetAwareUpdate = <T>(
-  value: T | null | undefined,
-  path: string,
-  set: Record<string, unknown>,
-  unset: Record<string, 1>
-) => {
-  if (value === undefined) return;
-  if (value === null) {
-    unset[path] = 1;
-    return;
-  }
-  set[path] = value;
-};
-
 export const updateNotificationEmailDelivery = async (
-  notificationId: mongoose.Types.ObjectId | string,
+  notificationId: string,
   update: NotificationEmailDeliveryUpdate
 ) => {
   try {
-    const id =
-      typeof notificationId === 'string'
-        ? new mongoose.Types.ObjectId(notificationId)
-        : notificationId;
+    if (!adminDb) return;
 
-    const set: Record<string, unknown> = {
-      'emailDelivery.status': update.status,
-    };
-    const unset: Record<string, 1> = {};
-
-    applyUnsetAwareUpdate(update.jobId, 'emailDelivery.jobId', set, unset);
-    applyUnsetAwareUpdate(update.lastAttemptAt, 'emailDelivery.lastAttemptAt', set, unset);
-    applyUnsetAwareUpdate(update.lastSentAt, 'emailDelivery.lastSentAt', set, unset);
-    applyUnsetAwareUpdate(update.lastError, 'emailDelivery.lastError', set, unset);
-    applyUnsetAwareUpdate(update.statusReason, 'emailDelivery.statusReason', set, unset);
-
-    const updateQuery: Record<string, unknown> = {
-      $set: set,
-    };
-
-    if (Object.keys(unset).length > 0) {
-      updateQuery.$unset = unset;
+    const ref = adminDb.collection('notifications').doc(String(notificationId));
+    const snap = await ref.get();
+    if (!snap.exists) {
+      logger.debug('Notification not found for email delivery update', { notificationId });
+      return;
     }
 
-    await Notification.updateOne({ _id: id }, updateQuery).exec();
+    const patch: Record<string, unknown> = {
+      'emailDelivery.status': update.status,
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    if (update.jobId !== undefined) {
+      patch['emailDelivery.jobId'] = update.jobId === null ? FieldValue.delete() : update.jobId;
+    }
+    if (update.lastAttemptAt !== undefined) {
+      patch['emailDelivery.lastAttemptAt'] =
+        update.lastAttemptAt === null
+          ? FieldValue.delete()
+          : Timestamp.fromDate(update.lastAttemptAt);
+    }
+    if (update.lastSentAt !== undefined) {
+      patch['emailDelivery.lastSentAt'] =
+        update.lastSentAt === null ? FieldValue.delete() : Timestamp.fromDate(update.lastSentAt);
+    }
+    if (update.lastError !== undefined) {
+      patch['emailDelivery.lastError'] =
+        update.lastError === null ? FieldValue.delete() : update.lastError;
+    }
+    if (update.statusReason !== undefined) {
+      patch['emailDelivery.statusReason'] =
+        update.statusReason === null ? FieldValue.delete() : update.statusReason;
+    }
+
+    await ref.update(patch);
   } catch (error) {
     logger.error('Failed to update notification email delivery metadata', {
       notificationId,
-      update,
       error,
     });
   }

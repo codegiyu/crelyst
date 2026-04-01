@@ -5,10 +5,8 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useTestimonialsStore } from '@/lib/store/useTestimonialsStore';
-import { ClientTestimonial } from '@/lib/constants/endpoints';
+import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import { MessageSquareQuote, Star, Quote } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -81,15 +79,10 @@ const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) =>
   );
 };
 
-export const TestimonialsSection = () => {
+export const TestimonialsSection = ({ testimonials }: { testimonials: ClientTestimonial[] }) => {
   const { siteLoading } = useSiteStore(state => state);
-  const { testimonials, isLoading } = useTestimonialsStore(state => ({
-    testimonials: state.testimonials,
-    isLoading: state.isLoading,
-  }));
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // Filter to only show active and featured testimonials, then sort by display order
   const displayTestimonials = [...testimonials]
     .filter(testimonial => testimonial.isActive !== false && testimonial.isFeatured === true)
     .sort((a, b) => {
@@ -110,8 +103,8 @@ export const TestimonialsSection = () => {
     }
   }, [siteLoading]);
 
-  if (!isLoading && displayTestimonials.length === 0) {
-    return null; // Don't show section if no testimonials
+  if (displayTestimonials.length === 0) {
+    return null;
   }
 
   return (
@@ -122,75 +115,53 @@ export const TestimonialsSection = () => {
         text="Don't just take our word for it - hear from the businesses we've helped succeed"
       />
 
-      {isLoading ? (
-        <div className="max-w-4xl mx-auto">
-          <div className="p-8 md:p-12 rounded-2xl border border-border">
-            <div className="flex gap-1 mb-6 justify-center">
-              {[...Array(5)].map((_, j) => (
-                <Skeleton key={j} className="w-5 h-5 md:w-6 md:h-6 rounded" />
-              ))}
-            </div>
-            <Skeleton className="h-6 w-full mb-3 max-w-3xl mx-auto" />
-            <Skeleton className="h-6 w-full mb-3 max-w-3xl mx-auto" />
-            <Skeleton className="h-6 w-3/4 mb-8 max-w-3xl mx-auto" />
-            <div className="flex items-center justify-center gap-4">
-              <Skeleton className="w-14 h-14 md:w-16 md:h-16 rounded-full" />
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-4 w-40" />
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={siteLoading ? {} : { opacity: 1 }}
-          className="relative">
-          <Swiper
-            onSwiper={swiper => {
-              swiperRef.current = swiper;
-            }}
-            modules={[Autoplay, Pagination, Navigation]}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
-            pagination={{
-              clickable: true,
-              bulletClass: 'swiper-pagination-bullet !bg-primary/30 !cursor-pointer',
-              bulletActiveClass: 'swiper-pagination-bullet-active !bg-primary',
-            }}
-            navigation={{
-              nextEl: '.testimonial-swiper-button-next',
-              prevEl: '.testimonial-swiper-button-prev',
-            }}
-            loop={displayTestimonials.length > 1}
-            speed={600}
-            slidesPerView={1}
-            spaceBetween={30}
-            className="!pb-12">
-            {displayTestimonials.map(testimonial => (
-              <SwiperSlide key={testimonial._id}>
-                <TestimonialCard testimonial={testimonial} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={siteLoading ? {} : { opacity: 1 }}
+        className="relative">
+        <Swiper
+          onSwiper={swiper => {
+            swiperRef.current = swiper;
+          }}
+          modules={[Autoplay, Pagination, Navigation]}
+          autoplay={{
+            delay: 5000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          }}
+          pagination={{
+            clickable: true,
+            bulletClass: 'swiper-pagination-bullet !bg-primary/30 !cursor-pointer',
+            bulletActiveClass: 'swiper-pagination-bullet-active !bg-primary',
+          }}
+          navigation={{
+            nextEl: '.testimonial-swiper-button-next',
+            prevEl: '.testimonial-swiper-button-prev',
+          }}
+          loop={displayTestimonials.length > 1}
+          speed={600}
+          slidesPerView={1}
+          spaceBetween={30}
+          className="!pb-12">
+          {displayTestimonials.map(testimonial => (
+            <SwiperSlide key={testimonial._id}>
+              <TestimonialCard testimonial={testimonial} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-          {/* Navigation Buttons */}
-          <button
-            className="testimonial-swiper-button-prev absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:border-primary hover:bg-background shadow-lg flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Previous testimonial">
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
-          </button>
-          <button
-            className="testimonial-swiper-button-next absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:border-primary hover:bg-background shadow-lg flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Next testimonial">
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
-          </button>
-        </motion.div>
-      )}
+        {/* Navigation Buttons */}
+        <button
+          className="testimonial-swiper-button-prev absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:border-primary hover:bg-background shadow-lg flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Previous testimonial">
+          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+        </button>
+        <button
+          className="testimonial-swiper-button-next absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:border-primary hover:bg-background shadow-lg flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Next testimonial">
+          <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+        </button>
+      </motion.div>
     </SectionContainer>
   );
 };

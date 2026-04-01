@@ -9,7 +9,7 @@ import { useForm } from '@/lib/hooks/use-form';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 
 const emailSchema = z.object({
@@ -47,25 +47,24 @@ export const EmailTab = ({ settings }: EmailTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: EmailFormValues) => {
-      try {
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'email', value: values }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving email settings…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'email', value: values }],
+            },
+          }),
+        'Email settings updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update email settings'] });
-          return false;
-        }
-
-        updateSettings({ email: values });
-        toast.success('Email settings updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update email settings'] });
         return false;
       }
+
+      updateSettings({ email: values });
+      return true;
     },
   });
 

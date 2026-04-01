@@ -1,13 +1,73 @@
 import type { NextConfig } from 'next';
 
+function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePatterns'] {
+  const patterns: NonNullable<NextConfig['images']>['remotePatterns'] = [
+    { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+    { protocol: 'https', hostname: 'via.placeholder.com', pathname: '/**' },
+    { protocol: 'https', hostname: 'randomuser.me', pathname: '/**' },
+    { protocol: 'https', hostname: 'firebasestorage.googleapis.com', pathname: '/**' },
+    { protocol: 'https', hostname: 'fonts.gstatic.com', pathname: '/**' },
+    { protocol: 'https', hostname: '*.r2.dev', pathname: '/**' },
+    { protocol: 'https', hostname: '*.r2.cloudflarestorage.com', pathname: '/**' },
+  ];
+
+  const r2Url = process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  if (r2Url) {
+    try {
+      const { hostname } = new URL(r2Url);
+      if (hostname && !patterns.some(p => 'hostname' in p && p.hostname === hostname)) {
+        patterns.push({ protocol: 'https', hostname, pathname: '/**' });
+      }
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+
+  return patterns;
+}
+
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
+    remotePatterns: buildImageRemotePatterns(),
+  },
+  async headers() {
+    const security = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       {
-        protocol: 'https',
-        hostname: '**',
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=()',
       },
-    ],
+      {
+        key: 'Content-Security-Policy',
+        value: [
+          "default-src 'self'",
+          "img-src 'self' data: blob: https:",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+          "style-src 'self' 'unsafe-inline' https:",
+          "font-src 'self' data: https:",
+          "connect-src 'self' https: wss:",
+          "frame-ancestors 'self'",
+          "base-uri 'self'",
+          "form-action 'self'",
+        ].join('; '),
+      },
+    ];
+
+    if (process.env.NODE_ENV === 'production') {
+      security.push({
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains; preload',
+      });
+    }
+
+    return [
+      {
+        source: '/:path*',
+        headers: security,
+      },
+    ];
   },
   // Mark @react-email/render as external to prevent build-time analysis
   // This avoids React 19 compatibility issues during build
@@ -33,4 +93,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-

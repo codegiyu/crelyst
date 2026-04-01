@@ -283,14 +283,14 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 py-4">
+    <form onSubmit={handleSubmit} className="grid gap-6 py-4">
       {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
         <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
           {formErrors.root[0]}
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="grid gap-6">
         <RegularInput
           label="Title"
           name="title"
@@ -333,8 +333,8 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
         />
 
         {/* Banner Image */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
             <span className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
               Banner Image
             </span>
@@ -384,11 +384,11 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
         )}
 
         {/* Features */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
             Features
           </label>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {features.map((feature, index) => (
               <div key={index} className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
                 <span className="flex-1 text-sm">{feature}</span>
@@ -455,7 +455,7 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
         </div>
 
         {/* SEO Section */}
-        <div className="space-y-4 pt-4 border-t">
+        <div className="grid gap-8 pt-4 border-t">
           <h3 className="text-sm font-semibold text-foreground">SEO Settings</h3>
 
           <RegularInput

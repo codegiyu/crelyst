@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientService } from '@/lib/constants/endpoints';
 import { AlertTriangle } from 'lucide-react';
 import { useServicesStore } from '@/lib/store/useServicesStore';
@@ -29,20 +29,18 @@ export const DeleteServiceDialog = ({
 
     setLoading(true);
     try {
-      const { error } = await callApi('ADMIN_DELETE_SERVICE', {
-        query: `/${service.slug}`,
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to delete service');
-        return;
+      const data = await adminCallApiToast(
+        'Deleting service…',
+        () =>
+          callApi('ADMIN_DELETE_SERVICE', {
+            query: `/${service.slug}`,
+          }),
+        'Service deleted successfully'
+      );
+      if (data) {
+        actions.removeService(service.slug);
+        onSuccess();
       }
-
-      actions.removeService(service.slug);
-      toast.success('Service deleted successfully');
-      onSuccess();
-    } catch {
-      toast.error('Failed to delete service');
     } finally {
       setLoading(false);
     }

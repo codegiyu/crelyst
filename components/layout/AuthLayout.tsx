@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, subtitle = 'Admin Dashboard' }: AuthLayoutProps) {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between bg-zinc-50 px-4 py-12 dark:bg-black sm:px-6 lg:px-8">
+    <main className="min-h-screen flex flex-col items-center justify-between bg-background px-4 py-12 sm:px-6 lg:px-8">
       {/* Logo */}
       <div className="w-fit flex flex-col items-center mx-auto">
         <div className="mb-6 flex items-center justify-center">
@@ -22,10 +22,10 @@ export default function AuthLayout({ children, subtitle = 'Admin Dashboard' }: A
       </div>
 
       {/* Content */}
-      <div className="w-full max-w-md space-y-8">{children}</div>
+      <div className="w-full max-w-md grid gap-8">{children}</div>
 
       {/* Footer */}
-      <div className="w-full space-y-8">
+      <div className="w-full grid gap-8">
         <p className="text-center text-sm text-muted-foreground">
           © {new Date().getFullYear()} All rights reserved.
         </p>

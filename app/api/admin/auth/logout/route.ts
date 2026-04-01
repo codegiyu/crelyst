@@ -1,4 +1,19 @@
-import { logout } from '@/app/_server/controllers/auth/logout';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { NextResponse } from 'next/server';
 
-export const POST = applyMiddlewares(logout);
+const COOKIE = 'authToken';
+
+/**
+ * POST /api/admin/auth/logout
+ * Clears HttpOnly authToken (client should also call Firebase signOut).
+ */
+export async function POST() {
+  const res = NextResponse.json({ success: true, message: 'Logged out' }, { status: 200 });
+  res.cookies.set(COOKIE, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
+  return res;
+}

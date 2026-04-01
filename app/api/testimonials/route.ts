@@ -1,4 +1,6 @@
 import { listTestimonials } from '@/app/_server/controllers/testimonials/listTestimonials';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { handleApiRoute } from '@/app/_server/lib/api/routeHandler';
+import type { NextRequest } from 'next/server';
 
-export const GET = applyMiddlewares(listTestimonials('client'));
+export const GET = (request: NextRequest) =>
+  handleApiRoute(request, { accessType: 'client' }, listTestimonials('client'));

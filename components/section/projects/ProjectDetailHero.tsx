@@ -14,6 +14,9 @@ interface ProjectDetailHeroProps {
 
 export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
   const { siteLoading } = useSiteStore(state => state);
+  const cs = project.caseStudy;
+  const heroSrc = project.heroImage || project.featuredImage;
+  const useCaseStudyHero = Boolean(cs && heroSrc);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -24,9 +27,44 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
     }
   };
 
+  if (useCaseStudyHero) {
+    return (
+      <header className="relative w-full pt-24 md:pt-32 pb-12 md:pb-20">
+        <SectionContainer className="relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={siteLoading ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}>
+            <p className="text-primary text-sm tracking-[0.3em] uppercase mb-4">{cs!.industry}</p>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 font-serif">
+              {project.title}
+            </h1>
+            <p className="text-muted-foreground text-lg md:text-xl font-light max-w-2xl mb-10">
+              {project.description}
+            </p>
+            <div className="w-20 h-0.5 bg-primary" />
+          </motion.div>
+        </SectionContainer>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={siteLoading ? {} : { opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          className="regular-container mx-auto px-4 sm:px-6 mt-12 md:mt-16 max-w-7xl">
+          <div className="rounded-xl overflow-hidden border border-border shadow-elegant">
+            <img
+              src={heroSrc}
+              alt={`${project.title} hero`}
+              className="w-full aspect-video object-cover"
+            />
+          </div>
+        </motion.div>
+      </header>
+    );
+  }
+
   return (
     <div className="relative w-full">
-      {/* Banner Image - Full Height Background */}
       {project.bannerImage && (
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <div
@@ -42,30 +80,12 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
           'relative z-10 min-h-[min(900px,75vh)] flex items-center',
           project.bannerImage ? '' : 'bg-gradient-to-br from-accent/5 via-background to-primary/5'
         )}>
-        {/* Background Pattern */}
         {!project.bannerImage && (
           <div className="absolute inset-0 pattern-overlay pointer-events-none" />
         )}
 
         <div className="relative z-10 regular-container w-full">
-          {/* Back Link */}
-          {/* <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={siteLoading ? {} : { opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}>
-            <Link
-              href="/projects"
-              className={cn(
-                'inline-flex items-center hover:text-primary transition-colors mb-6',
-                project.bannerImage ? 'text-white/90 hover:text-white' : 'text-muted-foreground'
-              )}>
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back to Projects
-            </Link>
-          </motion.div> */}
-
           <div className="text-center">
-            {/* Badges */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={siteLoading ? {} : { opacity: 1, y: 0 }}
@@ -123,7 +143,6 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
               {project.shortDescription || project.description}
             </motion.p>
 
-            {/* Meta Info */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={siteLoading ? {} : { opacity: 1, y: 0 }}

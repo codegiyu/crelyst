@@ -1,19 +1,213 @@
+import { ADMIN_EMAILS } from '@/lib/constants/admin-emails';
+
 // Services seed data for Crelyst - Creative Design Agency
 export const SERVICES_DATA = [
+  /* ───────────────── 1. Brand Design ───────────────── */
   {
     title: 'Brand Design',
     slug: 'brand-design',
+    pageTitle: 'We craft brand identities that speak before you do',
     description:
-      'We craft compelling brand identities that resonate with your audience. From logo design to complete brand guidelines, we help you establish a memorable visual presence that tells your story and sets you apart in the market.',
+      "At the heart of every successful brand is a clear and compelling identity. Through collaborative workshops and deep discovery sessions, we help you uncover your brand's unique voice, core values, and visual personality. From professional logo design to comprehensive brand systems and guidelines, we build identities that not only stand out but also connect meaningfully with your audience.",
     shortDescription: 'Complete brand identity design and visual storytelling',
     cardImage: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
     bannerImage: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1920&h=1080&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=1200&h=800&fit=crop',
+    ],
     features: [
       'Logo Design',
       'Brand Guidelines',
       'Visual Identity',
       'Brand Strategy',
       'Typography & Color Systems',
+    ],
+    expertise: {
+      title: 'Define, differentiate & stand out',
+      breakdown: [
+        {
+          title: 'We shape visual identities',
+          services: [
+            'Logo Design',
+            'Typography & Color Systems',
+            'Visual Identity Development',
+            'Iconography & Brand Assets',
+            'Email Signature Design',
+            'Rebranding',
+          ],
+        },
+        {
+          title: 'We build meaningful brands',
+          services: [
+            'Brand Guidelines',
+            'Brand Strategy & Positioning',
+            'Naming & Tagline Creation',
+            'Brand Personality Development',
+            'Competitive & Market Analysis',
+            'Brand Activation',
+          ],
+        },
+        {
+          title: 'We bring your brand to life',
+          services: [
+            'Signages',
+            'Business Card & Stationery Design',
+            'Metal Plate Engraving',
+            'Pitch Decks & Templates',
+            'Brand Audit & Refresh',
+          ],
+        },
+      ],
+      marqueeText: 'Define, differentiate & stand out.',
+    },
+    breakdownSummary: [
+      'Professional logo design',
+      'Brand naming & taglines',
+      'Visual identity design',
+      'Brand strategy & positioning',
+      'Signages',
+    ],
+    whatMakesUsUnique: {
+      title: 'Our long-term and qualitative vision',
+      groups: [
+        {
+          title: 'Tailor-made',
+          text: 'Because we are convinced that every project is unique, we automatically propose tailor-made solutions. We concentrate our energy into making a brand strategy that perfectly fits in with your business.',
+        },
+        {
+          title: 'Rooted in strategy',
+          text: 'Our branding process is built on research and insight, ensuring your identity is both meaningful and memorable. We help you define your "why" before shaping the "how".',
+        },
+        {
+          title: 'Beyond the logo',
+          text: "We don't just create logos — we craft cohesive visual identities that speak your brand's truth across every touchpoint, from fonts to first impressions.",
+        },
+        {
+          title: 'Consistency is power',
+          text: 'We create systems that keep your brand consistent, from pitch decks to packaging, making sure your audience always recognizes and remembers you.',
+        },
+      ],
+    },
+    packagePricing: [
+      {
+        id: 'branding',
+        packages: [
+          {
+            id: 'basic',
+            priceRange: [500000],
+            benefits: [
+              'Interview',
+              'Logo Design',
+              '2-3 Concepts',
+              '2 Revisions',
+              'Stationary Design',
+              'Color Palette',
+              'Brand Font Family & Font File',
+              'Core Brand Guidelines',
+              'Branding Questionnaire Interview',
+              'Branding Summary',
+              'Branding Workshop',
+              'Values Statement',
+              'Business Card Design',
+              '1 Social Media Banner Design',
+              'Presentation Template',
+            ],
+          },
+          {
+            id: 'premium',
+            priceRange: [1000000],
+            benefits: [
+              'Interview',
+              'Logo Design',
+              '5-7 Concepts',
+              '4 Revisions',
+              'Stationary Design',
+              'Color Palette',
+              'Brand Font Family & Font File',
+              'Core Brand Guidelines',
+              'Branding Questionnaire Interview',
+              'Branding Summary',
+              'Branding Workshop',
+              'Values Statement',
+              'Business Card Design',
+              '5 Social Media Banner Designs',
+              'Presentation Template',
+              '1 Website Design',
+            ],
+          },
+          {
+            id: 'classic',
+            priceRange: [4000000],
+            benefits: [
+              'Interview',
+              'Logo Design',
+              '5-7 Concepts',
+              '4 Revisions',
+              'Stationary Design',
+              'Color Palette',
+              'Brand Font Family & Font File',
+              'Core Brand Guidelines',
+              'Branding Questionnaire Interview',
+              'Branding Summary',
+              'Branding Workshop',
+              'Values Statement',
+              'Business Card Design',
+              '5 Social Media Banner Designs',
+              'Presentation Template',
+              '1 Website Design',
+              'Logo Video Intro',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'professional_logo_design',
+        packages: [
+          {
+            id: 'basic',
+            priceRange: [100000],
+            benefits: [
+              '1 Logo Review',
+              'Font/Typography',
+              'Color/Brand Pattern',
+              'High Resolution PNG (Basic/Grayscale)',
+              'High Resolution JPG (Basic/Grayscale)',
+            ],
+          },
+          {
+            id: 'premium',
+            priceRange: [150000],
+            benefits: [
+              '2 Logo Reviews',
+              'Font/Typography',
+              'Color/Brand Pattern',
+              'High Resolution PNG (Basic/Grayscale)',
+              'High Resolution JPG (Basic/Grayscale)',
+              'Basic Logo Mockup',
+              'Letterhead & Business Card Design',
+            ],
+          },
+          {
+            id: 'classic',
+            priceRange: [250000],
+            benefits: [
+              '3 Logo Reviews',
+              'Font/Typography',
+              'Color/Brand Pattern',
+              'High Resolution PNG (Basic/Grayscale)',
+              'High Resolution JPG (Basic/Grayscale)',
+              'Basic Logo Mockup',
+              'Letterhead & Business Card Design',
+              '1 Social Media Design',
+              'T-shirt Idea',
+              'Rollup Banner Design',
+            ],
+          },
+        ],
+      },
     ],
     process: [
       {
@@ -54,20 +248,6 @@ export const SERVICES_DATA = [
       'Competitive differentiation in the market',
       'Foundation for long-term brand growth',
     ],
-    pricing: {
-      startingPrice: 5000,
-      priceRange: '$5,000 - $50,000',
-      pricingModel: 'project-based',
-      currency: 'USD',
-      notes:
-        'Pricing varies based on project scope, deliverables, and timeline. Contact us for a custom quote.',
-    },
-    duration: {
-      minWeeks: 4,
-      maxWeeks: 12,
-      typicalDuration: '6-8 weeks',
-    },
-    videoUrl: '',
     faq: [
       {
         question: 'How long does a brand design project typically take?',
@@ -78,7 +258,7 @@ export const SERVICES_DATA = [
       {
         question: 'What deliverables are included in a brand design package?',
         answer:
-          'A complete brand design package typically includes logo variations, brand guidelines document, color palette, typography system, iconography, and brand application examples. Additional assets can be added based on your needs.',
+          'A complete brand design package typically includes logo variations, brand guidelines document, color palette, typography system, iconography, and brand application examples.',
         order: 2,
       },
       {
@@ -94,10 +274,6 @@ export const SERVICES_DATA = [
         order: 4,
       },
     ],
-    additionalContent: [],
-    relatedServices: [],
-    testimonials: [],
-    caseStudies: [],
     tags: ['branding', 'logo design', 'brand identity', 'visual identity', 'brand strategy'],
     isActive: true,
     displayOrder: 1,
@@ -105,24 +281,146 @@ export const SERVICES_DATA = [
       metaTitle: 'Brand Design Services | Crelyst Creative Agency',
       metaDescription:
         'Professional brand design services. Create compelling brand identities that resonate with your audience and establish a memorable visual presence.',
-      keywords: ['brand design', 'logo design', 'brand identity', 'visual identity', 'branding'],
+      keywords: [
+        'brand design',
+        'logo design',
+        'brand identity',
+        'visual identity',
+        'branding',
+        'creative agency',
+      ],
     },
   },
+
+  /* ───────────────── 2. Photography ───────────────── */
   {
     title: 'Photography',
     slug: 'photography',
+    pageTitle: 'Every frame should tell a story worth remembering',
     description:
-      'Capturing moments that tell your story. Our photography services include product photography, brand photography, event coverage, and creative editorial work. We bring your vision to life through stunning visuals.',
+      'Capturing moments that tell your story. Our photography services include product photography, brand photography, event coverage, and creative editorial work. We bring your vision to life through stunning visuals that connect emotionally with your audience and elevate your brand across every channel.',
     shortDescription: 'Professional photography for brands, products, and events',
     cardImage: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&h=600&fit=crop',
     bannerImage:
       'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1920&h=1080&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=1200&h=800&fit=crop',
+    ],
     features: [
       'Product Photography',
       'Brand Photography',
       'Event Coverage',
       'Editorial Photography',
       'Post-Production Editing',
+    ],
+    expertise: {
+      title: 'Capture, compose & captivate',
+      breakdown: [
+        {
+          title: 'We photograph products',
+          services: [
+            'Product Photography',
+            'E-commerce Shots',
+            'Flat Lays',
+            'Lifestyle Imagery',
+            '360° Product Views',
+          ],
+        },
+        {
+          title: 'We tell brand stories',
+          services: [
+            'Brand Photography',
+            'Team Portraits',
+            'Workspace & Culture Shoots',
+            'Behind-the-Scenes Content',
+          ],
+        },
+        {
+          title: 'We capture moments',
+          services: [
+            'Event Coverage',
+            'Conference Photography',
+            'Launch Events',
+            'Corporate Gatherings',
+            'Editorial Sessions',
+          ],
+        },
+      ],
+      marqueeText: 'Capture, compose & captivate.',
+    },
+    breakdownSummary: [
+      'Product photography',
+      'Brand photography',
+      'Event coverage',
+      'Editorial shoots',
+      'Post-production editing',
+    ],
+    whatMakesUsUnique: {
+      title: 'What sets our lens apart',
+      groups: [
+        {
+          title: 'Story-first approach',
+          text: "We don't just take pictures — we listen, research, and plan every shoot so that each frame carries meaning and moves your audience.",
+        },
+        {
+          title: 'Obsessive attention to light',
+          text: 'Lighting defines mood. We invest in precision lighting setups that transform ordinary subjects into compelling visual narratives.',
+        },
+        {
+          title: 'Post-production mastery',
+          text: 'Every image is meticulously retouched and color-graded to ensure a polished, cohesive look that aligns with your brand identity.',
+        },
+        {
+          title: 'Rapid turnaround',
+          text: 'We understand deadlines. Our streamlined workflow means you get publication-ready images fast, without sacrificing quality.',
+        },
+      ],
+    },
+    packagePricing: [
+      {
+        id: 'photography',
+        packages: [
+          {
+            id: 'basic',
+            priceRange: [150000, 300000],
+            benefits: [
+              'Up to 20 edited images',
+              '1 shoot location',
+              '2-hour session',
+              'Basic retouching',
+              'Digital delivery',
+            ],
+          },
+          {
+            id: 'premium',
+            priceRange: [300000, 600000],
+            benefits: [
+              'Up to 50 edited images',
+              '2 shoot locations',
+              'Half-day session',
+              'Advanced retouching',
+              'Digital delivery',
+              '5 Social-ready crops',
+            ],
+          },
+          {
+            id: 'classic',
+            priceRange: [600000, 1500000],
+            benefits: [
+              'Unlimited edited images',
+              'Multiple locations',
+              'Full-day session',
+              'Advanced retouching & compositing',
+              'Digital + print-ready delivery',
+              '10 Social-ready crops',
+              'Behind-the-scenes reel',
+            ],
+          },
+        ],
+      },
     ],
     process: [
       {
@@ -163,20 +461,6 @@ export const SERVICES_DATA = [
       'High-resolution images optimized for all platforms',
       'Expert lighting and composition for maximum impact',
     ],
-    pricing: {
-      startingPrice: 1500,
-      priceRange: '$1,500 - $15,000',
-      pricingModel: 'project-based',
-      currency: 'USD',
-      notes:
-        'Pricing depends on shoot type, number of images, location, and post-production requirements.',
-    },
-    duration: {
-      minWeeks: 1,
-      maxWeeks: 4,
-      typicalDuration: '1-2 weeks',
-    },
-    videoUrl: '',
     faq: [
       {
         question: 'What types of photography do you offer?',
@@ -203,10 +487,6 @@ export const SERVICES_DATA = [
         order: 4,
       },
     ],
-    additionalContent: [],
-    relatedServices: [],
-    testimonials: [],
-    caseStudies: [],
     tags: [
       'photography',
       'product photography',
@@ -223,21 +503,137 @@ export const SERVICES_DATA = [
       keywords: ['photography', 'product photography', 'brand photography', 'event photography'],
     },
   },
+
+  /* ───────────────── 3. Product Design ───────────────── */
   {
     title: 'Product Design',
     slug: 'product-design',
+    pageTitle: 'Designing digital products people genuinely love to use',
     description:
-      'Designing products that users love. We combine aesthetics with functionality to create intuitive, beautiful, and user-centered product experiences. From concept to final design, we ensure your product stands out.',
+      'Designing products that users love. We combine aesthetics with functionality to create intuitive, beautiful, and user-centered product experiences. From concept to final design, we ensure your product stands out — driving adoption, retention, and delight at every interaction.',
     shortDescription: 'User-centered product design and development',
     cardImage: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&h=600&fit=crop',
     bannerImage:
       'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=1920&h=1080&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&h=800&fit=crop',
+    ],
     features: [
       'User Research',
       'Wireframing & Prototyping',
       'UI/UX Design',
       'Design Systems',
       'User Testing',
+    ],
+    expertise: {
+      title: 'Research, design & iterate',
+      breakdown: [
+        {
+          title: 'We research & discover',
+          services: [
+            'User Research',
+            'Competitive Analysis',
+            'Persona Development',
+            'Journey Mapping',
+            'Heuristic Evaluation',
+          ],
+        },
+        {
+          title: 'We design & prototype',
+          services: [
+            'Wireframing',
+            'Interactive Prototyping',
+            'UI Design',
+            'Responsive Design',
+            'Micro-interactions & Motion',
+          ],
+        },
+        {
+          title: 'We systematise & scale',
+          services: [
+            'Design Systems',
+            'Component Libraries',
+            'Accessibility Auditing',
+            'Developer Handoff',
+            'Design QA',
+          ],
+        },
+      ],
+      marqueeText: 'Research, design & iterate.',
+    },
+    breakdownSummary: [
+      'User research & testing',
+      'Wireframing & prototyping',
+      'UI/UX design',
+      'Design systems',
+      'Developer handoff',
+    ],
+    whatMakesUsUnique: {
+      title: 'Why our product design hits differently',
+      groups: [
+        {
+          title: 'User-obsessed',
+          text: 'We start and end with the user. Every decision is backed by research, tested with real people, and iterated until it feels effortless.',
+        },
+        {
+          title: 'Pixel-perfect craft',
+          text: 'Details matter. Our interfaces are polished down to the last pixel, with intentional spacing, colour harmony, and motion design.',
+        },
+        {
+          title: 'Design meets engineering',
+          text: 'We design for real-world constraints. Our deliverables are developer-friendly, reducing back-and-forth and speeding up shipping.',
+        },
+        {
+          title: 'Systems thinking',
+          text: 'We build scalable design systems — not one-off screens — so your product stays consistent as it grows.',
+        },
+      ],
+    },
+    packagePricing: [
+      {
+        id: 'product_design',
+        packages: [
+          {
+            id: 'basic',
+            priceRange: [800000, 1500000],
+            benefits: [
+              'Up to 10 screens',
+              'User flow mapping',
+              'Low-fi wireframes',
+              'Style guide',
+              'Developer handoff',
+            ],
+          },
+          {
+            id: 'premium',
+            priceRange: [1500000, 3000000],
+            benefits: [
+              'Up to 30 screens',
+              'User research (5 interviews)',
+              'Hi-fi wireframes & prototype',
+              'Design system starter',
+              'Developer handoff',
+              '1 round of usability testing',
+            ],
+          },
+          {
+            id: 'classic',
+            priceRange: [3000000, 8000000],
+            benefits: [
+              'Unlimited screens',
+              'Full user research sprint',
+              'Hi-fi wireframes & interactive prototype',
+              'Complete design system',
+              'Developer handoff',
+              '2 rounds of usability testing',
+              'Motion/micro-interaction specs',
+            ],
+          },
+        ],
+      },
     ],
     process: [
       {
@@ -284,20 +680,6 @@ export const SERVICES_DATA = [
       'Scalable design systems for future growth',
       'Accessible designs that work for all users',
     ],
-    pricing: {
-      startingPrice: 8000,
-      priceRange: '$8,000 - $80,000',
-      pricingModel: 'project-based',
-      currency: 'USD',
-      notes:
-        'Pricing varies based on project complexity, number of screens, research requirements, and timeline.',
-    },
-    duration: {
-      minWeeks: 6,
-      maxWeeks: 20,
-      typicalDuration: '10-14 weeks',
-    },
-    videoUrl: '',
     faq: [
       {
         question: 'What is the difference between UI and UX design?',
@@ -324,10 +706,6 @@ export const SERVICES_DATA = [
         order: 4,
       },
     ],
-    additionalContent: [],
-    relatedServices: [],
-    testimonials: [],
-    caseStudies: [],
     tags: [
       'product design',
       'UI design',
@@ -345,21 +723,137 @@ export const SERVICES_DATA = [
       keywords: ['product design', 'UI design', 'UX design', 'user experience', 'interface design'],
     },
   },
+
+  /* ───────────────── 4. Packaging Design ───────────────── */
   {
     title: 'Packaging Design',
     slug: 'packaging-design',
+    pageTitle: 'Packaging that sells before a single word is spoken',
     description:
-      'Packaging that sells. We create eye-catching, functional packaging designs that protect your product while telling your brand story. From concept to production-ready files, we ensure your packaging stands out on the shelf.',
+      'Packaging that sells. We create eye-catching, functional packaging designs that protect your product while telling your brand story. From concept to production-ready files, we ensure your packaging stands out on the shelf and turns first-time buyers into loyal customers.',
     shortDescription: 'Creative packaging design that protects and sells',
     cardImage: 'https://images.unsplash.com/photo-1608315397376-4b0c0c0c5b5c?w=800&h=600&fit=crop',
     bannerImage:
       'https://images.unsplash.com/photo-1608315397376-4b0c0c0c5b5c?w=1920&h=1080&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1608315397376-4b0c0c0c5b5c?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=1200&h=800&fit=crop',
+    ],
     features: [
       'Package Structure Design',
       'Label & Graphics Design',
       'Material Selection',
       'Production-Ready Files',
       'Brand Consistency',
+    ],
+    expertise: {
+      title: 'Wrap, protect & wow',
+      breakdown: [
+        {
+          title: 'We design the structure',
+          services: [
+            'Box & Carton Design',
+            'Bottle & Container Design',
+            'Pouch & Sachet Design',
+            'Gift Packaging',
+            'Eco-friendly Solutions',
+          ],
+        },
+        {
+          title: 'We craft the graphics',
+          services: [
+            'Label Design',
+            'Surface Graphics',
+            'Dieline Development',
+            'Regulatory Compliance',
+            'Barcode & QR Integration',
+          ],
+        },
+        {
+          title: 'We prepare for production',
+          services: [
+            'Print-ready Artwork',
+            'Material Specification',
+            'Vendor Liaison',
+            'Prototype Review',
+            'Production Supervision',
+          ],
+        },
+      ],
+      marqueeText: 'Wrap, protect & wow.',
+    },
+    breakdownSummary: [
+      'Structural packaging design',
+      'Label & graphics',
+      'Sustainable materials',
+      'Production-ready files',
+      'Multi-SKU systems',
+    ],
+    whatMakesUsUnique: {
+      title: 'Why our packaging stands out on any shelf',
+      groups: [
+        {
+          title: 'Shelf-first thinking',
+          text: 'We design with the point of purchase in mind — every colour, shape, and finish is chosen to grab attention in a crowded retail environment.',
+        },
+        {
+          title: 'Sustainability built in',
+          text: 'We prioritise eco-friendly materials and processes, helping your brand meet sustainability goals without compromising visual impact.',
+        },
+        {
+          title: 'Production-ready precision',
+          text: 'Our files arrive at the printer ready to go — proper bleeds, die-lines, colour separations, and material callouts included.',
+        },
+        {
+          title: 'Brand-system cohesion',
+          text: 'We ensure your packaging belongs to a family. Multi-SKU rollouts look unified yet distinct, reinforcing brand recall across your product line.',
+        },
+      ],
+    },
+    packagePricing: [
+      {
+        id: 'packaging_design',
+        packages: [
+          {
+            id: 'basic',
+            priceRange: [300000, 600000],
+            benefits: [
+              '1 SKU design',
+              '2 concepts',
+              '2 revisions',
+              'Print-ready files',
+              'Basic mockup',
+            ],
+          },
+          {
+            id: 'premium',
+            priceRange: [600000, 1500000],
+            benefits: [
+              'Up to 3 SKU designs',
+              '3 concepts each',
+              '3 revisions',
+              'Print-ready files',
+              '3D mockups',
+              'Material recommendation',
+            ],
+          },
+          {
+            id: 'classic',
+            priceRange: [1500000, 3000000],
+            benefits: [
+              'Up to 6 SKU designs',
+              '4 concepts each',
+              'Unlimited revisions',
+              'Print-ready files',
+              '3D mockups',
+              'Material & vendor liaison',
+              'Production supervision',
+            ],
+          },
+        ],
+      },
     ],
     process: [
       {
@@ -400,20 +894,6 @@ export const SERVICES_DATA = [
       'Production-ready files for seamless manufacturing',
       'Cohesive brand experience across product line',
     ],
-    pricing: {
-      startingPrice: 3000,
-      priceRange: '$3,000 - $30,000',
-      pricingModel: 'project-based',
-      currency: 'USD',
-      notes:
-        'Pricing depends on package complexity, number of SKUs, material requirements, and production support needed.',
-    },
-    duration: {
-      minWeeks: 4,
-      maxWeeks: 10,
-      typicalDuration: '6-8 weeks',
-    },
-    videoUrl: '',
     faq: [
       {
         question: 'Do you work with sustainable packaging materials?',
@@ -440,10 +920,6 @@ export const SERVICES_DATA = [
         order: 4,
       },
     ],
-    additionalContent: [],
-    relatedServices: [],
-    testimonials: [],
-    caseStudies: [],
     tags: [
       'packaging design',
       'package design',
@@ -460,20 +936,136 @@ export const SERVICES_DATA = [
       keywords: ['packaging design', 'package design', 'label design', 'product packaging'],
     },
   },
+
+  /* ───────────────── 5. Visual Identity ───────────────── */
   {
     title: 'Visual Identity',
     slug: 'visual-identity',
+    pageTitle: 'Visual systems that make your brand unmistakable',
     description:
-      'Building cohesive visual systems that communicate your brand essence. We develop comprehensive visual identities including color palettes, typography, iconography, and design systems that work across all touchpoints.',
+      'Building cohesive visual systems that communicate your brand essence. We develop comprehensive visual identities including colour palettes, typography, iconography, and design systems that work across all touchpoints — digital, print, and environmental.',
     shortDescription: 'Comprehensive visual identity and design systems',
     cardImage: 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=800&h=600&fit=crop',
     bannerImage: 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=1920&h=1080&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=1200&h=800&fit=crop',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop',
+    ],
     features: [
       'Color Systems',
       'Typography Design',
       'Iconography',
       'Design Systems',
       'Brand Guidelines',
+    ],
+    expertise: {
+      title: 'Systematise, unify & scale',
+      breakdown: [
+        {
+          title: 'We define the visual language',
+          services: [
+            'Color Palette Definition',
+            'Typography Selection',
+            'Iconography Design',
+            'Photography Direction',
+            'Illustration Style',
+          ],
+        },
+        {
+          title: 'We build the system',
+          services: [
+            'Component Libraries',
+            'Pattern Libraries',
+            'Grid & Layout Systems',
+            'Motion Guidelines',
+            'Responsive Rules',
+          ],
+        },
+        {
+          title: 'We document everything',
+          services: [
+            'Brand Guidelines',
+            "Usage Do's & Don'ts",
+            'Digital Asset Libraries',
+            'Team Training',
+            'Ongoing System Updates',
+          ],
+        },
+      ],
+      marqueeText: 'Systematise, unify & scale.',
+    },
+    breakdownSummary: [
+      'Colour & typography systems',
+      'Iconography & illustration',
+      'Component libraries',
+      'Brand guidelines',
+      'Design system documentation',
+    ],
+    whatMakesUsUnique: {
+      title: 'Why our visual systems endure',
+      groups: [
+        {
+          title: 'Systems over screens',
+          text: 'We design reusable, scalable systems — not just pretty pages. Your visual identity stays consistent as your team and product grow.',
+        },
+        {
+          title: 'Cross-platform harmony',
+          text: 'From a billboard to a mobile app, our identities translate flawlessly. We test across media so nothing gets lost.',
+        },
+        {
+          title: 'Living documentation',
+          text: "Our brand guidelines aren't static PDFs — we build interactive, searchable docs your team will actually use.",
+        },
+        {
+          title: 'Future-proof flexibility',
+          text: 'We build in extensibility from day one, so your visual identity can evolve with new products, markets, and trends without starting over.',
+        },
+      ],
+    },
+    packagePricing: [
+      {
+        id: 'visual_identity',
+        packages: [
+          {
+            id: 'basic',
+            priceRange: [600000, 1200000],
+            benefits: [
+              'Color palette',
+              'Typography system',
+              'Basic iconography',
+              'Core guidelines (PDF)',
+              'Digital asset pack',
+            ],
+          },
+          {
+            id: 'premium',
+            priceRange: [1200000, 2500000],
+            benefits: [
+              'Color palette',
+              'Typography system',
+              'Extended iconography',
+              'Interactive brand guidelines',
+              'Component library starter',
+              'Social media templates',
+            ],
+          },
+          {
+            id: 'classic',
+            priceRange: [2500000, 6000000],
+            benefits: [
+              'Color palette',
+              'Typography system',
+              'Custom iconography & illustration',
+              'Interactive brand guidelines',
+              'Full component library',
+              'Motion guidelines',
+              'Team training session',
+            ],
+          },
+        ],
+      },
     ],
     process: [
       {
@@ -514,20 +1106,6 @@ export const SERVICES_DATA = [
       'Stronger brand recognition and recall',
       'Clear guidelines for internal and external teams',
     ],
-    pricing: {
-      startingPrice: 6000,
-      priceRange: '$6,000 - $60,000',
-      pricingModel: 'project-based',
-      currency: 'USD',
-      notes:
-        'Pricing varies based on scope, number of touchpoints, complexity of design system, and documentation requirements.',
-    },
-    duration: {
-      minWeeks: 6,
-      maxWeeks: 16,
-      typicalDuration: '8-12 weeks',
-    },
-    videoUrl: '',
     faq: [
       {
         question: 'What is included in a visual identity system?',
@@ -554,10 +1132,6 @@ export const SERVICES_DATA = [
         order: 4,
       },
     ],
-    additionalContent: [],
-    relatedServices: [],
-    testimonials: [],
-    caseStudies: [],
     tags: [
       'visual identity',
       'design systems',
@@ -576,705 +1150,8 @@ export const SERVICES_DATA = [
   },
 ];
 
-// Projects seed data
-export const PROJECTS_DATA = [
-  {
-    title: 'Artisan Coffee Brand Identity',
-    slug: 'artisan-coffee-brand-identity',
-    description:
-      'Complete brand identity redesign for a premium artisan coffee roastery. We developed a sophisticated visual identity that reflects their commitment to quality and craftsmanship, including logo design, packaging, and brand guidelines.',
-    shortDescription: 'Complete brand identity for premium artisan coffee roastery',
-    featuredImage:
-      'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=1200&h=800&fit=crop',
-    cardImage: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&h=400&fit=crop',
-    bannerImage: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=1920&h=1080&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&h=800&fit=crop',
-    ],
-    technologies: ['Adobe Illustrator', 'Adobe Photoshop', 'Figma', 'Brand Guidelines'],
-    category: 'Brand Design',
-    status: 'completed',
-    clientName: 'BrewCraft Roasters',
-    clientWebsite: 'https://brewcraft.example.com',
-    projectUrl: 'https://brewcraft.example.com',
-    githubUrl: '',
-    startDate: new Date('2024-01-15'),
-    endDate: new Date('2024-04-30'),
-    challenge:
-      "BrewCraft Roasters needed to rebrand from a local roastery to a premium artisan coffee brand. Their existing identity didn't reflect their commitment to quality and craftsmanship, and they struggled to differentiate themselves in a competitive market. They needed a cohesive brand system that would work across retail, e-commerce, and wholesale channels.",
-    solution:
-      'We developed a sophisticated brand identity that celebrates the artisanal nature of coffee roasting while maintaining premium positioning. The new identity includes a handcrafted logo, rich color palette inspired by coffee beans, and elegant typography that conveys quality and tradition. We created comprehensive packaging designs and brand guidelines that ensure consistency across all touchpoints.',
-    approach:
-      "Our approach began with deep research into the coffee industry and BrewCraft's unique story. We conducted stakeholder interviews to understand their values and vision. We then developed multiple design directions, refined the selected concept through iterations, and created a complete brand system including logo variations, color palettes, typography, packaging designs, and comprehensive brand guidelines.",
-    results:
-      'The new brand identity successfully positioned BrewCraft as a premium artisan coffee brand. Within 6 months of launch, they saw a 40% increase in brand recognition, 35% growth in retail sales, and secured partnerships with 15 new wholesale accounts. The cohesive brand system has made it easier for them to expand into new markets and product lines while maintaining brand consistency.',
-    metrics: [
-      {
-        label: 'Brand Recognition Increase',
-        value: '40%',
-        icon: '📈',
-        order: 1,
-      },
-      {
-        label: 'Retail Sales Growth',
-        value: '35%',
-        icon: '💰',
-        order: 2,
-      },
-      {
-        label: 'New Wholesale Partners',
-        value: '15',
-        icon: '🤝',
-        order: 3,
-      },
-      {
-        label: 'Project Duration',
-        value: '15 weeks',
-        icon: '⏱️',
-        order: 4,
-      },
-    ],
-    timeline: [
-      {
-        phase: 'Discovery & Research',
-        description: 'Industry research, stakeholder interviews, and brand audit',
-        startDate: new Date('2024-01-15'),
-        endDate: new Date('2024-01-29'),
-        status: 'completed',
-        order: 1,
-      },
-      {
-        phase: 'Strategy Development',
-        description: 'Brand positioning, messaging, and visual direction',
-        startDate: new Date('2024-01-30'),
-        endDate: new Date('2024-02-12'),
-        status: 'completed',
-        order: 2,
-      },
-      {
-        phase: 'Concept Development',
-        description: 'Logo concepts, color palettes, and typography exploration',
-        startDate: new Date('2024-02-13'),
-        endDate: new Date('2024-03-05'),
-        status: 'completed',
-        order: 3,
-      },
-      {
-        phase: 'Design Refinement',
-        description: 'Refining selected concepts and developing brand applications',
-        startDate: new Date('2024-03-06'),
-        endDate: new Date('2024-03-26'),
-        status: 'completed',
-        order: 4,
-      },
-      {
-        phase: 'Packaging Design',
-        description: 'Creating packaging designs for all product lines',
-        startDate: new Date('2024-03-27'),
-        endDate: new Date('2024-04-16'),
-        status: 'completed',
-        order: 5,
-      },
-      {
-        phase: 'Finalization & Delivery',
-        description: 'Brand guidelines, final assets, and production files',
-        startDate: new Date('2024-04-17'),
-        endDate: new Date('2024-04-30'),
-        status: 'completed',
-        order: 6,
-      },
-    ],
-    teamMembers: [],
-    challengesFaced: [
-      {
-        challenge: 'Balancing artisanal, handcrafted feel with premium, professional positioning',
-        solution:
-          'We developed a design system that uses handcrafted elements (custom illustrations, organic shapes) combined with refined typography and sophisticated color palettes to achieve both qualities.',
-        order: 1,
-      },
-      {
-        challenge: 'Creating packaging that works across multiple product lines and sizes',
-        solution:
-          'We designed a flexible packaging system with consistent visual elements that adapt to different package sizes while maintaining brand recognition.',
-        order: 2,
-      },
-      {
-        challenge: 'Ensuring brand consistency across retail, e-commerce, and wholesale',
-        solution:
-          'We created comprehensive brand guidelines with specific applications for each channel, ensuring consistency while allowing for channel-specific adaptations.',
-        order: 3,
-      },
-    ],
-    lessonsLearned: [
-      "Deep stakeholder interviews revealed brand values that weren't initially apparent, which became central to the design direction",
-      'Testing packaging designs in physical retail environments helped identify improvements before final production',
-      'Creating flexible brand systems from the start makes it easier to expand into new product lines and markets',
-    ],
-    videoUrl: '',
-    additionalContent: [],
-    relatedProjects: [],
-    testimonials: [],
-    tags: [
-      'brand identity',
-      'coffee branding',
-      'packaging design',
-      'logo design',
-      'brand guidelines',
-    ],
-    budget: {
-      amount: 25000,
-      currency: 'USD',
-      range: '$20,000 - $30,000',
-    },
-    isFeatured: true,
-    displayOrder: 1,
-    seo: {
-      metaTitle: 'Artisan Coffee Brand Identity | Brand Design Case Study',
-      metaDescription:
-        'Case study: Complete brand identity redesign for premium artisan coffee roastery, including logo, packaging, and brand guidelines.',
-      keywords: ['brand identity', 'coffee branding', 'packaging design', 'logo design'],
-    },
-  },
-  {
-    title: 'Luxury Skincare Product Photography',
-    slug: 'luxury-skincare-product-photography',
-    description:
-      'Premium product photography campaign for a luxury skincare brand. We created stunning visuals that showcase the elegance and quality of their products, including lifestyle photography and detailed product shots for e-commerce and marketing materials.',
-    shortDescription: 'Premium product photography for luxury skincare brand',
-    featuredImage:
-      'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1200&h=800&fit=crop',
-    cardImage: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=400&fit=crop',
-    bannerImage: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1920&h=1080&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1571875257727-256c39da42af?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1570554886110-6a3b3c3b3b3b?w=1200&h=800&fit=crop',
-    ],
-    technologies: ['Canon EOS R5', 'Adobe Lightroom', 'Adobe Photoshop', 'Studio Lighting'],
-    category: 'Photography',
-    status: 'completed',
-    clientName: 'Glow Essentials',
-    clientWebsite: 'https://glowessentials.example.com',
-    projectUrl: 'https://glowessentials.example.com',
-    githubUrl: '',
-    startDate: new Date('2023-11-01'),
-    endDate: new Date('2024-02-15'),
-    challenge:
-      "Glow Essentials needed professional product photography that would elevate their brand positioning and increase e-commerce sales. Their existing product images were inconsistent, didn't reflect the luxury nature of their products, and failed to showcase product details effectively. They needed a cohesive visual identity across all product photography.",
-    solution:
-      'We created a comprehensive photography campaign featuring lifestyle photography, detailed product shots, and consistent styling that reflected the luxury and elegance of the brand. Each product was photographed with attention to texture, detail, and brand aesthetic, creating a cohesive visual library for e-commerce and marketing.',
-    approach:
-      "We developed a photography style guide that defined lighting, composition, and styling standards. We conducted multiple shoot sessions covering all product lines, ensuring consistency while highlighting each product's unique features. Post-production included color grading, retouching, and optimization for various use cases.",
-    results:
-      'The new photography campaign resulted in a 60% increase in e-commerce conversion rates, 45% increase in average order value, and significantly improved brand perception. The consistent visual style has become a key differentiator for the brand.',
-    metrics: [
-      {
-        label: 'E-commerce Conversion Increase',
-        value: '60%',
-        icon: '📈',
-        order: 1,
-      },
-      {
-        label: 'Average Order Value Increase',
-        value: '45%',
-        icon: '💰',
-        order: 2,
-      },
-      {
-        label: 'Products Photographed',
-        value: '50+',
-        icon: '📸',
-        order: 3,
-      },
-    ],
-    timeline: [
-      {
-        phase: 'Style Guide Development',
-        description: 'Creating photography style guide and planning shoot logistics',
-        startDate: new Date('2023-11-01'),
-        endDate: new Date('2023-11-15'),
-        status: 'completed',
-        order: 1,
-      },
-      {
-        phase: 'Product Photography Sessions',
-        description: 'Multiple photography sessions covering all product lines',
-        startDate: new Date('2023-11-16'),
-        endDate: new Date('2024-01-15'),
-        status: 'completed',
-        order: 2,
-      },
-      {
-        phase: 'Post-Production',
-        description: 'Editing, retouching, and color grading all images',
-        startDate: new Date('2024-01-16'),
-        endDate: new Date('2024-02-15'),
-        status: 'completed',
-        order: 3,
-      },
-    ],
-    teamMembers: [],
-    challengesFaced: [
-      {
-        challenge: 'Maintaining consistent lighting and styling across multiple shoot days',
-        solution:
-          'We created detailed style guides and shot lists, and used consistent equipment setups to ensure uniformity across all sessions.',
-        order: 1,
-      },
-      {
-        challenge: 'Capturing product details while maintaining aesthetic appeal',
-        solution:
-          'We used macro photography techniques and strategic lighting to highlight product textures and details without compromising the overall aesthetic.',
-        order: 2,
-      },
-    ],
-    lessonsLearned: [
-      'Consistent styling and lighting are crucial for creating a cohesive brand visual identity',
-      'Lifestyle photography significantly increases engagement compared to plain product shots',
-      'High-quality product detail shots reduce return rates by setting accurate expectations',
-    ],
-    videoUrl: '',
-    additionalContent: [],
-    relatedProjects: [],
-    testimonials: [],
-    tags: [
-      'product photography',
-      'skincare photography',
-      'beauty photography',
-      'e-commerce photography',
-      'luxury',
-    ],
-    budget: {
-      amount: 18000,
-      currency: 'USD',
-      range: '$15,000 - $20,000',
-    },
-    isFeatured: true,
-    displayOrder: 2,
-    seo: {
-      metaTitle: 'Luxury Skincare Product Photography | Photography Case Study',
-      metaDescription:
-        'Case study: Premium product photography campaign for luxury skincare brand, including lifestyle and detailed product shots.',
-      keywords: [
-        'product photography',
-        'skincare photography',
-        'beauty photography',
-        'e-commerce photography',
-      ],
-    },
-  },
-  {
-    title: 'Fashion E-Commerce Platform Design',
-    slug: 'fashion-ecommerce-platform-design',
-    description:
-      'Complete UI/UX redesign for a modern fashion e-commerce platform. We created an intuitive shopping experience with beautiful product displays, seamless checkout flow, and mobile-first design that increased conversions by 45%.',
-    shortDescription: 'UI/UX redesign for modern fashion e-commerce platform',
-    featuredImage:
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop',
-    cardImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
-    bannerImage:
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&h=1080&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&h=800&fit=crop',
-    ],
-    technologies: ['Figma', 'React', 'Next.js', 'TypeScript', 'Tailwind CSS'],
-    category: 'Product Design',
-    status: 'completed',
-    clientName: 'StyleHub',
-    clientWebsite: 'https://stylehub.example.com',
-    projectUrl: 'https://stylehub.example.com',
-    githubUrl: '',
-    startDate: new Date('2024-02-01'),
-    endDate: new Date('2024-07-15'),
-    challenge:
-      "StyleHub's existing e-commerce platform had a high bounce rate, low conversion rate, and poor mobile experience. Users found it difficult to browse products, the checkout process was confusing, and the overall design felt outdated compared to competitors. They needed a complete redesign that would improve user experience and drive sales.",
-    solution:
-      'We redesigned the entire platform with a focus on user experience, mobile-first design, and conversion optimization. The new design features intuitive navigation, beautiful product displays with multiple views, streamlined checkout process, personalized recommendations, and a modern, fashion-forward aesthetic that aligns with their brand.',
-    approach:
-      'We started with comprehensive user research including surveys, interviews, and usability testing of the existing platform. We analyzed user journeys, identified pain points, and studied competitor platforms. We then created wireframes, interactive prototypes, and conducted multiple rounds of user testing. The final design was implemented with a focus on performance, accessibility, and scalability.',
-    results:
-      'The redesigned platform achieved remarkable results: 45% increase in conversion rate, 60% reduction in bounce rate, 50% increase in average session duration, and 35% increase in mobile conversions. User satisfaction scores improved significantly, and the platform now serves as a benchmark for fashion e-commerce experiences.',
-    metrics: [
-      {
-        label: 'Conversion Rate Increase',
-        value: '45%',
-        icon: '📊',
-        order: 1,
-      },
-      {
-        label: 'Bounce Rate Reduction',
-        value: '60%',
-        icon: '⬇️',
-        order: 2,
-      },
-      {
-        label: 'Session Duration Increase',
-        value: '50%',
-        icon: '⏱️',
-        order: 3,
-      },
-      {
-        label: 'Mobile Conversion Increase',
-        value: '35%',
-        icon: '📱',
-        order: 4,
-      },
-    ],
-    timeline: [
-      {
-        phase: 'Research & Discovery',
-        description: 'User research, competitive analysis, and current state audit',
-        startDate: new Date('2024-02-01'),
-        endDate: new Date('2024-02-28'),
-        status: 'completed',
-        order: 1,
-      },
-      {
-        phase: 'Information Architecture',
-        description: 'Site structure, user flows, and navigation design',
-        startDate: new Date('2024-03-01'),
-        endDate: new Date('2024-03-21'),
-        status: 'completed',
-        order: 2,
-      },
-      {
-        phase: 'Wireframing & Prototyping',
-        description: 'Low and high-fidelity wireframes and interactive prototypes',
-        startDate: new Date('2024-03-22'),
-        endDate: new Date('2024-04-18'),
-        status: 'completed',
-        order: 3,
-      },
-      {
-        phase: 'Visual Design',
-        description: 'UI design, design system, and component library',
-        startDate: new Date('2024-04-19'),
-        endDate: new Date('2024-05-30'),
-        status: 'completed',
-        order: 4,
-      },
-      {
-        phase: 'User Testing & Iteration',
-        description: 'Usability testing and design refinements',
-        startDate: new Date('2024-05-31'),
-        endDate: new Date('2024-06-20'),
-        status: 'completed',
-        order: 5,
-      },
-      {
-        phase: 'Development Handoff & Launch',
-        description: 'Design specifications, developer collaboration, and launch',
-        startDate: new Date('2024-06-21'),
-        endDate: new Date('2024-07-15'),
-        status: 'completed',
-        order: 6,
-      },
-    ],
-    teamMembers: [],
-    challengesFaced: [
-      {
-        challenge: 'Redesigning while maintaining existing functionality and data',
-        solution:
-          'We worked closely with the development team to ensure all existing features were preserved while improving their UX. We created a phased rollout plan to minimize disruption.',
-        order: 1,
-      },
-      {
-        challenge: 'Creating a mobile-first experience that works across all devices',
-        solution:
-          'We designed with a mobile-first approach, then scaled up to tablet and desktop. We used responsive design patterns and tested on multiple devices throughout the process.',
-        order: 2,
-      },
-      {
-        challenge: 'Balancing aesthetic appeal with conversion optimization',
-        solution:
-          'We used data-driven design decisions, A/B tested key elements, and iterated based on user behavior data to find the perfect balance between beauty and functionality.',
-        order: 3,
-      },
-    ],
-    lessonsLearned: [
-      'Mobile-first design is essential for e-commerce - over 60% of traffic came from mobile devices',
-      'Simplified checkout process had the biggest impact on conversion rates',
-      'High-quality product imagery and multiple views significantly increased engagement',
-      'Personalization and recommendations drove repeat visits and higher order values',
-    ],
-    videoUrl: '',
-    additionalContent: [],
-    relatedProjects: [],
-    testimonials: [],
-    tags: [
-      'e-commerce design',
-      'fashion website',
-      'UI/UX design',
-      'product design',
-      'conversion optimization',
-    ],
-    budget: {
-      amount: 65000,
-      currency: 'USD',
-      range: '$60,000 - $70,000',
-    },
-    isFeatured: true,
-    displayOrder: 3,
-    seo: {
-      metaTitle: 'Fashion E-Commerce Platform Design | UI/UX Case Study',
-      metaDescription:
-        'Case study: Complete UI/UX redesign for fashion e-commerce platform, resulting in 45% increase in conversions.',
-      keywords: ['e-commerce design', 'fashion website', 'UI/UX design', 'product design'],
-    },
-  },
-  {
-    title: 'Organic Tea Packaging Collection',
-    slug: 'organic-tea-packaging-collection',
-    description:
-      'Sustainable packaging design for an organic tea brand. We created an elegant, eco-friendly packaging system that reflects their commitment to sustainability while maintaining premium brand positioning. The design includes multiple tea varieties with cohesive visual language.',
-    shortDescription: 'Sustainable packaging design for organic tea brand',
-    featuredImage:
-      'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=1200&h=800&fit=crop',
-    cardImage: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=400&fit=crop',
-    bannerImage: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=1920&h=1080&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=1200&h=800&fit=crop',
-    ],
-    technologies: ['Adobe Illustrator', 'Adobe InDesign', '3D Rendering', 'Print Production'],
-    category: 'Packaging Design',
-    status: 'completed',
-    clientName: 'NatureLeaf Teas',
-    clientWebsite: 'https://natureleaf.example.com',
-    projectUrl: 'https://natureleaf.example.com',
-    githubUrl: '',
-    startDate: new Date('2023-09-15'),
-    endDate: new Date('2024-01-30'),
-    challenge:
-      "NatureLeaf Teas needed packaging that balanced sustainability with premium positioning. Their existing packaging didn't reflect their organic, eco-friendly values, and they needed a cohesive system that worked across 20+ tea varieties while maintaining brand recognition.",
-    solution:
-      'We designed a sustainable packaging system using eco-friendly materials with elegant, nature-inspired graphics. The system features a flexible design that adapts to different tea varieties while maintaining cohesive brand identity through consistent color coding and typography.',
-    approach:
-      'We researched sustainable packaging materials and developed a design system that could scale across all product lines. We created 3D mockups, tested materials, and worked with manufacturers to ensure the design was both beautiful and environmentally responsible.',
-    results:
-      "The new packaging successfully communicated the brand's sustainability values while maintaining premium positioning. Retail sales increased by 30%, and the brand received recognition for sustainable packaging innovation.",
-    metrics: [
-      {
-        label: 'Retail Sales Increase',
-        value: '30%',
-        icon: '📈',
-        order: 1,
-      },
-      {
-        label: 'Tea Varieties Designed',
-        value: '20+',
-        icon: '🍃',
-        order: 2,
-      },
-      {
-        label: 'Sustainable Materials Used',
-        value: '100%',
-        icon: '🌱',
-        order: 3,
-      },
-    ],
-    timeline: [
-      {
-        phase: 'Research & Material Selection',
-        description: 'Researching sustainable materials and developing design concepts',
-        startDate: new Date('2023-09-15'),
-        endDate: new Date('2023-10-15'),
-        status: 'completed',
-        order: 1,
-      },
-      {
-        phase: 'Design Development',
-        description: 'Creating packaging designs for all tea varieties',
-        startDate: new Date('2023-10-16'),
-        endDate: new Date('2023-12-15'),
-        status: 'completed',
-        order: 2,
-      },
-      {
-        phase: 'Production & Launch',
-        description: 'Finalizing production files and launching new packaging',
-        startDate: new Date('2023-12-16'),
-        endDate: new Date('2024-01-30'),
-        status: 'completed',
-        order: 3,
-      },
-    ],
-    teamMembers: [],
-    challengesFaced: [
-      {
-        challenge: 'Finding sustainable materials that met premium quality standards',
-        solution:
-          'We worked closely with material suppliers and manufacturers to identify eco-friendly options that maintained the premium feel while meeting sustainability goals.',
-        order: 1,
-      },
-      {
-        challenge: 'Creating a flexible system that worked across 20+ product variants',
-        solution:
-          'We developed a modular design system with consistent elements (logo placement, typography) and flexible components (color coding, illustrations) that could be customized per product.',
-        order: 2,
-      },
-    ],
-    lessonsLearned: [
-      'Sustainable packaging can be both eco-friendly and premium with the right material choices',
-      'Flexible design systems are essential for product lines with many variants',
-      'Early collaboration with manufacturers prevents production issues later',
-    ],
-    videoUrl: '',
-    additionalContent: [],
-    relatedProjects: [],
-    testimonials: [],
-    tags: [
-      'packaging design',
-      'tea packaging',
-      'sustainable packaging',
-      'product packaging',
-      'eco-friendly',
-    ],
-    budget: {
-      amount: 22000,
-      currency: 'USD',
-      range: '$20,000 - $25,000',
-    },
-    isFeatured: true,
-    displayOrder: 4,
-    seo: {
-      metaTitle: 'Organic Tea Packaging Design | Packaging Case Study',
-      metaDescription:
-        'Case study: Sustainable packaging design for organic tea brand, creating elegant eco-friendly packaging system.',
-      keywords: ['packaging design', 'tea packaging', 'sustainable packaging', 'product packaging'],
-    },
-  },
-  {
-    title: 'Tech Startup Visual Identity System',
-    slug: 'tech-startup-visual-identity-system',
-    description:
-      'Comprehensive visual identity system for a fintech startup. We developed a modern, tech-forward brand system including logo, color palette, typography, iconography, and comprehensive design guidelines for digital and print applications.',
-    shortDescription: 'Comprehensive visual identity system for fintech startup',
-    featuredImage:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop',
-    cardImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop',
-    bannerImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&h=1080&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&h=800&fit=crop',
-      'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&h=800&fit=crop',
-    ],
-    technologies: ['Figma', 'Adobe Illustrator', 'Design Systems', 'Brand Guidelines'],
-    category: 'Visual Identity',
-    status: 'completed',
-    clientName: 'FinanceFlow',
-    clientWebsite: 'https://financeflow.example.com',
-    projectUrl: 'https://financeflow.example.com',
-    githubUrl: '',
-    startDate: new Date('2024-03-01'),
-    endDate: new Date('2024-06-30'),
-    challenge:
-      'FinanceFlow needed a comprehensive visual identity system that would establish them as a modern, trustworthy fintech brand. As a startup, they needed a system that could scale quickly and be easily implemented by their small team across digital and print applications.',
-    solution:
-      'We created a complete visual identity system with a modern logo, sophisticated color palette, custom typography system, comprehensive iconography, and detailed brand guidelines. The system was designed to be flexible and scalable for rapid growth.',
-    approach:
-      'We developed the visual identity with a focus on scalability and ease of implementation. We created comprehensive design systems, component libraries, and detailed guidelines that enabled the team to maintain brand consistency independently.',
-    results:
-      'The visual identity system successfully established FinanceFlow as a modern, professional fintech brand. The comprehensive guidelines enabled the team to maintain brand consistency as they scaled, and the system has been easily adapted for new products and marketing materials.',
-    metrics: [
-      {
-        label: 'Design System Components',
-        value: '100+',
-        icon: '🎨',
-        order: 1,
-      },
-      {
-        label: 'Brand Guidelines Pages',
-        value: '50+',
-        icon: '📖',
-        order: 2,
-      },
-      {
-        label: 'Project Duration',
-        value: '16 weeks',
-        icon: '⏱️',
-        order: 3,
-      },
-    ],
-    timeline: [
-      {
-        phase: 'Brand Foundation',
-        description: 'Reviewing brand strategy and developing visual direction',
-        startDate: new Date('2024-03-01'),
-        endDate: new Date('2024-03-21'),
-        status: 'completed',
-        order: 1,
-      },
-      {
-        phase: 'Identity Development',
-        description: 'Creating logo, color systems, and typography',
-        startDate: new Date('2024-03-22'),
-        endDate: new Date('2024-04-25'),
-        status: 'completed',
-        order: 2,
-      },
-      {
-        phase: 'Design System Creation',
-        description: 'Building comprehensive design system and component library',
-        startDate: new Date('2024-04-26'),
-        endDate: new Date('2024-05-30'),
-        status: 'completed',
-        order: 3,
-      },
-      {
-        phase: 'Guidelines & Documentation',
-        description: 'Creating comprehensive brand guidelines and documentation',
-        startDate: new Date('2024-05-31'),
-        endDate: new Date('2024-06-30'),
-        status: 'completed',
-        order: 4,
-      },
-    ],
-    teamMembers: [],
-    challengesFaced: [
-      {
-        challenge: 'Creating a system that could scale quickly with a small team',
-        solution:
-          'We designed a comprehensive but simple system with clear guidelines and reusable components that made it easy for the team to maintain consistency without constant design support.',
-        order: 1,
-      },
-      {
-        challenge: 'Balancing modern tech aesthetic with financial industry trust',
-        solution:
-          'We used sophisticated color palettes and refined typography that felt modern and tech-forward while maintaining the professionalism required in the financial industry.',
-        order: 2,
-      },
-    ],
-    lessonsLearned: [
-      'Comprehensive guidelines are essential for startups to maintain brand consistency as they scale',
-      'Design systems should be simple enough for non-designers to use effectively',
-      'Early investment in a solid visual identity pays off as the company grows',
-    ],
-    videoUrl: '',
-    additionalContent: [],
-    relatedProjects: [],
-    testimonials: [],
-    tags: ['visual identity', 'brand system', 'fintech branding', 'design systems', 'startup'],
-    budget: {
-      amount: 35000,
-      currency: 'USD',
-      range: '$30,000 - $40,000',
-    },
-    isFeatured: false,
-    displayOrder: 5,
-    seo: {
-      metaTitle: 'Tech Startup Visual Identity | Brand System Case Study',
-      metaDescription:
-        'Case study: Comprehensive visual identity system for fintech startup, including logo, color systems, and design guidelines.',
-      keywords: ['visual identity', 'brand system', 'fintech branding', 'design systems'],
-    },
-  },
-];
+// Projects seed data (bold-brand-studio case studies)
+export { PROJECTS_DATA } from './projectsSeedData';
 
 // Testimonials seed data
 export const TESTIMONIALS_DATA = [
@@ -1429,5 +1306,56 @@ export const BRANDS_DATA = [
     websiteUrl: 'https://brandforge.example.com',
     isActive: true,
     displayOrder: 10,
+  },
+];
+
+/** Team members seed data */
+export const TEAM_MEMBERS_DATA = [
+  {
+    name: 'Jane Doe',
+    role: 'Creative Director',
+    bio: '',
+    image: '',
+    isActive: true,
+    displayOrder: 1,
+  },
+  {
+    name: 'John Smith',
+    role: 'Lead Designer',
+    bio: '',
+    image: '',
+    isActive: true,
+    displayOrder: 2,
+  },
+];
+
+/**
+ * Admin seed data – one entry per admin (same order as ADMIN_EMAILS).
+ * Used when seeding Firebase Auth users and Firestore admins collection.
+ * Change default password after first login.
+ */
+export const ADMIN_SEED_DATA: Array<{
+  email: string;
+  password: string;
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  photoURL?: string;
+}> = [
+  {
+    email: ADMIN_EMAILS[0],
+    password: 'Password123!',
+    displayName: 'Edward',
+    firstName: 'Edward-Precious',
+    lastName: 'Omegbu',
+    photoURL: 'https://static.crelyst.com.ng/eddy.JPG',
+  },
+  {
+    email: ADMIN_EMAILS[1],
+    password: 'Password123!',
+    displayName: 'Isaac',
+    firstName: 'Isaac',
+    lastName: 'Onoja',
+    photoURL: 'https://static.crelyst.com.ng/isaac.jpg',
   },
 ];

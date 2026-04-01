@@ -1,4 +1,5 @@
-export { HomePageClient } from './HomePageClient';
+export { HomePageView } from './HomePageView';
+export type { HomePageViewProps } from './HomePageView';
 export { HeroSection } from './HeroSection';
 export { ServicesPreviewSection } from './ServicesPreviewSection';
 export { AboutPreviewSection } from './AboutPreviewSection';
