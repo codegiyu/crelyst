@@ -1,54 +1,55 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Brand } from '../../models/brand';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import { getBrandByName, updateBrand as updateBrandRepo } from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Update brand (admin only)
-export const updateBrand = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, req, user } = context as RequestContext;
+const updateBrandBodySchema = z.object({
+  name: z.string().min(1).optional(),
+  logo: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
+export const updateBrand: RouteHandler = async ({ request, body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
+
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
+
+  if (!identifier) {
+    throw new AppError('Brand identifier is required', 400);
+  }
+
+  const payload = validateBody(updateBrandBodySchema, body);
+
+  if (payload.name && payload.name.trim().length > 0) {
+    const existingBrand = await getBrandByName(payload.name);
+    if (existingBrand && existingBrand.id !== identifier) {
+      throw new AppError('Brand with this name already exists', 409);
     }
+  }
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  const updateData: Record<string, unknown> = {};
+  if (payload.name !== undefined) updateData.name = payload.name;
+  if (payload.logo !== undefined) updateData.logo = payload.logo;
+  if (payload.websiteUrl !== undefined) updateData.websiteUrl = payload.websiteUrl;
+  if (payload.isActive !== undefined) updateData.isActive = payload.isActive;
+  if (payload.displayOrder !== undefined) updateData.displayOrder = payload.displayOrder;
 
-    if (!identifier) {
-      throw new AppError('Brand identifier is required', 400);
-    }
+  const brand = await updateBrandRepo(identifier, updateData);
 
-    const { name: newName, logo, websiteUrl, isActive, displayOrder } = body;
+  if (!brand) {
+    throw new AppError('Brand not found', 404);
+  }
 
-    // If name is being updated, check if new name already exists
-    if (newName) {
-      const existingBrand = await Brand.findOne({ name: newName });
-      if (existingBrand && existingBrand._id.toString() !== identifier) {
-        throw new AppError('Brand with this name already exists', 409);
-      }
-    }
+  revalidateAboutAndHome();
 
-    // Build update object with only provided fields
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: any = {};
-    if (newName !== undefined) updateData.name = newName;
-    if (logo !== undefined) updateData.logo = logo;
-    if (websiteUrl !== undefined) updateData.websiteUrl = websiteUrl;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
-
-    const brand = await Brand.findByIdAndUpdate(identifier, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!brand) {
-      throw new AppError('Brand not found', 404);
-    }
-
-    return sendResponse(200, { brand }, 'Brand updated successfully');
-  })
-);
+  return sendResponse(200, { brand: { ...brand, _id: brand.id } }, 'Brand updated successfully');
+};

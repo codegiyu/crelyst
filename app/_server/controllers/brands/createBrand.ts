@@ -1,42 +1,44 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Brand } from '../../models/brand';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import { getBrandByName, createBrand as createBrandRepo } from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Create brand (admin only)
-export const createBrand = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, user } = context as RequestContext;
+const createBrandBodySchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  logo: z.string().min(1, 'Logo is required'),
+  websiteUrl: z.string().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+export const createBrand: RouteHandler = async ({ body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    const { name, logo, websiteUrl, isActive, displayOrder } = body;
+  const payload = validateBody(createBrandBodySchema, body);
 
-    if (!name || !logo) {
-      throw new AppError('Name and logo are required', 400);
-    }
+  const existingBrand = await getBrandByName(payload.name);
+  if (existingBrand) {
+    throw new AppError('Brand with this name already exists', 409);
+  }
 
-    // Check if name already exists
-    const existingBrand = await Brand.findOne({ name });
-    if (existingBrand) {
-      throw new AppError('Brand with this name already exists', 409);
-    }
+  const brand = await createBrandRepo({
+    name: payload.name,
+    logo: payload.logo,
+    websiteUrl: payload.websiteUrl ?? '',
+    isActive: payload.isActive ?? true,
+    displayOrder: payload.displayOrder ?? 0,
+  });
 
-    const brand = await Brand.create({
-      name,
-      logo,
-      websiteUrl: websiteUrl || '',
-      isActive: isActive !== undefined ? isActive : true,
-      displayOrder: displayOrder || 0,
-    });
+  if (!brand) {
+    throw new AppError('Failed to create brand', 500);
+  }
 
-    if (!brand) {
-      throw new AppError('Failed to create brand', 500);
-    }
+  revalidateAboutAndHome();
 
-    return sendResponse(201, { brand }, 'Brand created successfully');
-  })
-);
+  return sendResponse(201, { brand: { ...brand, _id: brand.id } }, 'Brand created successfully');
+};

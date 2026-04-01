@@ -6,31 +6,12 @@ interface IEnvironment {
     ENV?: string;
     APP_URL: string;
   };
-  DB: {
-    URL: string;
-  };
   EMAIL: {
     FROM: string;
     PASSWORD: string;
     HOST: string;
     PORT: number;
     TO: string;
-  };
-  TOKEN_NAMES: {
-    COOKIES: {
-      ACCESS: string;
-      REFRESH: string;
-    };
-  };
-  JWT: {
-    ACCESS_TOKEN_SECRET: string;
-    ACCESS_TOKEN_EXPIRES_IN: string;
-    REFRESH_TOKEN_SECRET: string;
-    REFRESH_TOKEN_EXPIRES_IN: string;
-  };
-  COOKIE: {
-    ACCESS_COOKIE_EXPIRES_IN: number;
-    REFRESH_COOKIE_EXPIRES_IN: number;
   };
   R2: {
     ACCOUNT_ID: string;
@@ -41,10 +22,6 @@ interface IEnvironment {
     PUBLIC_URL: string;
     FOLDER_PREFIX: string;
   };
-  REDIS: {
-    URL: string;
-    CACHE_EXPIRY: number;
-  };
   COMPANIES: CompanyBrandingConfig;
 }
 
@@ -54,31 +31,12 @@ export const ENVIRONMENT: IEnvironment = {
     ENV: process.env.NODE_ENV,
     APP_URL: process.env.APP_URL ?? '',
   },
-  DB: {
-    URL: process.env.DB_URL!,
-  },
   EMAIL: {
     FROM: process.env.FROM_EMAIL!,
     TO: process.env.TO_EMAIL!,
     PASSWORD: process.env.MAIL_PASSWORD!,
     HOST: process.env.MAIL_HOST!,
     PORT: parseInt(process.env.MAIL_PORT!),
-  },
-  TOKEN_NAMES: {
-    COOKIES: {
-      ACCESS: 'app-acc-token',
-      REFRESH: 'app-ref-token',
-    },
-  },
-  JWT: {
-    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET!,
-    ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN!,
-    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET!,
-    REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN!,
-  },
-  COOKIE: {
-    ACCESS_COOKIE_EXPIRES_IN: parseInt(process.env.ACCESS_COOKIE_EXPIRES_IN!),
-    REFRESH_COOKIE_EXPIRES_IN: parseInt(process.env.REFRESH_COOKIE_EXPIRES_IN!),
   },
   R2: {
     ACCOUNT_ID: process.env.R2_ACCOUNT_ID || '',
@@ -88,10 +46,6 @@ export const ENVIRONMENT: IEnvironment = {
     CDN_URL: process.env.R2_CDN_URL || '',
     PUBLIC_URL: process.env.R2_PUBLIC_URL || '',
     FOLDER_PREFIX: process.env.R2_FOLDER_PREFIX || 'staging-files',
-  },
-  REDIS: {
-    URL: process.env.REDIS_URL!,
-    CACHE_EXPIRY: Number(process.env.CACHE_EXPIRY!),
   },
   COMPANIES: {
     crelyst: {

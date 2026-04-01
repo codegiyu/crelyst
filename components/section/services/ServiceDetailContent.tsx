@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { ClientService } from '@/lib/constants/endpoints';
-import { Check, Clock, DollarSign, TrendingUp, HelpCircle } from 'lucide-react';
-import { RegularBtn } from '@/components/atoms/RegularBtn';
+import { Check, HelpCircle, ChevronRight } from 'lucide-react';
+import { PublicContactCTASection } from '@/components/section/shared';
 import {
   Accordion,
   AccordionContent,
@@ -19,275 +20,328 @@ interface ServiceDetailContentProps {
 
 export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => {
   const { siteLoading } = useSiteStore(state => state);
+  const anim = (delay = 0) => (siteLoading ? {} : ({ opacity: 1, y: 0 } as const));
 
   return (
     <>
-      {/* Main Image - Full Width */}
-      {service.image && (
-        <SectionContainer customContainer>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="rounded-2xl overflow-hidden aspect-video bg-muted">
-            <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
-          </motion.div>
-        </SectionContainer>
-      )}
-
-      {/* Video - Full Width */}
-      {service.videoUrl && (
-        <SectionContainer customContainer>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="rounded-2xl overflow-hidden aspect-video bg-muted relative">
-            <iframe
-              src={service.videoUrl}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title={`${service.title} video`}
-            />
-          </motion.div>
-        </SectionContainer>
-      )}
-
-      {/* Description */}
+      {/* ───── Description ───── */}
       <SectionContainer>
-        <motion.div
+        <motion.p
           initial={{ opacity: 0, y: 30 }}
-          whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
+          whileInView={anim()}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="prose prose-lg max-w-none">
-          <p className="text-muted-foreground text-lg leading-relaxed">{service.description}</p>
-        </motion.div>
+          className="mx-auto max-w-3xl text-center text-lg leading-relaxed text-muted-foreground md:text-xl">
+          {service.description}
+        </motion.p>
       </SectionContainer>
 
-      {/* Benefits */}
-      {service.benefits && service.benefits.length > 0 && (
-        <SectionContainer>
+      {/* ───── Gallery ───── */}
+      {service.gallery && service.gallery.length > 0 && (
+        <SectionContainer customContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-serif">
-              Key Benefits
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {service.benefits.map((benefit, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  viewport={{ once: true }}
-                  className="flex items-start gap-3 p-4 bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg border border-border">
-                  <TrendingUp className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-foreground">{benefit}</span>
-                </motion.div>
-              ))}
-            </div>
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
+            {service.gallery.map((src, i) => (
+              <div
+                key={i}
+                className="group relative min-h-[240px] overflow-hidden rounded-2xl border border-border bg-muted sm:min-h-[280px] md:min-h-[320px] lg:min-h-[380px]">
+                <img
+                  src={src}
+                  alt={`${service.title} gallery ${i + 1}`}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+            ))}
           </motion.div>
         </SectionContainer>
       )}
 
-      {/* Features */}
-      {service.features && service.features.length > 0 && (
+      {/* ───── Expertise Breakdown ───── */}
+      {service.expertise && (
+        <SectionContainer background="muted">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+              {service.expertise.title}
+            </h2>
+          </motion.div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            {service.expertise.breakdown.map((group, gi) => (
+              <motion.div
+                key={gi}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={anim()}
+                transition={{ duration: 0.5, delay: gi * 0.1 }}
+                viewport={{ once: true }}
+                className="rounded-2xl border border-border bg-card p-6 md:p-8">
+                <h3 className="mb-5 font-serif text-lg font-semibold text-foreground">
+                  {group.title}
+                </h3>
+                <ul className="grid gap-3">
+                  {group.services.map((s, si) => (
+                    <li key={si} className="flex items-center gap-2 text-muted-foreground">
+                      <ChevronRight className="h-4 w-4 flex-none text-primary" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </div>
+        </SectionContainer>
+      )}
+
+      {/* ───── Breakdown Summary Tags ───── */}
+      {service.breakdownSummary && service.breakdownSummary.length > 0 && (
         <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-serif">
-              What&apos;s Included
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {service.features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  viewport={{ once: true }}
-                  className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <span className="text-foreground">{feature}</span>
-                </motion.div>
-              ))}
-            </div>
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="flex flex-wrap justify-center gap-3">
+            {service.breakdownSummary.map((item, i) => (
+              <span
+                key={i}
+                className="rounded-full border border-primary/20 bg-primary/5 px-5 py-2.5 text-sm font-medium text-primary">
+                {item}
+              </span>
+            ))}
           </motion.div>
         </SectionContainer>
       )}
 
-      {/* Process */}
+      {/* ───── What Makes Us Unique ───── */}
+      {service.whatMakesUsUnique && (
+        <SectionContainer background="muted">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+              {service.whatMakesUsUnique.title}
+            </h2>
+          </motion.div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            {service.whatMakesUsUnique.groups.map((group, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={anim()}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                viewport={{ once: true }}
+                className="rounded-2xl border border-border bg-card p-6 md:p-8">
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="font-serif text-lg font-semibold text-foreground">
+                    {group.title}
+                  </h3>
+                </div>
+                <p className="leading-relaxed text-muted-foreground">{group.text}</p>
+              </motion.div>
+            ))}
+          </div>
+        </SectionContainer>
+      )}
+
+      {/* ───── Process ───── */}
       {service.process && service.process.length > 0 && (
         <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-serif">
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
               Our Process
             </h2>
-            <div className="space-y-6">
-              {service.process
-                .sort((a, b) => (a.order || 0) - (b.order || 0))
-                .map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="flex gap-4 p-6 bg-muted/30 rounded-lg border-l-4 border-primary">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-2">{step.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{step.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-            </div>
           </motion.div>
-        </SectionContainer>
-      )}
 
-      {/* Pricing & Duration */}
-      {(service.pricing || service.duration) && (
-        <SectionContainer>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="grid md:grid-cols-2 gap-6">
-            {service.pricing && (
-              <div className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl border border-border">
-                <div className="flex items-center gap-3 mb-4">
-                  <DollarSign className="w-6 h-6 text-primary" />
-                  <h3 className="text-xl font-semibold text-foreground">Pricing</h3>
-                </div>
-                {service.pricing.startingPrice && (
-                  <p className="text-2xl font-bold text-foreground mb-2">
-                    {service.pricing.currency || 'USD'}{' '}
-                    {service.pricing.startingPrice.toLocaleString()}
-                    {service.pricing.priceRange && (
-                      <span className="text-lg font-normal text-muted-foreground">
-                        {' '}
-                        - {service.pricing.priceRange}
-                      </span>
-                    )}
-                  </p>
-                )}
-                {service.pricing.priceRange && !service.pricing.startingPrice && (
-                  <p className="text-xl font-semibold text-foreground mb-2">
-                    {service.pricing.priceRange}
-                  </p>
-                )}
-                {service.pricing.pricingModel && (
-                  <p className="text-sm text-muted-foreground capitalize mb-2">
-                    {service.pricing.pricingModel.replace('-', ' ')} pricing
-                  </p>
-                )}
-                {service.pricing.notes && (
-                  <p className="text-sm text-muted-foreground">{service.pricing.notes}</p>
-                )}
-              </div>
-            )}
-            {service.duration && (
-              <div className="p-6 bg-gradient-to-br from-accent/5 to-primary/5 rounded-xl border border-border">
-                <div className="flex items-center gap-3 mb-4">
-                  <Clock className="w-6 h-6 text-primary" />
-                  <h3 className="text-xl font-semibold text-foreground">Timeline</h3>
-                </div>
-                {service.duration.typicalDuration && (
-                  <p className="text-xl font-semibold text-foreground mb-2">
-                    {service.duration.typicalDuration}
-                  </p>
-                )}
-                {service.duration.minWeeks && service.duration.maxWeeks && (
-                  <p className="text-sm text-muted-foreground">
-                    Typically {service.duration.minWeeks} - {service.duration.maxWeeks} weeks
-                  </p>
-                )}
-              </div>
-            )}
-          </motion.div>
-        </SectionContainer>
-      )}
-
-      {/* Additional Content Sections */}
-      {service.additionalContent && service.additionalContent.length > 0 && (
-        <SectionContainer>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
-            viewport={{ once: true }}
-            className="space-y-8">
-            {service.additionalContent
+          <div className="relative mx-auto max-w-3xl grid gap-0">
+            {service.process
               .sort((a, b) => (a.order || 0) - (b.order || 0))
-              .map((section, index) => (
+              .map((step, i) => (
                 <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={anim()}
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
                   viewport={{ once: true }}
-                  className="prose prose-lg max-w-none">
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
-                    {section.title}
-                  </h2>
-                  <div
-                    className="text-muted-foreground leading-relaxed"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        section.type === 'html' || section.type === 'markdown'
-                          ? section.content
-                          : section.content.replace(/\n/g, '<br />'),
-                    }}
-                  />
+                  className="relative flex gap-6 pb-10 last:pb-0">
+                  {/* Timeline line */}
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                      {i + 1}
+                    </div>
+                    {i < service.process!.length - 1 && (
+                      <div className="mt-2 flex-1 w-px bg-border" />
+                    )}
+                  </div>
+                  <div className="pt-1.5">
+                    <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+                    <p className="mt-1 leading-relaxed text-muted-foreground">{step.description}</p>
+                  </div>
                 </motion.div>
               ))}
-          </motion.div>
+          </div>
         </SectionContainer>
       )}
 
-      {/* FAQ */}
-      {service.faq && service.faq.length > 0 && (
+      {/* ───── Benefits ───── */}
+      {service.benefits && service.benefits.length > 0 && (
+        <SectionContainer background="muted">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+              Key Benefits
+            </h2>
+          </motion.div>
+
+          <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
+            {service.benefits.map((benefit, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={anim()}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                viewport={{ once: true }}
+                className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+                <div className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-primary/10 mt-0.5">
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-foreground">{benefit}</span>
+              </motion.div>
+            ))}
+          </div>
+        </SectionContainer>
+      )}
+
+      {/* ───── Package Pricing ───── */}
+      {service.packagePricing && service.packagePricing.length > 0 && (
         <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            viewport={{ once: true }}>
-            <div className="flex items-center gap-3 mb-6">
-              <HelpCircle className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-serif">
-                Frequently Asked Questions
-              </h2>
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+              Packages & Pricing
+            </h2>
+          </motion.div>
+
+          <div className="grid gap-16">
+            {service.packagePricing.map(category => (
+              <div key={category.id}>
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={anim()}
+                  transition={{ duration: 0.5 }}
+                  viewport={{ once: true }}
+                  className="mb-8 text-center font-serif text-xl font-semibold capitalize text-foreground md:text-2xl">
+                  {category.id.replace(/_/g, ' ')}
+                </motion.h3>
+
+                <div className="grid gap-6 md:grid-cols-3">
+                  {category.packages.map((pkg, pi) => {
+                    const isMiddle = pi === 1;
+                    const priceLabel =
+                      pkg.priceRange.length === 1
+                        ? `${(pkg.priceRange[0] / 1000).toLocaleString()}k`
+                        : `${(pkg.priceRange[0] / 1000).toLocaleString()}k – ${(pkg.priceRange[1] / 1000).toLocaleString()}k`;
+
+                    return (
+                      <motion.div
+                        key={pkg.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={anim()}
+                        transition={{ duration: 0.5, delay: pi * 0.1 }}
+                        viewport={{ once: true }}
+                        className={`relative overflow-hidden rounded-2xl border p-6 md:p-8 ${
+                          isMiddle ? 'border-primary bg-primary/5' : 'border-border bg-card'
+                        }`}>
+                        {isMiddle && (
+                          <span className="absolute right-4 top-4 rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase text-primary-foreground">
+                            Popular
+                          </span>
+                        )}
+                        <p className="mb-1 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                          {pkg.id}
+                        </p>
+                        <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">
+                          &#8358;{priceLabel}
+                        </p>
+                        <ul className="grid gap-2.5">
+                          {pkg.benefits.map((b, bi) => (
+                            <li
+                              key={bi}
+                              className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <Check className="mt-0.5 h-4 w-4 flex-none text-primary" />
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionContainer>
+      )}
+
+      {/* ───── FAQ ───── */}
+      {service.faq && service.faq.length > 0 && (
+        <SectionContainer background="muted">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <HelpCircle className="h-6 w-6 text-primary" />
             </div>
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+              Frequently Asked Questions
+            </h2>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={anim()}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="mx-auto max-w-3xl">
             <Accordion type="single" collapsible className="w-full">
               {service.faq
                 .sort((a, b) => (a.order || 0) - (b.order || 0))
-                .map((item, index) => (
-                  <AccordionItem key={index} value={`item-${index}`}>
+                .map((item, i) => (
+                  <AccordionItem key={i} value={`item-${i}`}>
                     <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline">
                       {item.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground leading-relaxed">
+                    <AccordionContent className="leading-relaxed text-muted-foreground">
                       {item.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -297,47 +351,38 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
         </SectionContainer>
       )}
 
-      {/* Tags */}
+      {/* ───── Tags ───── */}
       {service.tags && service.tags.length > 0 && (
         <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-            viewport={{ once: true }}>
-            <div className="flex flex-wrap gap-2">
-              {service.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                  {tag}
-                </span>
-              ))}
-            </div>
+            whileInView={anim()}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="flex flex-wrap justify-center gap-2">
+            {service.tags.map((tag, i) => (
+              <span
+                key={i}
+                className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                {tag}
+              </span>
+            ))}
           </motion.div>
         </SectionContainer>
       )}
 
-      {/* CTA */}
-      <SectionContainer>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center p-8 md:p-12 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-border">
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
-            Ready to Get Started?
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+      {/* ───── CTA ───── */}
+      <PublicContactCTASection
+        title="Ready to Get Started?"
+        description={
+          <>
             Let&apos;s discuss how we can help you achieve your goals with our{' '}
             {service.title.toLowerCase()} solutions.
-          </p>
-          <RegularBtn linkProps={{ href: '/contact' }} className="px-8">
-            Contact Us Today
-          </RegularBtn>
-        </motion.div>
-      </SectionContainer>
+          </>
+        }
+        buttonLabel="Contact Us Today"
+        motionDelay={0.4}
+      />
     </>
   );
 };

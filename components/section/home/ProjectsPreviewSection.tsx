@@ -4,11 +4,9 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useProjectsStore } from '@/lib/store/useProjectsStore';
-import { ClientProject } from '@/lib/constants/endpoints';
+import type { ClientProject } from '@/lib/constants/endpoints';
 import { ArrowRight, Briefcase, Star, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { Skeleton } from '@/components/ui/skeleton';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 
 const ProjectPreviewCard = ({
@@ -105,14 +103,9 @@ const ProjectPreviewCard = ({
   );
 };
 
-export const ProjectsPreviewSection = () => {
+export const ProjectsPreviewSection = ({ projects }: { projects: ClientProject[] }) => {
   const { siteLoading } = useSiteStore(state => state);
-  const { projects, isLoading } = useProjectsStore(state => ({
-    projects: state.projects,
-    isLoading: state.isLoading,
-  }));
 
-  // Filter to only show active projects, then sort by featured and display order
   const sortedProjects = [...projects]
     .filter(project => project.isActive !== false)
     .sort((a, b) => {
@@ -134,16 +127,7 @@ export const ProjectsPreviewSection = () => {
         text="Discover how we've helped brands express their unique personality through powerful visuals and storytelling"
       />
 
-      {isLoading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="md:col-span-2 md:row-span-2">
-            <Skeleton className="w-full h-full min-h-[400px] rounded-2xl" />
-          </div>
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="aspect-[4/3] rounded-2xl" />
-          ))}
-        </div>
-      ) : displayProjects.length === 0 ? (
+      {displayProjects.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={siteLoading ? {} : { opacity: 1 }}

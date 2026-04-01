@@ -8,7 +8,7 @@ function Textarea({ className, ...props }: TextareaProps) {
     <textarea
       data-slot="textarea"
       className={cn(
-        'w-full px-4 py-4 bg-transparent border border-border rounded-[6px] \
+        'w-full min-h-[8rem] px-4 pt-4 pb-5 bg-transparent border border-border rounded-[6px] \
         focus:ring-2 focus:ring-primary focus:border-transparent \
         transition-all duration-200 font-inter \
         placeholder:text-muted-foreground focus-visible:border-primary \

@@ -1,22 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { Error as MongooseError, type CastError } from 'mongoose';
 import { AppError } from '../lib/utils/appError';
 import { ENVIRONMENT } from '../lib/config/environment';
 import { logger } from '../lib/utils/logger';
 import { NextResponse } from 'next/server';
-
-// Error handling functions
-const handleMongooseCastError = (err: CastError): AppError => {
-  const message = `Invalid ${err.path} value "${err.value}".`;
-  return new AppError(message, 400);
-};
-
-const handleMongooseValidationError = (err: MongooseError.ValidationError): AppError => {
-  const errors = Object.values(err.errors).map(el => (el as any).message);
-  const message = `Invalid input data. ${errors.join('. ')}`;
-  return new AppError(message, 400);
-};
 
 const handleJWTError = (): AppError => {
   return new AppError('Invalid token. Please log in again!', 401);
@@ -30,28 +15,15 @@ const handleTimeoutError = (): AppError => {
   return new AppError('Request timeout', 408);
 };
 
-const handleMongooseGenericError = (
-  err: MongooseError & { code?: number; keyValue?: { [key: string]: any } }
-): AppError => {
-  if (err.code === 11000) {
-    const field = (Object.keys(err.keyValue ?? {})?.[0] ?? '')
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .split(/(?=[A-Z])/)
-      .map((word, index) =>
-        index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word.toLowerCase()
-      )
-      .join('');
-
-    const value = (err.keyValue ?? {})[field.toLowerCase()];
-    const message = `${field} "${value}" has already been used!.`;
-    return new AppError(message, 409);
-  } else {
-    console.log(err);
-    return new AppError('MSE: An error occurred, please contact support', 500);
-  }
-};
+function retryAfterHeaders(err: AppError): Record<string, string> | undefined {
+  if (err.statusCode !== 429 || err.data == null || typeof err.data !== 'object') return undefined;
+  const sec = (err.data as Record<string, unknown>).retryAfterSec;
+  if (typeof sec !== 'number' || !Number.isFinite(sec)) return undefined;
+  return { 'Retry-After': String(Math.max(1, Math.floor(sec))) };
+}
 
 const sendErrorDev = (err: AppError) => {
+  const extra = retryAfterHeaders(err);
   return NextResponse.json(
     {
       status: err.status,
@@ -60,12 +32,13 @@ const sendErrorDev = (err: AppError) => {
       error: err.data,
       responseCode: err.statusCode,
     },
-    { status: err.statusCode }
+    { status: err.statusCode, headers: extra }
   );
 };
 
 const sendErrorProd = (err: AppError) => {
-  if (err?.isOperational) {
+  const extra = retryAfterHeaders(err);
+  if (err.isOperational) {
     logger.error('Error: ', err);
     return NextResponse.json(
       {
@@ -74,50 +47,67 @@ const sendErrorProd = (err: AppError) => {
         error: err.data,
         responseCode: err.statusCode,
       },
-      { status: err.statusCode }
-    );
-  } else {
-    console.error('Error: ', err);
-    return NextResponse.json(
-      {
-        responseCode: 500,
-        status: 'ISR: Error',
-        message: `😔 You didn't break it, we did!, Our team is on it!`,
-      },
-      { status: 500 }
+      { status: err.statusCode, headers: extra }
     );
   }
+  logger.error('Error: ', err);
+  return NextResponse.json(
+    {
+      responseCode: 500,
+      status: 'error',
+      message: 'Something went wrong. Please try again later.',
+    },
+    { status: 500 }
+  );
 };
 
-export const errorHandler = (err: any) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'Error';
+function normalizeToAppError(err: unknown): AppError {
+  if (err instanceof AppError) {
+    const code =
+      err.statusCode >= 400 && err.statusCode < 600 ? err.statusCode : err.statusCode || 500;
+    err.statusCode = code;
+    err.status = `${code}`.startsWith('5') ? 'Failed' : 'Error';
+    return err;
+  }
+
+  if (typeof err === 'object' && err !== null) {
+    const o = err as Record<string, unknown> & { name?: string };
+    if (o.timeout === true) return handleTimeoutError();
+    if (o.name === 'JsonWebTokenError') return handleJWTError();
+    if (o.name === 'TokenExpiredError') return handleJWTExpiredError();
+  }
+
+  if (err instanceof Error) {
+    return new AppError(
+      err.message || 'Something went wrong. Please try again later.',
+      500,
+      undefined,
+      false
+    );
+  }
+
+  return new AppError('Something went wrong. Please try again later.', 500, undefined, false);
+}
+
+export const errorHandler = (err: unknown): NextResponse => {
+  const normalized = normalizeToAppError(err);
 
   if (ENVIRONMENT.APP.ENV === 'development') {
-    if (err.statusCode === 500) logger.error(err);
-
-    return sendErrorDev(err);
-  } else {
-    let error = err;
-
-    if (err instanceof MongooseError.CastError) error = handleMongooseCastError(err);
-    else if (err instanceof MongooseError.ValidationError)
-      error = handleMongooseValidationError(err);
-    if ('timeout' in err && err.timeout) error = handleTimeoutError();
-    if (err.name === 'JsonWebTokenError') error = handleJWTError();
-    if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
-    if (err instanceof MongooseError) error = handleMongooseGenericError(err);
-
-    return sendErrorProd(error);
+    if (normalized.statusCode === 500) logger.error(normalized);
+    return sendErrorDev(normalized);
   }
+
+  return sendErrorProd(normalized);
 };
 
-export function withErrorHandling<T extends (...args: any[]) => Promise<Response>>(handler: T) {
-  return async (...args: any[]) => {
+export function withErrorHandling<TArgs extends unknown[]>(
+  handler: (...args: TArgs) => Promise<Response>
+): (...args: TArgs) => Promise<Response> {
+  return async (...args: TArgs) => {
     try {
       return await handler(...args);
-    } catch (err: any) {
-      return errorHandler(err);
+    } catch (e: unknown) {
+      return errorHandler(e);
     }
   };
 }

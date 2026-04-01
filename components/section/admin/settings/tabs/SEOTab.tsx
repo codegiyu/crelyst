@@ -10,7 +10,7 @@ import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -61,33 +61,32 @@ export const SEOTab = ({ settings }: SEOTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: SEOFormValues) => {
-      try {
-        const seoValue = {
-          ...values,
-          keywords: values.keywords
-            .split(',')
-            .map(k => k.trim())
-            .filter(Boolean),
-        };
+      const seoValue = {
+        ...values,
+        keywords: values.keywords
+          .split(',')
+          .map(k => k.trim())
+          .filter(Boolean),
+      };
 
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'seo', value: seoValue }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving SEO settings…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'seo', value: seoValue }],
+            },
+          }),
+        'SEO settings updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update SEO settings'] });
-          return false;
-        }
-
-        updateSettings({ seo: seoValue });
-        toast.success('SEO settings updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update SEO settings'] });
         return false;
       }
+
+      updateSettings({ seo: seoValue });
+      return true;
     },
   });
 
@@ -160,7 +159,7 @@ export const SEOTab = ({ settings }: SEOTabProps) => {
           errors={errorsVisible ? formErrors.keywords : []}
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           <RegularInput
             label="OG Image URL"
             name="ogImageUrl"
@@ -189,7 +188,7 @@ export const SEOTab = ({ settings }: SEOTabProps) => {
           errors={errorsVisible ? formErrors.canonicalUrlBase : []}
         />
 
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           <Label className="text-sm font-medium">Robots Settings</Label>
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 cursor-pointer">

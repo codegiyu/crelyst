@@ -1,11 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useServicesStore } from '@/lib/store/useServicesStore';
+import { useRouter } from 'next/navigation';
 import { Plus, Pencil, Trash2, MoreHorizontal, Eye, EyeOff, ArrowUpDown } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Modal } from '@/components/ui/Modal';
 import {
   DropdownMenu,
@@ -20,21 +18,21 @@ import { ReorderServicesModal } from './ReorderServicesModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientService } from '@/lib/constants/endpoints';
 import Image from 'next/image';
-import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 
-export const ServicesPageClient = () => {
-  const { services, actions, isLoading } = useServicesStore(state => state);
-  const { fetchServices, updateService } = actions;
+export const ServicesPageClient = ({ initialServices }: { initialServices: ClientService[] }) => {
+  const router = useRouter();
+  const [services, setServices] = useState<ClientService[]>(initialServices);
+
+  useEffect(() => {
+    setServices(initialServices);
+  }, [initialServices]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingService, setEditingService] = useState<ClientService | null>(null);
   const [deleteService, setDeleteService] = useState<ClientService | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-
-  useEffect(() => {
-    fetchServices({ force: true, useAdminEndpoint: true });
-  }, []);
 
   const handleCreate = () => {
     setEditingService(null);
@@ -49,25 +47,21 @@ export const ServicesPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingService(null);
-    fetchServices({ force: true, useAdminEndpoint: true });
+    router.refresh();
   };
 
   const handleToggleActive = async (service: ClientService) => {
-    try {
-      const { data, error } = await callApi('ADMIN_UPDATE_SERVICE', {
-        query: `/${service.slug}`,
-        payload: { isActive: !service.isActive },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update service');
-        return;
-      }
-
-      updateService(data.service);
-      toast.success(`Service ${data.service.isActive ? 'activated' : 'deactivated'}`);
-    } catch {
-      toast.error('Failed to update service');
+    const data = await adminCallApiToast(
+      'Updating service…',
+      () =>
+        callApi('ADMIN_UPDATE_SERVICE', {
+          query: `/${service.slug}`,
+          payload: { isActive: !service.isActive },
+        }),
+      d => `Service ${d.service.isActive ? 'activated' : 'deactivated'}`
+    );
+    if (data) {
+      setServices(prev => prev.map(s => (s.slug === data.service.slug ? data.service : s)));
     }
   };
 
@@ -96,14 +90,7 @@ export const ServicesPageClient = () => {
           />
         </div>
       }>
-      {/* Services Grid */}
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <ServiceCardSkeleton key={idx} />
-          ))}
-        </div>
-      ) : services.length === 0 ? (
+      {services.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-muted p-4 mb-4">
             <Plus className="size-8 text-muted-foreground" />
@@ -156,7 +143,7 @@ export const ServicesPageClient = () => {
         onOpenChange={open => !open && setDeleteService(null)}
         onSuccess={() => {
           setDeleteService(null);
-          fetchServices({ force: true, useAdminEndpoint: true });
+          router.refresh();
         }}
       />
 
@@ -165,7 +152,7 @@ export const ServicesPageClient = () => {
         services={services}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchServices({ force: true, useAdminEndpoint: true })}
+        onSuccess={() => router.refresh()}
       />
     </DashboardPageWrapper>
   );
@@ -261,14 +248,3 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive }: ServiceCardP
     </div>
   );
 };
-
-const ServiceCardSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-    <Skeleton className="h-40 rounded-none" />
-    <div className="p-4 grid gap-3">
-      <Skeleton className="h-5 w-3/4" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-1/2" />
-    </div>
-  </div>
-);

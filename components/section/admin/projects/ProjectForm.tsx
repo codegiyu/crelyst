@@ -17,13 +17,20 @@ import { cn } from '@/lib/utils';
 import { useFileUpload } from '@/lib/hooks/use-file-upload';
 import { PROJECT_STATUSES, ProjectStatus } from '@/app/_server/lib/types/constants';
 import { formatDateForInput } from '@/lib/utils/general';
+import type { ProjectCaseStudy } from '@/lib/types/project-case-study';
+import {
+  ProjectCaseStudyFormSection,
+  cloneProjectCaseStudy,
+  emptyProjectCaseStudy,
+} from './ProjectCaseStudyFormSection';
+import { projectStatusSchema } from '@/app/_server/lib/validation/projectStatus';
 
 const projectSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   shortDescription: z.string().optional(),
   category: z.string().optional(),
-  status: z.enum(['draft', 'in-progress', 'completed', 'on-hold', 'cancelled']).optional(),
+  status: projectStatusSchema.optional(),
   clientName: z.string().optional(),
   clientWebsite: z.url('Invalid URL').optional().or(z.literal('')),
   projectUrl: z.url('Invalid URL').optional().or(z.literal('')),
@@ -55,6 +62,8 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
   const isEditing = !!project;
   const [technologies, setTechnologies] = useState<string[]>(project?.technologies || []);
   const [newTechnology, setNewTechnology] = useState('');
+  const [tags, setTags] = useState<string[]>(project?.tags ?? []);
+  const [newTag, setNewTag] = useState('');
   // For new projects: toggle to use featured image as card image
   const [useFeaturedAsCard, setUseFeaturedAsCard] = useState(!isEditing);
 
@@ -65,11 +74,19 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
   const [pendingCardPreview, setPendingCardPreview] = useState<string | null>(null);
   const [pendingBannerFile, setPendingBannerFile] = useState<File | null>(null);
   const [pendingBannerPreview, setPendingBannerPreview] = useState<string | null>(null);
+  const [pendingHeroFile, setPendingHeroFile] = useState<File | null>(null);
+  const [pendingHeroPreview, setPendingHeroPreview] = useState<string | null>(null);
 
   // Image URLs (from server or after upload)
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string>(project?.featuredImage || '');
   const [cardImageUrl, setCardImageUrl] = useState<string>(project?.cardImage || '');
   const [bannerImageUrl, setBannerImageUrl] = useState<string>(project?.bannerImage || '');
+  const [heroImageUrl, setHeroImageUrl] = useState<string>(project?.heroImage || '');
+
+  const [caseStudyEnabled, setCaseStudyEnabled] = useState(!!project?.caseStudy);
+  const [caseStudy, setCaseStudy] = useState<ProjectCaseStudy>(() =>
+    project?.caseStudy ? cloneProjectCaseStudy(project.caseStudy) : emptyProjectCaseStudy()
+  );
 
   const {
     formValues,
@@ -128,6 +145,15 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     intent: 'banner-image',
     onUploadComplete: url => {
       setBannerImageUrl(url);
+    },
+  });
+
+  const heroUpload = useFileUpload({
+    entityType: 'project',
+    entityId: project?._id || '',
+    intent: 'image',
+    onUploadComplete: url => {
+      setHeroImageUrl(url);
     },
   });
 
@@ -207,6 +233,51 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     setBannerImageUrl('');
   };
 
+  const handleHeroFileSelect = (file: File | null) => {
+    if (isEditing && file) {
+      heroUpload.handleFileSelect(file);
+      heroUpload.uploadFile({ file });
+    } else {
+      if (pendingHeroPreview) {
+        URL.revokeObjectURL(pendingHeroPreview);
+      }
+      setPendingHeroFile(file);
+      setPendingHeroPreview(file ? URL.createObjectURL(file) : null);
+    }
+  };
+
+  const handleHeroClear = () => {
+    if (isEditing) {
+      heroUpload.clearFile();
+    } else if (pendingHeroPreview) {
+      URL.revokeObjectURL(pendingHeroPreview);
+    }
+    setPendingHeroFile(null);
+    setPendingHeroPreview(null);
+    setHeroImageUrl('');
+  };
+
+  const caseStudyPayload = (): ProjectCaseStudy | undefined | null => {
+    if (caseStudyEnabled) {
+      const cs = JSON.parse(JSON.stringify(caseStudy)) as ProjectCaseStudy;
+      if (cs.logoDesign) {
+        const hasGrid = Boolean(cs.logoDesign.gridImage?.trim());
+        const hasBreakdown = cs.logoDesign.breakdown?.some(
+          b =>
+            Boolean(b.text?.trim()) ||
+            Boolean(b.heading?.trim()) ||
+            Boolean(b.inlineHeading?.trim()) ||
+            Boolean(b.closing?.trim()) ||
+            (b.bullets && b.bullets.length > 0)
+        );
+        if (!hasGrid && !hasBreakdown) delete cs.logoDesign;
+      }
+      return cs;
+    }
+    if (isEditing && project?.caseStudy) return null;
+    return undefined;
+  };
+
   async function onSubmit(values: ProjectFormValues) {
     try {
       // Build SEO object
@@ -223,6 +294,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
 
       if (isEditing) {
         // Update existing project
+        const cs = caseStudyPayload();
         const payload = {
           title: values.title,
           description: values.description,
@@ -238,9 +310,12 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           featuredImage: featuredImageUrl || undefined,
           cardImage: cardImageUrl || undefined,
           bannerImage: bannerImageUrl || undefined,
+          heroImage: heroImageUrl || undefined,
           isFeatured: values.isFeatured,
           isActive: values.isActive ?? false,
           technologies,
+          tags: tags.length ? tags : undefined,
+          ...(cs === null ? { caseStudy: null } : cs ? { caseStudy: cs } : {}),
           seo,
         };
 
@@ -258,6 +333,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         toast.success('Project updated successfully');
       } else {
         // Create new project first (without images)
+        const csCreate = caseStudyPayload();
         const payload = {
           title: values.title,
           description: values.description,
@@ -273,6 +349,8 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           isFeatured: values.isFeatured,
           isActive: values.isActive ?? false,
           technologies,
+          tags: tags.length ? tags : undefined,
+          ...(csCreate && csCreate !== null ? { caseStudy: csCreate } : {}),
           seo,
         };
 
@@ -289,6 +367,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         let finalFeaturedUrl = '';
         let finalCardUrl = '';
         let finalBannerUrl = '';
+        let finalHeroUrl = '';
 
         // Now upload pending images with the real project ID
         if (pendingFeaturedFile) {
@@ -329,12 +408,25 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           }
         }
 
+        if (pendingHeroFile) {
+          toast.info('Uploading hero image...');
+          const result = await heroUpload.uploadFile({
+            file: pendingHeroFile,
+            entityId: createdProject._id,
+            intent: 'image',
+          });
+          if (result?.url) {
+            finalHeroUrl = result.url;
+          }
+        }
+
         // Update project with image URLs if we uploaded any
-        if (finalFeaturedUrl || finalCardUrl || finalBannerUrl) {
+        if (finalFeaturedUrl || finalCardUrl || finalBannerUrl || finalHeroUrl) {
           const updatePayload: Record<string, string> = {};
           if (finalFeaturedUrl) updatePayload.featuredImage = finalFeaturedUrl;
           if (finalCardUrl) updatePayload.cardImage = finalCardUrl;
           if (finalBannerUrl) updatePayload.bannerImage = finalBannerUrl;
+          if (finalHeroUrl) updatePayload.heroImage = finalHeroUrl;
 
           const identifier = createdProject.slug || createdProject._id;
           await callApi('ADMIN_UPDATE_PROJECT', {
@@ -365,6 +457,17 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     setTechnologies(technologies.filter((_, i) => i !== index));
   };
 
+  const addTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 py-4">
       {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
@@ -373,7 +476,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         </div>
       )}
 
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {/* Basic Info */}
         <RegularInput
           label="Title"
@@ -406,7 +509,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           rows={2}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <RegularInput
             label="Category"
             name="category"
@@ -427,7 +530,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         </div>
 
         {/* Client Info */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <RegularInput
             label="Client Name"
             name="clientName"
@@ -448,7 +551,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         </div>
 
         {/* Project Links */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <RegularInput
             label="Project URL"
             name="projectUrl"
@@ -469,7 +572,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         </div>
 
         {/* Dates */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <RegularInput
             label="Start Date"
             name="startDate"
@@ -490,8 +593,8 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         </div>
 
         {/* Featured Image */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
             <span className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
               Featured Image
             </span>
@@ -558,12 +661,27 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           subtext="Wide image displayed at the top of the project page"
         />
 
+        <ImageUpload
+          label="Hero image (case study)"
+          value={heroImageUrl}
+          previewUrl={
+            isEditing ? heroUpload.previewUrl || undefined : pendingHeroPreview || undefined
+          }
+          onFileSelect={handleHeroFileSelect}
+          onClear={handleHeroClear}
+          uploading={heroUpload.loading}
+          progress={heroUpload.progress}
+          aspectRatio="16/9"
+          placeholder="Large image below title on case study layout"
+          subtext="Used when case study mode is on; falls back to featured image if empty"
+        />
+
         {/* Technologies */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
             Technologies
           </label>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-wrap gap-2">
               {technologies.map((tech, index) => (
                 <div
@@ -603,6 +721,63 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
             </div>
           </div>
         </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
+            Tags
+          </label>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-1.5 bg-muted text-foreground px-3 py-1 rounded-full text-sm">
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeTag(index)}
+                    className="hover:bg-muted-foreground/20 rounded-full p-0.5">
+                    <X className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTag}
+                onChange={e => setNewTag(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+                placeholder="Add a tag..."
+                className={cn(
+                  'flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm',
+                  'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2',
+                  'focus-visible:ring-ring focus-visible:ring-offset-2'
+                )}
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addTag}>
+                <Plus className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <ProjectCaseStudyFormSection
+          enabled={caseStudyEnabled}
+          onEnabledChange={v => {
+            setCaseStudyEnabled(v);
+            if (v && !project?.caseStudy) {
+              setCaseStudy(emptyProjectCaseStudy());
+            }
+          }}
+          caseStudy={caseStudy}
+          onCaseStudyChange={setCaseStudy}
+        />
 
         {/* Featured Toggle */}
         <div className="flex items-center justify-between py-2">
@@ -657,7 +832,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
         </div>
 
         {/* SEO Section */}
-        <div className="grid gap-4 pt-4 border-t">
+        <div className="grid gap-8 pt-4 border-t">
           <h3 className="text-sm font-semibold text-foreground">SEO Settings</h3>
 
           <RegularInput

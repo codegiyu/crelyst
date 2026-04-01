@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTestimonialsStore } from '@/lib/store/useTestimonialsStore';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Pencil,
@@ -16,7 +15,6 @@ import {
   ArrowUpDown,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,22 +28,26 @@ import { ReorderTestimonialsModal } from './ReorderTestimonialsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import Image from 'next/image';
-import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { cn } from '@/lib/utils';
 
-export const TestimonialsPageClient = () => {
-  const { testimonials, actions, isLoading } = useTestimonialsStore(state => state);
-  const { fetchTestimonials, updateTestimonial } = actions;
+export const TestimonialsPageClient = ({
+  initialTestimonials,
+}: {
+  initialTestimonials: ClientTestimonial[];
+}) => {
+  const router = useRouter();
+  const [testimonials, setTestimonials] = useState<ClientTestimonial[]>(initialTestimonials);
+
+  useEffect(() => {
+    setTestimonials(initialTestimonials);
+  }, [initialTestimonials]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<ClientTestimonial | null>(null);
   const [deleteTestimonial, setDeleteTestimonial] = useState<ClientTestimonial | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-
-  useEffect(() => {
-    fetchTestimonials({ force: true, useAdminEndpoint: true });
-  }, []);
 
   const handleCreate = () => {
     setEditingTestimonial(null);
@@ -60,44 +62,40 @@ export const TestimonialsPageClient = () => {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingTestimonial(null);
-    fetchTestimonials({ force: true, useAdminEndpoint: true });
+    router.refresh();
   };
 
   const handleToggleFeatured = async (testimonial: ClientTestimonial) => {
-    try {
-      const { data, error } = await callApi('ADMIN_UPDATE_TESTIMONIAL', {
-        query: `/${testimonial._id}`,
-        payload: { isFeatured: !testimonial.isFeatured },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update testimonial');
-        return;
-      }
-
-      updateTestimonial(data.testimonial);
-      toast.success(`Testimonial ${data.testimonial.isFeatured ? 'featured' : 'unfeatured'}`);
-    } catch {
-      toast.error('Failed to update testimonial');
+    const data = await adminCallApiToast(
+      'Updating testimonial…',
+      () =>
+        callApi('ADMIN_UPDATE_TESTIMONIAL', {
+          query: `/${testimonial._id}`,
+          payload: { isFeatured: !testimonial.isFeatured },
+        }),
+      d => `Testimonial ${d.testimonial.isFeatured ? 'featured' : 'unfeatured'}`
+    );
+    if (data) {
+      setTestimonials(prev =>
+        prev.map(t => (t._id === data.testimonial._id ? data.testimonial : t))
+      );
     }
   };
 
   const handleToggleActive = async (testimonial: ClientTestimonial) => {
-    try {
-      const { data, error } = await callApi('ADMIN_UPDATE_TESTIMONIAL', {
-        query: `/${testimonial._id}`,
-        payload: { isActive: !testimonial.isActive },
-      });
-
-      if (error || !data) {
-        toast.error(error?.message || 'Failed to update testimonial');
-        return;
-      }
-
-      updateTestimonial(data.testimonial);
-      toast.success(`Testimonial ${data.testimonial.isActive ? 'activated' : 'deactivated'}`);
-    } catch {
-      toast.error('Failed to update testimonial');
+    const data = await adminCallApiToast(
+      'Updating testimonial…',
+      () =>
+        callApi('ADMIN_UPDATE_TESTIMONIAL', {
+          query: `/${testimonial._id}`,
+          payload: { isActive: !testimonial.isActive },
+        }),
+      d => `Testimonial ${d.testimonial.isActive ? 'activated' : 'deactivated'}`
+    );
+    if (data) {
+      setTestimonials(prev =>
+        prev.map(t => (t._id === data.testimonial._id ? data.testimonial : t))
+      );
     }
   };
 
@@ -127,13 +125,7 @@ export const TestimonialsPageClient = () => {
         </div>
       }>
       {/* Testimonials Grid */}
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <TestimonialCardSkeleton key={idx} />
-          ))}
-        </div>
-      ) : testimonials.length === 0 ? (
+      {testimonials.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-muted p-4 mb-4">
             <Quote className="size-8 text-muted-foreground" />
@@ -179,7 +171,7 @@ export const TestimonialsPageClient = () => {
         onOpenChange={open => !open && setDeleteTestimonial(null)}
         onSuccess={() => {
           setDeleteTestimonial(null);
-          fetchTestimonials({ force: true, useAdminEndpoint: true });
+          router.refresh();
         }}
       />
 
@@ -188,7 +180,7 @@ export const TestimonialsPageClient = () => {
         testimonials={testimonials}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => fetchTestimonials({ force: true, useAdminEndpoint: true })}
+        onSuccess={() => router.refresh()}
       />
     </DashboardPageWrapper>
   );
@@ -350,20 +342,3 @@ const TestimonialCard = ({
     </div>
   );
 };
-
-const TestimonialCardSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm overflow-hidden p-4">
-    <div className="flex items-center gap-3 mb-4">
-      <Skeleton className="size-12 rounded-full" />
-      <div className="grid gap-2 flex-1">
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-3 w-1/2" />
-      </div>
-    </div>
-    <div className="grid gap-2">
-      <Skeleton className="h-3 w-full" />
-      <Skeleton className="h-3 w-full" />
-      <Skeleton className="h-3 w-3/4" />
-    </div>
-  </div>
-);

@@ -1,4 +1,5 @@
 import { handleEmailBounce } from '@/app/_server/controllers/webhooks/handleEmailBounce';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { handleApiRoute } from '@/app/_server/lib/api/routeHandler';
+import type { NextRequest } from 'next/server';
 
-export const POST = applyMiddlewares(handleEmailBounce);
+export const POST = (request: NextRequest) => handleApiRoute(request, {}, handleEmailBounce);

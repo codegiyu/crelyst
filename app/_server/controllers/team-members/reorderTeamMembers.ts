@@ -1,68 +1,24 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { TeamMember } from '../../models/teamMember';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import { reorderTeamMembers as reorderTeamMembersRepo } from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody, reorderBodySchema } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-interface ReorderItem {
-  id: string;
-  displayOrder: number;
-}
+export const reorderTeamMembers: RouteHandler = async ({ body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-// Bulk update display orders for team members (admin only)
-export const reorderTeamMembers = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, user } = context as RequestContext;
+  const payload = validateBody(reorderBodySchema, body);
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+  const result = await reorderTeamMembersRepo(payload.reorderItems);
 
-    const { reorderItems } = body as { reorderItems: ReorderItem[] };
+  revalidateAboutAndHome();
 
-    if (!reorderItems || !Array.isArray(reorderItems)) {
-      throw new AppError('reorderItems array is required', 400);
-    }
-
-    if (reorderItems.length === 0) {
-      throw new AppError('reorderItems array cannot be empty', 400);
-    }
-
-    // Validate all items have required fields
-    for (const item of reorderItems) {
-      if (!item.id) {
-        throw new AppError('Each item must have an id', 400);
-      }
-      if (typeof item.displayOrder !== 'number' || item.displayOrder < 0) {
-        throw new AppError('Each item must have a valid displayOrder (non-negative number)', 400);
-      }
-      if (!mongoose.Types.ObjectId.isValid(item.id)) {
-        throw new AppError(`Invalid team member id: ${item.id}`, 400);
-      }
-    }
-
-    // Use bulkWrite for efficient batch update
-    const bulkOps = reorderItems.map(item => ({
-      updateOne: {
-        filter: { _id: new mongoose.Types.ObjectId(item.id) },
-        update: { $set: { displayOrder: item.displayOrder } },
-      },
-    }));
-
-    const result = await TeamMember.bulkWrite(bulkOps);
-
-    if (result.modifiedCount === 0 && result.matchedCount === 0) {
-      throw new AppError('No team members were found to update', 404);
-    }
-
-    return sendResponse(
-      200,
-      {
-        modifiedCount: result.modifiedCount,
-        matchedCount: result.matchedCount,
-      },
-      'Team members reordered successfully'
-    );
-  })
-);
+  return sendResponse(
+    200,
+    { modifiedCount: result.modifiedCount, matchedCount: result.matchedCount },
+    'Team members reordered successfully'
+  );
+};

@@ -1,13 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import { useServicesStore } from '@/lib/store/useServicesStore';
-import { useProjectsStore } from '@/lib/store/useProjectsStore';
-import { useTestimonialsStore } from '@/lib/store/useTestimonialsStore';
-import { useBrandsStore } from '@/lib/store/useBrandsStore';
-import { useTeamMembersStore } from '@/lib/store/useTeamMembersStore';
+import type {
+  ClientBrand,
+  ClientProject,
+  ClientService,
+  ClientTeamMember,
+  ClientTestimonial,
+} from '@/lib/constants/endpoints';
 import {
   Briefcase,
   FolderKanban,
@@ -18,44 +18,19 @@ import {
   Activity,
   Calendar,
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
-export const DashboardHomeClient = () => {
-  const { user } = useAuthStore(state => state);
-  const {
-    services,
-    actions: servicesActions,
-    isLoading: servicesLoading,
-  } = useServicesStore(state => state);
-  const {
-    projects,
-    actions: projectsActions,
-    isLoading: projectsLoading,
-  } = useProjectsStore(state => state);
-  const {
-    testimonials,
-    actions: testimonialsActions,
-    isLoading: testimonialsLoading,
-  } = useTestimonialsStore(state => state);
-  const {
-    brands,
-    actions: brandsActions,
-    isLoading: brandsLoading,
-  } = useBrandsStore(state => state);
-  const {
-    teamMembers,
-    actions: teamMembersActions,
-    isLoading: teamMembersLoading,
-  } = useTeamMembersStore(state => state);
+export type DashboardHomeInitial = {
+  services: ClientService[];
+  projects: ClientProject[];
+  testimonials: ClientTestimonial[];
+  brands: ClientBrand[];
+  teamMembers: ClientTeamMember[];
+};
 
-  useEffect(() => {
-    servicesActions.fetchServices({ useAdminEndpoint: true });
-    projectsActions.fetchProjects({ useAdminEndpoint: true });
-    testimonialsActions.fetchTestimonials({ useAdminEndpoint: true });
-    brandsActions.fetchBrands({ useAdminEndpoint: true });
-    teamMembersActions.fetchTeamMembers({ useAdminEndpoint: true });
-  }, []);
+export const DashboardHomeClient = ({ initial }: { initial: DashboardHomeInitial }) => {
+  const { user } = useAuthStore(state => state);
+  const { services, projects, testimonials, brands, teamMembers } = initial;
 
   const stats = [
     {
@@ -64,7 +39,6 @@ export const DashboardHomeClient = () => {
       icon: Briefcase,
       color: 'bg-blue-500/10 text-blue-500',
       href: '/admin/dashboard/services',
-      loading: servicesLoading,
     },
     {
       title: 'Projects',
@@ -72,7 +46,6 @@ export const DashboardHomeClient = () => {
       icon: FolderKanban,
       color: 'bg-purple-500/10 text-purple-500',
       href: '/admin/dashboard/projects',
-      loading: projectsLoading,
     },
     {
       title: 'Testimonials',
@@ -80,7 +53,6 @@ export const DashboardHomeClient = () => {
       icon: Star,
       color: 'bg-amber-500/10 text-amber-500',
       href: '/admin/dashboard/testimonials',
-      loading: testimonialsLoading,
     },
     {
       title: 'Brands',
@@ -88,7 +60,6 @@ export const DashboardHomeClient = () => {
       icon: Users,
       color: 'bg-emerald-500/10 text-emerald-500',
       href: '/admin/dashboard/brands',
-      loading: brandsLoading,
     },
     {
       title: 'Team Members',
@@ -96,7 +67,6 @@ export const DashboardHomeClient = () => {
       icon: UsersRound,
       color: 'bg-rose-500/10 text-rose-500',
       href: '/admin/dashboard/team',
-      loading: teamMembersLoading,
     },
   ];
 
@@ -109,8 +79,7 @@ export const DashboardHomeClient = () => {
 
   return (
     <div className="grid gap-8">
-      {/* Welcome Section */}
-      <div className="space-y-2">
+      <div className="grid gap-2">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           {greeting()}, {user?.firstName || 'Admin'}!
         </h1>
@@ -119,7 +88,6 @@ export const DashboardHomeClient = () => {
         </p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {stats.map(stat => (
           <Link
@@ -129,11 +97,7 @@ export const DashboardHomeClient = () => {
             <div className="flex items-center justify-between">
               <div className="grid gap-1">
                 <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                {stat.loading ? (
-                  <Skeleton className="h-8 w-12" />
-                ) : (
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                )}
+                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
               </div>
               <div className={`rounded-full p-3 ${stat.color}`}>
                 <stat.icon className="h-5 w-5" />
@@ -144,9 +108,7 @@ export const DashboardHomeClient = () => {
         ))}
       </div>
 
-      {/* Quick Actions & Recent Activity */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Quick Actions */}
         <div className="rounded-xl border bg-card shadow-sm">
           <div className="border-b px-6 py-4">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
@@ -178,7 +140,6 @@ export const DashboardHomeClient = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
         <div className="rounded-xl border bg-card shadow-sm">
           <div className="border-b px-6 py-4">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
@@ -191,31 +152,26 @@ export const DashboardHomeClient = () => {
               icon={Calendar}
               label="Active Services"
               value={`${services.filter(s => s.isActive).length} of ${services.length}`}
-              loading={servicesLoading}
             />
             <OverviewItem
               icon={FolderKanban}
               label="Featured Projects"
               value={`${projects.filter(p => p.isFeatured).length} featured`}
-              loading={projectsLoading}
             />
             <OverviewItem
               icon={Star}
               label="Featured Testimonials"
               value={`${testimonials.filter(t => t.isFeatured).length} featured`}
-              loading={testimonialsLoading}
             />
             <OverviewItem
               icon={Users}
               label="Active Brands"
               value={`${brands.filter(b => b.isActive).length} active`}
-              loading={brandsLoading}
             />
             <OverviewItem
               icon={UsersRound}
               label="Active Team Members"
               value={`${teamMembers.filter(t => t.isActive).length} active`}
-              loading={teamMembersLoading}
             />
           </div>
         </div>
@@ -247,12 +203,10 @@ const OverviewItem = ({
   icon: Icon,
   label,
   value,
-  loading,
 }: {
   icon: typeof Activity;
   label: string;
   value: string;
-  loading: boolean;
 }) => (
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
@@ -261,10 +215,6 @@ const OverviewItem = ({
       </div>
       <span className="text-sm text-muted-foreground">{label}</span>
     </div>
-    {loading ? (
-      <Skeleton className="h-5 w-16" />
-    ) : (
-      <span className="text-sm font-medium text-foreground">{value}</span>
-    )}
+    <span className="text-sm font-medium text-foreground">{value}</span>
   </div>
 );

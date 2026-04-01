@@ -1,27 +1,18 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
 import { MapPin } from 'lucide-react';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
+import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 
-export const MapSection = () => {
+export const MapSection = ({
+  contactInfo,
+}: {
+  contactInfo?: ClientSiteSettings['contactInfo'];
+}) => {
   const { siteLoading } = useSiteStore(state => state);
-
-  const { settings, fetchSettings } = useSiteSettingsStore(state => ({
-    settings: state.settings,
-    fetchSettings: state.actions.fetchSettings,
-  }));
-
-  useEffect(() => {
-    fetchSettings('contactInfo');
-  }, []);
-
-  const contactInfo = settings?.contactInfo;
   const address = contactInfo?.address?.join(', ') || 'Our Location';
   const locationUrl = contactInfo?.locationUrl || 'https://maps.google.com';
 

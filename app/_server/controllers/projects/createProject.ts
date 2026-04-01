@@ -1,83 +1,99 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Project } from '../../models/project';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import {
+  getProjectBySlug,
+  createProject as createProjectRepo,
+} from '../../lib/firestore/collections';
+import { slugify } from '../../lib/utils/slugify';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { projectCaseStudySchema } from '../../lib/validation/projectCaseStudy';
+import { projectStatusSchema } from '../../lib/validation/projectStatus';
+import { revalidateProjectPublic } from '../../lib/utils/revalidateSiteCache';
 
-// Create project (admin only)
-export const createProject = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, user } = context as RequestContext;
+const seoSchema = z.object({
+  metaTitle: z.string().max(100).optional(),
+  metaDescription: z.string().max(300).optional(),
+  keywords: z.array(z.string()).optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+const createProjectBodySchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  slug: z.string().optional(),
+  description: z.string().min(1, 'Description is required'),
+  shortDescription: z.string().optional(),
+  featuredImage: z.string().optional(),
+  cardImage: z.string().optional(),
+  bannerImage: z.string().optional(),
+  heroImage: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  technologies: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  category: z.string().optional(),
+  status: projectStatusSchema.optional(),
+  clientName: z.string().optional(),
+  clientWebsite: z.string().optional(),
+  projectUrl: z.string().optional(),
+  githubUrl: z.string().optional(),
+  startDate: z.union([z.string(), z.number()]).optional(),
+  endDate: z.union([z.string(), z.number()]).optional(),
+  caseStudy: projectCaseStudySchema.optional(),
+  isFeatured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+  seo: seoSchema.optional(),
+});
 
-    const {
-      title,
-      slug,
-      description,
-      shortDescription,
-      featuredImage,
-      cardImage,
-      bannerImage,
-      images,
-      technologies,
-      category,
-      status,
-      clientName,
-      clientWebsite,
-      projectUrl,
-      githubUrl,
-      startDate,
-      endDate,
-      isFeatured,
-      isActive,
-      displayOrder,
-      seo,
-    } = body;
+export const createProject: RouteHandler = async ({ body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    if (!title || !description) {
-      throw new AppError('Title and description are required', 400);
-    }
+  const payload = validateBody(createProjectBodySchema, body);
 
-    // If slug is provided, check if it already exists
-    if (slug) {
-      const existingProject = await Project.findOne({ slug });
-      if (existingProject) {
-        throw new AppError('Project with this slug already exists', 409);
-      }
-    }
+  const finalSlug = (payload.slug && payload.slug.trim()) || slugify(payload.title);
+  const existing = await getProjectBySlug(finalSlug);
+  if (existing) {
+    throw new AppError('Project with this slug already exists', 409);
+  }
 
-    // Create project - slug will be auto-generated if not provided
-    const project = await Project.create({
-      title,
-      ...(slug && { slug }),
-      description,
-      shortDescription: shortDescription || '',
-      featuredImage: featuredImage || '',
-      cardImage: cardImage || '',
-      bannerImage: bannerImage || '',
-      images: images || [],
-      technologies: technologies || [],
-      category: category || '',
-      status: status || 'draft',
-      clientName: clientName || '',
-      clientWebsite: clientWebsite || '',
-      projectUrl: projectUrl || '',
-      githubUrl: githubUrl || '',
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
-      isFeatured: isFeatured !== undefined ? isFeatured : false,
-      isActive: isActive !== undefined ? isActive : true,
-      displayOrder: displayOrder || 0,
-      seo: seo || {},
-    });
+  const project = await createProjectRepo({
+    title: payload.title,
+    slug: finalSlug,
+    description: payload.description,
+    shortDescription: payload.shortDescription ?? '',
+    featuredImage: payload.featuredImage ?? '',
+    cardImage: payload.cardImage ?? '',
+    bannerImage: payload.bannerImage ?? '',
+    heroImage: payload.heroImage ?? '',
+    images: payload.images ?? [],
+    technologies: payload.technologies ?? [],
+    tags: payload.tags ?? [],
+    category: payload.category ?? '',
+    status: payload.status ?? 'draft',
+    clientName: payload.clientName ?? '',
+    clientWebsite: payload.clientWebsite ?? '',
+    projectUrl: payload.projectUrl ?? '',
+    githubUrl: payload.githubUrl ?? '',
+    startDate: payload.startDate ? new Date(payload.startDate) : undefined,
+    endDate: payload.endDate ? new Date(payload.endDate) : undefined,
+    caseStudy: payload.caseStudy ?? undefined,
+    isFeatured: payload.isFeatured ?? false,
+    isActive: payload.isActive ?? true,
+    displayOrder: payload.displayOrder ?? 0,
+    seo: payload.seo ?? {},
+  });
 
-    if (!project) {
-      throw new AppError('Failed to create project', 500);
-    }
+  if (!project) {
+    throw new AppError('Failed to create project', 500);
+  }
 
-    return sendResponse(201, { project }, 'Project created successfully');
-  })
-);
+  revalidateProjectPublic(finalSlug);
+
+  return sendResponse(
+    201,
+    { project: { ...project, _id: project.id } },
+    'Project created successfully'
+  );
+};

@@ -8,7 +8,7 @@ import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
 import { useForm } from '@/lib/hooks/use-form';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { Save, AlertTriangle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -39,7 +39,7 @@ const FeatureToggle = ({ label, description, checked, onChange, warning }: Featu
       'flex items-start justify-between gap-4 p-4 rounded-lg border transition-colors',
       checked ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-transparent'
     )}>
-    <div className="grid gap-1">
+    <div className="grid gap-6">
       <div className="flex items-center gap-2">
         <Label className="text-sm font-medium cursor-pointer">{label}</Label>
         {warning && checked && <AlertTriangle className="size-4 text-amber-500" />}
@@ -89,25 +89,24 @@ export const FeaturesTab = ({ settings }: FeaturesTabProps) => {
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: FeaturesFormValues) => {
-      try {
-        const { data, error } = await callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-          payload: {
-            settingsPayload: [{ name: 'features', value: values }],
-          },
-        });
+      const data = await adminCallApiToast(
+        'Saving feature flags…',
+        () =>
+          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+            payload: {
+              settingsPayload: [{ name: 'features', value: values }],
+            },
+          }),
+        'Feature flags updated successfully'
+      );
 
-        if (error || !data) {
-          setFormErrors({ root: [error?.message || 'Failed to update feature flags'] });
-          return false;
-        }
-
-        updateSettings({ features: values });
-        toast.success('Feature flags updated successfully');
-        return true;
-      } catch {
-        setFormErrors({ root: ['An unexpected error occurred'] });
+      if (!data) {
+        setFormErrors({ root: ['Failed to update feature flags'] });
         return false;
       }
+
+      updateSettings({ features: values });
+      return true;
     },
   });
 
@@ -132,7 +131,7 @@ export const FeaturesTab = ({ settings }: FeaturesTabProps) => {
         <p className="text-sm text-muted-foreground mt-1">Enable or disable site features</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 grid gap-4">
+      <form onSubmit={handleSubmit} className="p-6 grid gap-6">
         {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
           <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm">
             {formErrors.root[0]}

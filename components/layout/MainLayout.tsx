@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { ReactNode } from 'react';
 import { Footer } from './Footer';
 import { ScrollToTop } from '../general/ScrollToTop';
+import type { PublicFooterSettings } from '@/lib/types/public-layout';
 
 export interface MainLayoutProps {
   children?: ReactNode;
@@ -15,6 +16,8 @@ export interface MainLayoutProps {
   hideScrollToTop?: boolean;
   /** Make header transparent on load (becomes opaque after scrolling) */
   transparentHeader?: boolean;
+  /** SSR site settings for footer */
+  footerSettings?: PublicFooterSettings;
 }
 
 export const MainLayout = ({
@@ -24,6 +27,7 @@ export const MainLayout = ({
   hideFooter = false,
   hideScrollToTop = false,
   transparentHeader = false,
+  footerSettings,
 }: MainLayoutProps) => {
   return (
     <>
@@ -32,7 +36,7 @@ export const MainLayout = ({
         {children}
         {!hideScrollToTop && <ScrollToTop />}
       </main>
-      {!hideFooter && <Footer />}
+      {!hideFooter && <Footer initialSettings={footerSettings} />}
     </>
   );
 };

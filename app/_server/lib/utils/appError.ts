@@ -6,12 +6,17 @@ export class AppError extends CustomError {
   isOperational: boolean;
   data?: unknown;
 
-  constructor(message: string, statusCode: number = 400, data?: unknown) {
+  constructor(
+    message: string,
+    statusCode: number = 400,
+    data?: unknown,
+    isOperational: boolean = true
+  ) {
     super(message);
 
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('5') ? 'Failed' : 'Error';
-    this.isOperational = true;
+    this.isOperational = isOperational;
     this.data = data;
 
     Error.captureStackTrace(this, this.constructor);

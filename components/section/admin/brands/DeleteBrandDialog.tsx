@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientBrand } from '@/lib/constants/endpoints';
 import { AlertTriangle } from 'lucide-react';
 import { useBrandsStore } from '@/lib/store/useBrandsStore';
@@ -29,20 +29,18 @@ export const DeleteBrandDialog = ({
 
     setLoading(true);
     try {
-      const { error } = await callApi('ADMIN_DELETE_BRAND', {
-        query: `/${brand._id}`,
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to delete brand');
-        return;
+      const data = await adminCallApiToast(
+        'Deleting brand…',
+        () =>
+          callApi('ADMIN_DELETE_BRAND', {
+            query: `/${brand._id}`,
+          }),
+        'Brand deleted successfully'
+      );
+      if (data) {
+        actions.removeBrand(brand._id);
+        onSuccess();
       }
-
-      actions.removeBrand(brand._id);
-      toast.success('Brand deleted successfully');
-      onSuccess();
-    } catch {
-      toast.error('Failed to delete brand');
     } finally {
       setLoading(false);
     }

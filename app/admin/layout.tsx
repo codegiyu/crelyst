@@ -28,8 +28,10 @@ function AdminAuthWrapperFallback() {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<AdminAuthWrapperFallback />}>
-      <AdminAuthWrapper>{children}</AdminAuthWrapper>
-    </Suspense>
+    <div className="dark min-h-dvh bg-background text-foreground">
+      <Suspense fallback={<AdminAuthWrapperFallback />}>
+        <AdminAuthWrapper>{children}</AdminAuthWrapper>
+      </Suspense>
+    </div>
   );
 }

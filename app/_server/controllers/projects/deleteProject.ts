@@ -1,37 +1,42 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Project } from '../../models/project';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getProjectBySlug,
+  getProjectById,
+  deleteProject as deleteProjectRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { revalidateProjectPublic } from '../../lib/utils/revalidateSiteCache';
 
-// Delete project (admin only)
-export const deleteProject = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { req, user } = context as RequestContext;
+export const deleteProject: RouteHandler = async ({ request, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  if (!identifier) {
+    throw new AppError('Project identifier is required', 400);
+  }
 
-    if (!identifier) {
-      throw new AppError('Project identifier is required', 400);
-    }
+  let current = await getProjectBySlug(identifier);
+  if (!current) current = await getProjectById(identifier);
+  if (!current) {
+    throw new AppError('Project not found', 404);
+  }
 
-    const query = mongoose.Types.ObjectId.isValid(identifier)
-      ? { _id: identifier }
-      : { slug: identifier };
+  const cur = current as Record<string, unknown>;
+  const slugForCache = typeof cur.slug === 'string' ? cur.slug : identifier;
 
-    const project = await Project.findOneAndDelete(query);
+  const deleted = await deleteProjectRepo(current.id);
 
-    if (!project) {
-      throw new AppError('Project not found', 404);
-    }
+  if (!deleted) {
+    throw new AppError('Project not found', 404);
+  }
 
-    return sendResponse(200, null, 'Project deleted successfully');
-  })
-);
+  revalidateProjectPublic(slugForCache);
+
+  return sendResponse(200, null, 'Project deleted successfully');
+};

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientService } from '@/lib/constants/endpoints';
 import { GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -92,20 +92,18 @@ export const ReorderServicesModal = ({
         displayOrder: service.newDisplayOrder,
       }));
 
-      const { error } = await callApi('ADMIN_REORDER_SERVICES', {
-        payload: { reorderItems },
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to reorder services');
-        return;
+      const data = await adminCallApiToast(
+        'Saving order…',
+        () =>
+          callApi('ADMIN_REORDER_SERVICES', {
+            payload: { reorderItems },
+          }),
+        'Services reordered successfully'
+      );
+      if (data) {
+        onSuccess();
+        onOpenChange(false);
       }
-
-      toast.success('Services reordered successfully');
-      onSuccess();
-      onOpenChange(false);
-    } catch {
-      toast.error('Failed to reorder services');
     } finally {
       setLoading(false);
     }

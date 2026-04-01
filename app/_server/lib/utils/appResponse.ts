@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
+import { serializeFirestoreForJson } from './serializeFirestoreJson';
 
 export function sendResponse(
   statusCode: number = 200,
@@ -11,10 +12,15 @@ export function sendResponse(
     newRefreshToken?: string;
   } = {};
 
+  const payload =
+    data !== null && typeof data === 'object' && !Array.isArray(data)
+      ? (serializeFirestoreForJson(data) as Record<string, any>)
+      : data;
+
   return NextResponse.json(
     {
       status: true,
-      data: data,
+      data: payload,
       ...(newTokens?.newAccessToken && newTokens),
       responseCode: statusCode,
       message: message ?? 'Success',

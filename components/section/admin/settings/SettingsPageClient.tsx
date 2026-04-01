@@ -1,9 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQueryState, parseAsStringLiteral } from 'nuqs';
-import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
+import { useInitSiteSettingsStore, useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
+import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { cn } from '@/lib/utils';
 import {
@@ -113,9 +113,12 @@ const tabConfig: {
   },
 ];
 
-export const SettingsPageClient = () => {
-  const { settings, isLoading, actions } = useSiteSettingsStore(state => state);
-  const { fetchAllSettings } = actions;
+export const SettingsPageClient = ({
+  initialSettings,
+}: {
+  initialSettings: Partial<ClientSiteSettings>;
+}) => {
+  const settings = useSiteSettingsStore(state => state.settings);
 
   const [activeTab, setActiveTab] = useQueryState(
     'tab',
@@ -123,37 +126,42 @@ export const SettingsPageClient = () => {
   );
 
   useEffect(() => {
-    fetchAllSettings({ force: true });
-  }, []);
+    useInitSiteSettingsStore.getState().actions.setSettings(initialSettings);
+  }, [initialSettings]);
+
+  const effective = useMemo(
+    () => (settings && Object.keys(settings).length > 0 ? settings : initialSettings),
+    [settings, initialSettings]
+  );
 
   const renderTabContent = () => {
-    if (isLoading || !settings) {
+    if (!effective || Object.keys(effective).length === 0) {
       return <TabContentSkeleton />;
     }
 
     switch (activeTab) {
       case 'app-details':
-        return <AppDetailsTab settings={settings} />;
+        return <AppDetailsTab settings={effective} />;
       case 'contact-info':
-        return <ContactInfoTab settings={settings} />;
+        return <ContactInfoTab settings={effective} />;
       case 'socials':
-        return <SocialsTab settings={settings} />;
+        return <SocialsTab settings={effective} />;
       case 'seo':
-        return <SEOTab settings={settings} />;
+        return <SEOTab settings={effective} />;
       case 'branding':
-        return <BrandingTab settings={settings} />;
+        return <BrandingTab settings={effective} />;
       case 'email':
-        return <EmailTab settings={settings} />;
+        return <EmailTab settings={effective} />;
       case 'legal':
-        return <LegalTab settings={settings} />;
+        return <LegalTab settings={effective} />;
       case 'features':
-        return <FeaturesTab settings={settings} />;
+        return <FeaturesTab settings={effective} />;
       case 'localization':
-        return <LocalizationTab settings={settings} />;
+        return <LocalizationTab settings={effective} />;
       case 'analytics':
-        return <AnalyticsTab settings={settings} />;
+        return <AnalyticsTab settings={effective} />;
       default:
-        return <AppDetailsTab settings={settings} />;
+        return <AppDetailsTab settings={effective} />;
     }
   };
 

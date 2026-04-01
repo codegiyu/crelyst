@@ -1,93 +1,121 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Project } from '../../models/project';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getProjectBySlug,
+  getProjectById,
+  updateProject as updateProjectRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { projectCaseStudySchema } from '../../lib/validation/projectCaseStudy';
+import { projectStatusSchema } from '../../lib/validation/projectStatus';
+import { revalidateProjectPublic } from '../../lib/utils/revalidateSiteCache';
 
-// Update project (admin only)
-export const updateProject = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, req, user } = context as RequestContext;
+const seoSchema = z.object({
+  metaTitle: z.string().max(100).optional(),
+  metaDescription: z.string().max(300).optional(),
+  keywords: z.array(z.string()).optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
+const updateProjectBodySchema = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  shortDescription: z.string().optional(),
+  featuredImage: z.string().optional(),
+  cardImage: z.string().optional(),
+  bannerImage: z.string().optional(),
+  heroImage: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  technologies: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  category: z.string().optional(),
+  status: projectStatusSchema.optional(),
+  clientName: z.string().optional(),
+  clientWebsite: z.string().optional(),
+  projectUrl: z.string().optional(),
+  githubUrl: z.string().optional(),
+  startDate: z.union([z.string(), z.number()]).optional(),
+  endDate: z.union([z.string(), z.number()]).optional(),
+  caseStudy: projectCaseStudySchema.optional().nullable(),
+  isFeatured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+  seo: seoSchema.optional(),
+});
+
+export const updateProject: RouteHandler = async ({ request, body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
+
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
+
+  if (!identifier) {
+    throw new AppError('Project identifier is required', 400);
+  }
+
+  const payload = validateBody(updateProjectBodySchema, body);
+
+  let current = await getProjectBySlug(identifier);
+  if (!current) current = await getProjectById(identifier);
+  if (!current) {
+    throw new AppError('Project not found', 404);
+  }
+
+  const updateData: Record<string, unknown> = {};
+  const fields = [
+    'title',
+    'description',
+    'shortDescription',
+    'featuredImage',
+    'cardImage',
+    'bannerImage',
+    'heroImage',
+    'images',
+    'technologies',
+    'tags',
+    'category',
+    'status',
+    'clientName',
+    'clientWebsite',
+    'projectUrl',
+    'githubUrl',
+    'startDate',
+    'endDate',
+    'caseStudy',
+    'isFeatured',
+    'isActive',
+    'displayOrder',
+    'seo',
+  ] as const;
+  for (const f of fields) {
+    const val = payload[f];
+    if (val !== undefined) {
+      if (f === 'caseStudy' && val === null) {
+        updateData.caseStudy = null;
+        continue;
+      }
+      updateData[f] =
+        f === 'startDate' || f === 'endDate' ? (val ? new Date(val as string | number) : val) : val;
     }
+  }
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  const project = await updateProjectRepo(current.id, updateData);
 
-    if (!identifier) {
-      throw new AppError('Project identifier is required', 400);
-    }
+  if (!project) {
+    throw new AppError('Project not found', 404);
+  }
 
-    const query = mongoose.Types.ObjectId.isValid(identifier)
-      ? { _id: identifier }
-      : { slug: identifier };
+  const updated = project as Record<string, unknown>;
+  const slug = typeof updated.slug === 'string' ? updated.slug : identifier;
+  revalidateProjectPublic(slug);
 
-    const {
-      title,
-      description,
-      shortDescription,
-      featuredImage,
-      cardImage,
-      bannerImage,
-      images,
-      technologies,
-      category,
-      status,
-      clientName,
-      clientWebsite,
-      projectUrl,
-      githubUrl,
-      startDate,
-      endDate,
-      isFeatured,
-      isActive,
-      displayOrder,
-      seo,
-    } = body;
-
-    // Check if project exists and validate slug uniqueness if slug is being updated
-    const currentProject = await Project.findOne(query).select('slug').lean();
-    if (!currentProject) {
-      throw new AppError('Project not found', 404);
-    }
-
-    // Build update object with only provided fields
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: any = {};
-    if (title !== undefined) updateData.title = title;
-    if (description !== undefined) updateData.description = description;
-    if (shortDescription !== undefined) updateData.shortDescription = shortDescription;
-    if (featuredImage !== undefined) updateData.featuredImage = featuredImage;
-    if (cardImage !== undefined) updateData.cardImage = cardImage;
-    if (bannerImage !== undefined) updateData.bannerImage = bannerImage;
-    if (images !== undefined) updateData.images = images;
-    if (technologies !== undefined) updateData.technologies = technologies;
-    if (category !== undefined) updateData.category = category;
-    if (status !== undefined) updateData.status = status;
-    if (clientName !== undefined) updateData.clientName = clientName;
-    if (clientWebsite !== undefined) updateData.clientWebsite = clientWebsite;
-    if (projectUrl !== undefined) updateData.projectUrl = projectUrl;
-    if (githubUrl !== undefined) updateData.githubUrl = githubUrl;
-    if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : undefined;
-    if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : undefined;
-    if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    if (displayOrder !== undefined) updateData.displayOrder = displayOrder;
-    if (seo !== undefined) updateData.seo = seo;
-
-    const project = await Project.findOneAndUpdate(query, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!project) {
-      throw new AppError('Project not found', 404);
-    }
-
-    return sendResponse(200, { project }, 'Project updated successfully');
-  })
-);
+  return sendResponse(
+    200,
+    { project: { ...project, _id: project.id } },
+    'Project updated successfully'
+  );
+};

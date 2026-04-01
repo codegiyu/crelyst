@@ -1,5 +1,14 @@
-import { ProjectDetailClient } from '@/components/section/projects';
+import { PublicShell } from '@/components/layout/PublicShell';
+import { ProjectDetailHero } from '@/components/section/projects/ProjectDetailHero';
+import { ProjectDetailContent } from '@/components/section/projects/ProjectDetailContent';
+import { ProjectCaseStudyView } from '@/components/section/projects/ProjectCaseStudyView';
+import { ProjectGallery } from '@/components/section/projects/ProjectGallery';
+import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
+import { getCachedProjectBySlug } from '@/lib/ssr/cachedPublicDetail';
+import { getAdjacentPublishedProjects } from '@/lib/ssr/adjacentPublishedProjects';
+import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
 interface ProjectPageProps {
   params: Promise<{ slug: string }>;
@@ -7,13 +16,25 @@ interface ProjectPageProps {
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  // Format slug for display (e.g., "my-project" -> "My Project")
+  const data = await getCachedProjectBySlug(slug);
+  const project = data?.project;
+  if (project?.title) {
+    const keywords = project.caseStudy?.keywords?.length
+      ? project.caseStudy.keywords
+      : project.seo?.keywords;
+    return {
+      title: `${project.title} | Our Projects`,
+      description:
+        project.shortDescription ||
+        project.description ||
+        `Discover how we delivered ${project.title}.`,
+      ...(keywords?.length ? { keywords } : {}),
+    };
+  }
   const title = slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-
   return {
     title: `${title} | Our Projects`,
     description: `Discover the details of our ${title.toLowerCase()} project and see how we delivered exceptional results.`,
@@ -22,6 +43,36 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { slug } = await params;
+  const data = await getCachedProjectBySlug(slug);
+  const project = data?.project;
+  if (!project) {
+    notFound();
+  }
 
-  return <ProjectDetailClient slug={slug} />;
+  const [contactInfoSlice, socialsSlice, appDetailsSlice] = await Promise.all([
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
+      '/api/site-settings/contactInfo'
+    ),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
+  ]);
+
+  const footerSettings = {
+    ...contactInfoSlice,
+    ...socialsSlice,
+    ...appDetailsSlice,
+  };
+
+  const adjacent = project.caseStudy ? await getAdjacentPublishedProjects(slug) : undefined;
+
+  return (
+    <PublicShell transparentHeader footerSettings={footerSettings}>
+      <ProjectDetailHero project={project} />
+      {project.caseStudy ? <ProjectCaseStudyView project={project} adjacent={adjacent} /> : null}
+      <ProjectDetailContent project={project} />
+      {!project.caseStudy && project.images && project.images.length > 0 ? (
+        <ProjectGallery project={project} />
+      ) : null}
+    </PublicShell>
+  );
 }

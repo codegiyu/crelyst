@@ -1,37 +1,42 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Service } from '../../models/service';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import {
+  getServiceBySlug,
+  getServiceById,
+  deleteService as deleteServiceRepo,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { revalidateServicePublic } from '../../lib/utils/revalidateSiteCache';
 
-// Delete service (admin only)
-export const deleteService = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { req, user } = context as RequestContext;
+export const deleteService: RouteHandler = async ({ request, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const identifier = pathParts[pathParts.length - 1];
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const identifier = pathParts[pathParts.length - 1];
+  if (!identifier) {
+    throw new AppError('Service identifier is required', 400);
+  }
 
-    if (!identifier) {
-      throw new AppError('Service identifier is required', 400);
-    }
+  let current = await getServiceBySlug(identifier);
+  if (!current) current = await getServiceById(identifier);
+  if (!current) {
+    throw new AppError('Service not found', 404);
+  }
 
-    const query = mongoose.Types.ObjectId.isValid(identifier)
-      ? { _id: identifier }
-      : { slug: identifier };
+  const cur = current as Record<string, unknown>;
+  const slugForCache = typeof cur.slug === 'string' ? cur.slug : identifier;
 
-    const service = await Service.findOneAndDelete(query);
+  const deleted = await deleteServiceRepo(current.id);
 
-    if (!service) {
-      throw new AppError('Service not found', 404);
-    }
+  if (!deleted) {
+    throw new AppError('Service not found', 404);
+  }
 
-    return sendResponse(200, null, 'Service deleted successfully');
-  })
-);
+  revalidateServicePublic(slugForCache);
+
+  return sendResponse(200, null, 'Service deleted successfully');
+};

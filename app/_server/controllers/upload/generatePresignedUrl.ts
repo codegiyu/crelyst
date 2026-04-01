@@ -1,22 +1,61 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
 import { generatePresignedUrl, getContentTypeFromExtension } from '../../lib/utils/r2';
 import type { EntityType, UploadIntent } from '../../lib/types/constants';
-import { ACCESS_TYPES } from '../../lib/types/constants';
-import { Document } from '../../models/document';
-import { User } from '../../models/user';
-import { Admin } from '../../models/admin';
-import { Service } from '../../models/service';
-import { Project } from '../../models/project';
-import { Testimonial } from '../../models/testimonial';
-import { Brand } from '../../models/brand';
-import mongoose from 'mongoose';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import {
+  ACCESS_TYPES,
+  UPLOAD_INTENTS,
+  ALLOWED_USER_UPLOAD_INTENTS,
+} from '../../lib/types/constants';
+import { getDocument } from '@/lib/firebase/firestore';
+import {
+  getBrandById,
+  getServiceById,
+  getProjectById,
+  getTestimonialById,
+  createDocument,
+} from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
 
-type FileDescriptorInput = {
-  fileExtension: string;
-  contentType: string;
+const presignedUrlBodySchema = z
+  .object({
+    entityType: z.enum([
+      'user',
+      'admin',
+      'service',
+      'project',
+      'testimonial',
+      'brand',
+      'team-member',
+    ]),
+    entityId: z.string().min(1, 'entityId is required'),
+    intent: z.enum(['avatar', 'logo', 'card-image', 'banner-image', 'image', 'other']),
+    fileExtension: z.string().optional(),
+    contentType: z.string().optional(),
+    files: z
+      .array(
+        z.object({
+          fileExtension: z.string(),
+          contentType: z.string(),
+        })
+      )
+      .optional(),
+  })
+  .refine(
+    data => {
+      const hasSingle = data.fileExtension !== undefined && data.contentType !== undefined;
+      const hasFiles = (data.files?.length ?? 0) > 0;
+      return (hasSingle && !hasFiles) || (!hasSingle && hasFiles);
+    },
+    {
+      message: 'Either provide fileExtension and contentType, or a files array (not both).',
+    }
+  );
+
+const isValidEntityId = (id: unknown): id is string => {
+  return typeof id === 'string' && id.trim().length > 0;
 };
 
 const normalizeString = (value: unknown): string | undefined => {
@@ -29,12 +68,10 @@ const resolveContentType = (fileExtension: string, contentType: string, intent: 
   const extension = normalizeString(fileExtension) ?? '';
   let resolvedContentType = normalizeString(contentType);
 
-  // If no contentType provided, try to infer from extension
   if (!resolvedContentType && extension) {
     resolvedContentType = getContentTypeFromExtension(extension);
   }
 
-  // If still no contentType, use defaults based on intent
   if (!resolvedContentType) {
     if (
       intent === 'avatar' ||
@@ -56,322 +93,201 @@ const resolveContentType = (fileExtension: string, contentType: string, intent: 
   };
 };
 
-export const generatePresignedUrlController = (accessType: ACCESS_TYPES) =>
-  withRequestContext({ accessType, protect: accessType === 'console' })(
-    catchAsync(async context => {
-      const { body, user } = context as RequestContext;
-      const {
-        entityType,
-        entityId,
-        intent,
-        fileExtension,
-        contentType,
-        files: filesPayload,
-      } = body || {};
+async function entityExists(entityType: EntityType, entityId: string): Promise<boolean> {
+  switch (entityType) {
+    case 'admin':
+      return (await getDocument('admins', entityId)) !== null;
+    case 'user':
+      return (await getDocument('users', entityId)) !== null;
+    case 'service':
+      return (await getServiceById(entityId)) !== null;
+    case 'project':
+      return (await getProjectById(entityId)) !== null;
+    case 'testimonial':
+      return (await getTestimonialById(entityId)) !== null;
+    case 'brand':
+      return (await getBrandById(entityId)) !== null;
+    default:
+      return false;
+  }
+}
 
-      const filesArray = Array.isArray(filesPayload) ? filesPayload : [];
+export const generatePresignedUrlController =
+  (accessType: ACCESS_TYPES): RouteHandler =>
+  async ({ body, user }) => {
+    const payload = validateBody(presignedUrlBodySchema, body);
 
-      // Validate required fields
-      if (!entityType) {
-        throw new AppError('entityType is required', 400);
-      }
+    const {
+      entityType,
+      entityId,
+      intent,
+      fileExtension,
+      contentType,
+      files: filesPayload,
+    } = payload;
 
-      if (!entityId) {
-        throw new AppError('entityId is required', 400);
-      }
+    const filesArray = filesPayload ?? [];
 
-      if (!intent) {
-        throw new AppError('intent is required', 400);
-      }
+    const validatedEntityType = entityType as EntityType;
 
-      // Validate that either (fileExtension + contentType) OR files array is provided
-      const hasSingleFile = fileExtension !== undefined && contentType !== undefined;
-      const hasFilesArray = filesArray.length > 0;
+    const isUserAccess = accessType === 'client';
 
-      if (!hasSingleFile && !hasFilesArray) {
+    const validateIntent = (value: unknown): UploadIntent => {
+      if (!UPLOAD_INTENTS.includes(value as UploadIntent)) {
         throw new AppError(
-          'Either provide fileExtension and contentType, or provide a files array with fileExtension and contentType for each file',
+          `Invalid intent "${value}". Must be one of: ${UPLOAD_INTENTS.join(', ')}`,
           400
         );
       }
+      const intentVal = value as UploadIntent;
+      if (isUserAccess && !ALLOWED_USER_UPLOAD_INTENTS.includes(intentVal)) {
+        throw new AppError('Users can only upload avatar or other images', 403);
+      }
+      return intentVal;
+    };
 
-      if (hasSingleFile && hasFilesArray) {
-        throw new AppError(
-          'Cannot provide both fileExtension/contentType and files array. Use one or the other.',
-          400
-        );
+    const resolvedIntent = validateIntent(intent);
+
+    if (!isValidEntityId(entityId)) {
+      throw new AppError('Invalid entityId format', 400);
+    }
+
+    let targetEntityId: string = '';
+
+    if (isUserAccess) {
+      if (!user || !(user as { _id?: string })._id) {
+        throw new AppError('IVT: Unauthenticated', 400);
       }
 
-      // Validate entityType
-      const validEntityTypes: EntityType[] = [
-        'user',
-        'admin',
-        'service',
-        'project',
-        'testimonial',
-        'brand',
-      ];
-      if (!validEntityTypes.includes(entityType)) {
-        throw new AppError(
-          `Invalid entityType. Must be one of: ${validEntityTypes.join(', ')}`,
-          400
-        );
+      const userId = String((user as { _id: string })._id);
+
+      if (validatedEntityType !== 'user') {
+        throw new AppError('Users can only upload files for their own account', 403);
       }
 
-      // Validate intent
-      const validIntents: UploadIntent[] = [
-        'avatar',
-        'logo',
-        'card-image',
-        'banner-image',
-        'image',
-        'other',
-      ];
+      if (entityId !== userId) {
+        throw new AppError('Users can only upload files for their own account', 403);
+      }
 
-      const ALLOWED_USER_INTENTS: UploadIntent[] = ['avatar', 'other'];
-      const isUserAccess = accessType === 'client';
+      targetEntityId = userId;
+    } else {
+      targetEntityId = entityId;
 
-      const validateIntent = (value: UploadIntent, _label: string) => {
-        if (!validIntents.includes(value)) {
-          throw new AppError(
-            `Invalid intent "${value}". Must be one of: ${validIntents.join(', ')}`,
-            400
+      const exists = await entityExists(validatedEntityType, entityId);
+      if (!exists) {
+        throw new AppError(`${validatedEntityType} not found`, 404);
+      }
+    }
+
+    const expiresAt = new Date(Date.now() + 3600 * 1000);
+    const uploadedByModel = accessType === 'client' ? 'Customer' : 'Admin';
+    const uploadedBy =
+      user && (user as { _id?: string })._id ? String((user as { _id: string })._id) : undefined;
+
+    if (filesArray.length > 0) {
+      if (filesArray.length > 20) {
+        throw new AppError('You can only generate up to 20 presigned URLs per request', 400);
+      }
+
+      const uploads = await Promise.all(
+        filesArray.map(async entry => {
+          const { extension, contentType: resolvedContentType } = resolveContentType(
+            entry.fileExtension,
+            entry.contentType,
+            resolvedIntent
           );
-        }
-        if (isUserAccess && !ALLOWED_USER_INTENTS.includes(value)) {
-          throw new AppError('Users can only upload avatar or other images', 403);
-        }
-        return value;
-      };
 
-      const resolvedIntent = validateIntent(intent, 'intent');
-
-      // Validate entityId format
-      if (!mongoose.Types.ObjectId.isValid(entityId)) {
-        throw new AppError('Invalid entityId format', 400);
-      }
-
-      // Determine targetEntityId based on access type and entity type
-      let targetEntityId: string = '';
-
-      if (isUserAccess) {
-        // For customer access, validate permissions
-        if (!user || !user._id) {
-          throw new AppError('IVT: Unauthenticated', 400);
-        }
-
-        const userId = user._id.toString();
-
-        if (entityType !== 'user') {
-          throw new AppError('Users can only upload files for their own account', 403);
-        }
-
-        if (entityId !== userId) {
-          throw new AppError('Users can only upload files for their own account', 403);
-        }
-
-        targetEntityId = userId;
-      } else {
-        // For admin access, validate entityType and entityId
-        // Validate entityType is valid
-        if (!validEntityTypes.includes(entityType)) {
-          throw new AppError(
-            `Invalid entityType. Must be one of: ${validEntityTypes.join(', ')}`,
-            400
-          );
-        }
-
-        // Validate entityId format
-        if (!mongoose.Types.ObjectId.isValid(entityId)) {
-          throw new AppError('Invalid entityId format', 400);
-        }
-
-        // Validate entity exists in database based on entityType
-        targetEntityId = entityId;
-
-        if (entityType === 'user') {
-          const exists = await User.exists({
-            _id: entityId,
-            isDeleted: { $ne: true },
+          const { filename, url, key, publicUrl } = await generatePresignedUrl({
+            entityType: validatedEntityType,
+            entityId: targetEntityId,
+            intent: resolvedIntent,
+            fileExtension: extension,
+            contentType: resolvedContentType,
+            expiresIn: 3600,
           });
-          if (!exists) {
-            throw new AppError('User not found or has been deleted', 404);
-          }
-        } else if (entityType === 'admin') {
-          const exists = await Admin.exists({
-            _id: entityId,
+
+          const document = await createDocument({
+            entityType: validatedEntityType,
+            entityId: targetEntityId,
+            intent: resolvedIntent,
+            filename,
+            key,
+            publicUrl,
+            uploadUrl: url,
+            fileExtension: extension,
+            contentType: resolvedContentType,
+            status: 'pending',
+            expiresAt,
+            uploadedBy,
+            uploadedByModel,
           });
-          if (!exists) {
-            throw new AppError('Admin not found', 404);
-          }
-        } else if (entityType === 'service') {
-          const exists = await Service.exists({
-            _id: entityId,
-          });
-          if (!exists) {
-            throw new AppError('Service not found', 404);
-          }
-        } else if (entityType === 'project') {
-          const exists = await Project.exists({
-            _id: entityId,
-          });
-          if (!exists) {
-            throw new AppError('Project not found', 404);
-          }
-        } else if (entityType === 'testimonial') {
-          const exists = await Testimonial.exists({
-            _id: entityId,
-          });
-          if (!exists) {
-            throw new AppError('Testimonial not found', 404);
-          }
-        } else if (entityType === 'brand') {
-          const exists = await Brand.exists({
-            _id: entityId,
-          });
-          if (!exists) {
-            throw new AppError('Brand not found', 404);
-          }
-        }
-      }
 
-      if (filesArray.length > 0) {
-        // Batch mode: process files array
-        if (filesArray.length > 20) {
-          throw new AppError('You can only generate up to 20 presigned URLs per request', 400);
-        }
-
-        const uploads = await Promise.all(
-          filesArray.map(async (entryRaw: unknown, index) => {
-            if (!entryRaw || typeof entryRaw !== 'object') {
-              throw new AppError(`files[${index}] must be an object`, 400);
-            }
-
-            const entry = entryRaw as FileDescriptorInput;
-
-            if (!entry.fileExtension) {
-              throw new AppError(`files[${index}].fileExtension is required`, 400);
-            }
-
-            if (!entry.contentType) {
-              throw new AppError(`files[${index}].contentType is required`, 400);
-            }
-
-            const { extension, contentType: resolvedContentType } = resolveContentType(
-              entry.fileExtension,
-              entry.contentType,
-              resolvedIntent
-            );
-
-            const { filename, url, key, publicUrl } = await generatePresignedUrl({
-              entityType,
-              entityId: targetEntityId,
-              intent: resolvedIntent,
-              fileExtension: extension,
-              contentType: resolvedContentType,
-              expiresIn: 3600,
-            });
-
-            // Save document record
-            const uploadedBy = user;
-            const expiresAt = new Date(Date.now() + 3600 * 1000); // 1 hour from now
-
-            const document = await Document.create({
-              entityType,
-              entityId: new mongoose.Types.ObjectId(targetEntityId),
-              intent: resolvedIntent,
-              filename,
-              key,
-              publicUrl,
-              uploadUrl: url,
-              fileExtension: extension,
-              contentType: resolvedContentType,
-              status: 'pending',
-              expiresAt,
-              uploadedBy: uploadedBy?._id,
-              uploadedByModel: accessType === 'client' ? 'Customer' : 'Admin',
-            });
-
-            return {
-              id: document._id.toString(),
-              intent: resolvedIntent,
-              uploadUrl: url,
-              key,
-              filename,
-              publicUrl,
-              expiresIn: 3600,
-              expiresAt: expiresAt.toISOString(),
-            };
-          })
-        );
-
-        return sendResponse(
-          200,
-          {
-            uploads,
-            count: uploads.length,
-          },
-          'Presigned URLs generated successfully'
-        );
-      }
-
-      // Single file mode: use top-level fileExtension and contentType
-      if (!fileExtension) {
-        throw new AppError('fileExtension is required', 400);
-      }
-
-      if (!contentType) {
-        throw new AppError('contentType is required', 400);
-      }
-
-      const { extension: singleExtension, contentType: singleContentType } = resolveContentType(
-        fileExtension,
-        contentType,
-        resolvedIntent
+          return {
+            id: document?.id,
+            intent: resolvedIntent,
+            uploadUrl: url,
+            key,
+            filename,
+            publicUrl,
+            expiresIn: 3600,
+            expiresAt: expiresAt.toISOString(),
+          };
+        })
       );
-
-      const { filename, url, key, publicUrl } = await generatePresignedUrl({
-        entityType,
-        entityId: targetEntityId,
-        intent: resolvedIntent,
-        fileExtension: singleExtension,
-        contentType: singleContentType,
-        expiresIn: 3600, // 1 hour
-      });
-
-      // Save document record
-      const uploadedBy = user;
-      const expiresAt = new Date(Date.now() + 3600 * 1000); // 1 hour from now
-
-      const document = await Document.create({
-        entityType,
-        entityId: new mongoose.Types.ObjectId(targetEntityId),
-        intent: resolvedIntent,
-        filename,
-        key,
-        publicUrl,
-        uploadUrl: url,
-        fileExtension: singleExtension,
-        contentType: singleContentType,
-        status: 'pending',
-        expiresAt,
-        uploadedBy: uploadedBy?._id,
-        uploadedByModel: accessType === 'client' ? 'Customer' : 'Admin',
-      });
 
       return sendResponse(
         200,
-        {
-          id: document._id.toString(),
-          uploadUrl: url,
-          key,
-          filename,
-          intent: resolvedIntent,
-          publicUrl,
-          expiresIn: 3600,
-          expiresAt: expiresAt.toISOString(),
-        },
-        'Presigned URL generated successfully'
+        { uploads, count: uploads.length },
+        'Presigned URLs generated successfully'
       );
-    })
-  );
+    }
+
+    if (!fileExtension) throw new AppError('fileExtension is required', 400);
+    if (!contentType) throw new AppError('contentType is required', 400);
+
+    const { extension: singleExtension, contentType: singleContentType } = resolveContentType(
+      String(fileExtension),
+      String(contentType),
+      resolvedIntent
+    );
+
+    const { filename, url, key, publicUrl } = await generatePresignedUrl({
+      entityType: validatedEntityType,
+      entityId: targetEntityId,
+      intent: resolvedIntent,
+      fileExtension: singleExtension,
+      contentType: singleContentType,
+      expiresIn: 3600,
+    });
+
+    const document = await createDocument({
+      entityType: validatedEntityType,
+      entityId: targetEntityId,
+      intent: resolvedIntent,
+      filename,
+      key,
+      publicUrl,
+      uploadUrl: url,
+      fileExtension: singleExtension,
+      contentType: singleContentType,
+      status: 'pending',
+      expiresAt,
+      uploadedBy,
+      uploadedByModel,
+    });
+
+    return sendResponse(
+      200,
+      {
+        id: document?.id,
+        uploadUrl: url,
+        key,
+        filename,
+        intent: resolvedIntent,
+        publicUrl,
+        expiresIn: 3600,
+        expiresAt: expiresAt.toISOString(),
+      },
+      'Presigned URL generated successfully'
+    );
+  };

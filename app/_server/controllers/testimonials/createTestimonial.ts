@@ -1,55 +1,55 @@
+import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Testimonial } from '../../models/testimonial';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
-import mongoose from 'mongoose';
+import { createTestimonial as createTestimonialRepo } from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
+import { validateBody } from '../../lib/api/validateBody';
+import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
-// Create testimonial (admin only)
-export const createTestimonial = withRequestContext({ protect: true, accessType: 'console' })(
-  catchAsync(async context => {
-    const { body, user } = context as RequestContext;
+const createTestimonialBodySchema = z.object({
+  clientName: z.string().min(1, 'Client name is required').max(100),
+  testimonial: z.string().min(1, 'Testimonial is required'),
+  clientRole: z.string().max(100).optional(),
+  companyName: z.string().max(100).optional(),
+  companyLogo: z.string().optional(),
+  clientImage: z.string().optional(),
+  rating: z.number().int().min(1).max(5).optional(),
+  isFeatured: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+  projectId: z.string().nullable().optional(),
+});
 
-    if (!user || !user._id) {
-      throw new AppError('Unauthorized', 401);
-    }
+export const createTestimonial: RouteHandler = async ({ body, user }) => {
+  if (!user || !(user as { _id?: string })._id) {
+    throw new AppError('Unauthorized', 401);
+  }
 
-    const {
-      clientName,
-      clientRole,
-      companyName,
-      companyLogo,
-      clientImage,
-      testimonial,
-      rating,
-      isFeatured,
-      isActive,
-      displayOrder,
-      projectId,
-    } = body;
+  const payload = validateBody(createTestimonialBodySchema, body);
 
-    if (!clientName || !testimonial) {
-      throw new AppError('Client name and testimonial are required', 400);
-    }
+  const newTestimonial = await createTestimonialRepo({
+    clientName: payload.clientName,
+    clientRole: payload.clientRole ?? '',
+    companyName: payload.companyName ?? '',
+    companyLogo: payload.companyLogo ?? '',
+    clientImage: payload.clientImage ?? '',
+    testimonial: payload.testimonial,
+    rating: payload.rating ?? 5,
+    isFeatured: payload.isFeatured ?? false,
+    isActive: payload.isActive ?? true,
+    displayOrder: payload.displayOrder ?? 0,
+    projectId: payload.projectId ?? null,
+  });
 
-    const newTestimonial = await Testimonial.create({
-      clientName,
-      clientRole: clientRole || '',
-      companyName: companyName || '',
-      companyLogo: companyLogo || '',
-      clientImage: clientImage || '',
-      testimonial,
-      rating: rating || 5,
-      isFeatured: isFeatured !== undefined ? isFeatured : false,
-      isActive: isActive !== undefined ? isActive : true,
-      displayOrder: displayOrder || 0,
-      projectId: projectId ? new mongoose.Types.ObjectId(projectId) : null,
-    });
+  if (!newTestimonial) {
+    throw new AppError('Failed to create testimonial', 500);
+  }
 
-    if (!newTestimonial) {
-      throw new AppError('Failed to create testimonial', 500);
-    }
+  revalidateAboutAndHome();
 
-    return sendResponse(201, { testimonial: newTestimonial }, 'Testimonial created successfully');
-  })
-);
+  return sendResponse(
+    201,
+    { testimonial: { ...newTestimonial, _id: newTestimonial.id } },
+    'Testimonial created successfully'
+  );
+};

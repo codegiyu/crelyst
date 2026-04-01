@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import { AlertTriangle } from 'lucide-react';
 import { useTestimonialsStore } from '@/lib/store/useTestimonialsStore';
@@ -29,20 +29,18 @@ export const DeleteTestimonialDialog = ({
 
     setLoading(true);
     try {
-      const { error } = await callApi('ADMIN_DELETE_TESTIMONIAL', {
-        query: `/${testimonial._id}`,
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to delete testimonial');
-        return;
+      const data = await adminCallApiToast(
+        'Deleting testimonial…',
+        () =>
+          callApi('ADMIN_DELETE_TESTIMONIAL', {
+            query: `/${testimonial._id}`,
+          }),
+        'Testimonial deleted successfully'
+      );
+      if (data) {
+        actions.removeTestimonial(testimonial._id);
+        onSuccess();
       }
-
-      actions.removeTestimonial(testimonial._id);
-      toast.success('Testimonial deleted successfully');
-      onSuccess();
-    } catch {
-      toast.error('Failed to delete testimonial');
     } finally {
       setLoading(false);
     }

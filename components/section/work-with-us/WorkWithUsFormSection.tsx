@@ -11,6 +11,7 @@ import { useForm } from '@/lib/hooks/use-form';
 import { z } from 'zod';
 import { Send, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
+import { callApi } from '@/lib/services/callApi';
 
 const workWithUsSchema = z.object({
   name: z.string().min(1, 'Full name is required'),
@@ -44,13 +45,11 @@ export const WorkWithUsFormSection = () => {
     },
     onSubmit: async (values: WorkWithUsFormValues) => {
       try {
-        console.log({ values });
-        // Simulate form submission - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // TODO: Replace with actual API call
-        // const { data, error } = await callApi('SUBMIT_WORK_WITH_US', { payload: values });
-
+        const { error } = await callApi('SUBMIT_WORK_WITH_US', { payload: values });
+        if (error) {
+          toast.error(error.message || 'Failed to submit application. Please try again.');
+          return false;
+        }
         toast.success(
           "Application submitted successfully! We'll review your application and get back to you soon."
         );
@@ -91,7 +90,7 @@ export const WorkWithUsFormSection = () => {
             </div>
           )}
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-6">
             <RegularInput
               label="Full Name"
               name="name"

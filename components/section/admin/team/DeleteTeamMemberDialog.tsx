@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import { AlertTriangle } from 'lucide-react';
 import { useTeamMembersStore } from '@/lib/store/useTeamMembersStore';
@@ -29,20 +29,18 @@ export const DeleteTeamMemberDialog = ({
 
     setLoading(true);
     try {
-      const { error } = await callApi('ADMIN_DELETE_TEAM_MEMBER', {
-        query: `/${member._id}`,
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to delete team member');
-        return;
+      const data = await adminCallApiToast(
+        'Deleting team member…',
+        () =>
+          callApi('ADMIN_DELETE_TEAM_MEMBER', {
+            query: `/${member._id}`,
+          }),
+        'Team member deleted successfully'
+      );
+      if (data) {
+        actions.removeTeamMember(member._id);
+        onSuccess();
       }
-
-      actions.removeTeamMember(member._id);
-      toast.success('Team member deleted successfully');
-      onSuccess();
-    } catch {
-      toast.error('Failed to delete team member');
     } finally {
       setLoading(false);
     }

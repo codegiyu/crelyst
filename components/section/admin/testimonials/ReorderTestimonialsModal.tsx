@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import { GripVertical, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -92,20 +92,18 @@ export const ReorderTestimonialsModal = ({
         displayOrder: testimonial.newDisplayOrder,
       }));
 
-      const { error } = await callApi('ADMIN_REORDER_TESTIMONIALS', {
-        payload: { reorderItems },
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to reorder testimonials');
-        return;
+      const data = await adminCallApiToast(
+        'Saving order…',
+        () =>
+          callApi('ADMIN_REORDER_TESTIMONIALS', {
+            payload: { reorderItems },
+          }),
+        'Testimonials reordered successfully'
+      );
+      if (data) {
+        onSuccess();
+        onOpenChange(false);
       }
-
-      toast.success('Testimonials reordered successfully');
-      onSuccess();
-      onOpenChange(false);
-    } catch {
-      toast.error('Failed to reorder testimonials');
     } finally {
       setLoading(false);
     }
@@ -147,7 +145,7 @@ export const ReorderTestimonialsModal = ({
         <SortableContext
           items={orderedTestimonials.map(t => t._id)}
           strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
+          <div className="grid gap-2">
             {orderedTestimonials.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 No testimonials to reorder

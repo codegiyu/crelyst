@@ -1,34 +1,34 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { catchAsync } from '../../middlewares/catchAsync';
-import { Project } from '../../models/project';
-import { RequestContext, withRequestContext } from '../../lib/context/withRequestContext';
+import { getProjectBySlug, getProjectById } from '../../lib/firestore/collections';
+import type { RouteHandler } from '../../lib/api/routeHandler';
 import { ACCESS_TYPES } from '../../lib/types/constants';
-import mongoose from 'mongoose';
+import { assertPublishedForClient } from '../../lib/utils/clientPublished';
 
-// Get single project by slug or ID (public)
-export const getProject = (accessType: ACCESS_TYPES = 'client') =>
-  withRequestContext({ protect: false, accessType })(
-    catchAsync(async context => {
-      const { req } = context as RequestContext;
-      const url = new URL(req.url);
-      const pathParts = url.pathname.split('/').filter(Boolean);
-      const identifier = pathParts[pathParts.length - 1];
+export const getProject =
+  (accessType: ACCESS_TYPES = 'client'): RouteHandler =>
+  async ({ request }) => {
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    const identifier = pathParts[pathParts.length - 1];
 
-      if (!identifier) {
-        throw new AppError('Project identifier is required', 400);
-      }
+    if (!identifier) {
+      throw new AppError('Project identifier is required', 400);
+    }
 
-      const query = mongoose.Types.ObjectId.isValid(identifier)
-        ? { _id: identifier }
-        : { slug: identifier };
+    let project = await getProjectBySlug(identifier);
+    if (!project) {
+      project = await getProjectById(identifier);
+    }
+    if (!project) {
+      throw new AppError('Project not found', 404);
+    }
 
-      const project = await Project.findOne(query).lean();
+    assertPublishedForClient(accessType, project);
 
-      if (!project) {
-        throw new AppError('Project not found', 404);
-      }
-
-      return sendResponse(200, { project }, 'Project fetched successfully');
-    })
-  );
+    return sendResponse(
+      200,
+      { project: { ...project, _id: project.id } },
+      'Project fetched successfully'
+    );
+  };

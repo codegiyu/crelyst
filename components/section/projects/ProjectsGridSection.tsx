@@ -3,33 +3,15 @@
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { useProjectsStore } from '@/lib/store/useProjectsStore';
 import { ProjectCard } from './ProjectCard';
-import { Skeleton } from '@/components/ui/skeleton';
+import type { ClientProject } from '@/lib/constants/endpoints';
 
-export const ProjectsGridSection = () => {
+export const ProjectsGridSection = ({ projects }: { projects: ClientProject[] }) => {
   const { siteLoading } = useSiteStore(state => state);
-  const { projects, isLoading } = useProjectsStore(state => ({
-    projects: state.projects,
-    isLoading: state.isLoading,
-  }));
 
   return (
     <SectionContainer>
-      {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-border overflow-hidden">
-              <Skeleton className="aspect-[4/3] w-full" />
-              <div className="p-5">
-                <Skeleton className="h-6 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-full mb-1" />
-                <Skeleton className="h-4 w-5/6" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : projects.length === 0 ? (
+      {projects.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={siteLoading ? {} : { opacity: 1 }}

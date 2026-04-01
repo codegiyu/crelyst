@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
-import { toast } from 'sonner';
+import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import { GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -92,20 +92,18 @@ export const ReorderTeamMembersModal = ({
         displayOrder: member.newDisplayOrder,
       }));
 
-      const { error } = await callApi('ADMIN_REORDER_TEAM_MEMBERS', {
-        payload: { reorderItems },
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to reorder team members');
-        return;
+      const data = await adminCallApiToast(
+        'Saving order…',
+        () =>
+          callApi('ADMIN_REORDER_TEAM_MEMBERS', {
+            payload: { reorderItems },
+          }),
+        'Team members reordered successfully'
+      );
+      if (data) {
+        onSuccess();
+        onOpenChange(false);
       }
-
-      toast.success('Team members reordered successfully');
-      onSuccess();
-      onOpenChange(false);
-    } catch {
-      toast.error('Failed to reorder team members');
     } finally {
       setLoading(false);
     }
@@ -147,7 +145,7 @@ export const ReorderTeamMembersModal = ({
         <SortableContext
           items={orderedMembers.map(m => m._id)}
           strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
+          <div className="grid gap-2">
             {orderedMembers.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 No team members to reorder

@@ -11,6 +11,7 @@ import { useForm } from '@/lib/hooks/use-form';
 import { z } from 'zod';
 import { Send, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { callApi } from '@/lib/services/callApi';
 
 const quoteRequestSchema = z.object({
   name: z.string().min(1, 'Full name is required'),
@@ -48,13 +49,11 @@ export const ContactFormSection = () => {
     },
     onSubmit: async (values: QuoteRequestFormValues) => {
       try {
-        console.log({ values });
-        // Simulate form submission - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // TODO: Replace with actual API call
-        // const { data, error } = await callApi('SUBMIT_QUOTE_REQUEST', { payload: values });
-
+        const { error } = await callApi('SUBMIT_QUOTE_REQUEST', { payload: values });
+        if (error) {
+          toast.error(error.message || 'Failed to submit quote request. Please try again.');
+          return false;
+        }
         toast.success(
           "Quote request submitted successfully! We'll get back to you soon with a customized proposal."
         );
@@ -95,7 +94,7 @@ export const ContactFormSection = () => {
             </div>
           )}
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-6">
             <RegularInput
               label="Full Name"
               name="name"

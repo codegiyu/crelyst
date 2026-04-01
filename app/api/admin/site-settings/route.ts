@@ -1,4 +1,6 @@
 import { updateSettings } from '@/app/_server/controllers/site/updateSettings';
-import { applyMiddlewares } from '@/app/_server/middlewares/applyMiddlewares';
+import { handleApiRoute } from '@/app/_server/lib/api/routeHandler';
+import type { NextRequest } from 'next/server';
 
-export const PATCH = applyMiddlewares(updateSettings);
+export const PATCH = (request: NextRequest) =>
+  handleApiRoute(request, { protect: true, accessType: 'console' }, updateSettings);
