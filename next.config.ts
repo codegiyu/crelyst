@@ -1,6 +1,10 @@
 import type { NextConfig } from 'next';
-import { ENVIRONMENT } from './lib/config/environment';
 
+/**
+ * next.config is loaded before the full app tree is available in some Docker images
+ * (only next.config.ts is copied). Do not import `lib/config/environment` here — keep
+ * env reads inline so `next start` resolves. The app uses {@link ENVIRONMENT} everywhere else.
+ */
 function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePatterns'] {
   const patterns: NonNullable<NextConfig['images']>['remotePatterns'] = [
     { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
@@ -12,7 +16,7 @@ function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePa
     { protocol: 'https', hostname: '*.r2.cloudflarestorage.com', pathname: '/**' },
   ];
 
-  const r2Url = ENVIRONMENT.IMAGES.R2_PUBLIC_BASE_URL || undefined;
+  const r2Url = process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
   if (r2Url) {
     try {
       const { hostname } = new URL(r2Url);
@@ -56,7 +60,7 @@ const nextConfig: NextConfig = {
       },
     ];
 
-    if (ENVIRONMENT.RUNTIME.IS_PRODUCTION) {
+    if (process.env.NODE_ENV === 'production') {
       security.push({
         key: 'Strict-Transport-Security',
         value: 'max-age=63072000; includeSubDomains; preload',

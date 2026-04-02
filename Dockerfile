@@ -25,6 +25,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/next.config.ts ./
+COPY --from=builder /app/lib ./lib
 
 # Next.js needs its standalone server
 RUN npm install next
