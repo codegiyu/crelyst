@@ -99,11 +99,16 @@ export const CTASection = ({
         </div>
       )}
 
-      {/* Background with gradient fade to right - above marquees, below content */}
+      {/* Background with gradient fade to right - darker primary mix for calmer harmony */}
       <div
         className="absolute inset-0 z-10"
         style={{
-          background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) 35%, hsl(var(--primary) / 0.6) 50%, transparent 100%)`,
+          background: `linear-gradient(to right,
+            color-mix(in hsl, hsl(var(--primary)) 68%, black) 0%,
+            color-mix(in hsl, hsl(var(--primary)) 62%, black) 32%,
+            color-mix(in hsl, hsl(var(--primary)) 48%, black) 48%,
+            hsl(var(--primary) / 0.22) 62%,
+            transparent 100%)`,
         }}
       />
 

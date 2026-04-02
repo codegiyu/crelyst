@@ -37,6 +37,8 @@ export interface ContactInfo {
   email: string[];
   whatsapp: string;
   locationUrl: string;
+  /** Google Maps “Embed a map” iframe src; contact page shows map when valid */
+  mapsEmbedUrl?: string;
   officeHours: OfficeHours;
 }
 

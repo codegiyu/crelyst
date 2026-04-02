@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import { LogoFull } from '../icons';
 
 interface AuthLayoutProps {
@@ -12,11 +13,16 @@ export default function AuthLayout({ children, subtitle = 'Admin Dashboard' }: A
       {/* Logo */}
       <div className="w-fit flex flex-col items-center mx-auto">
         <div className="mb-6 flex items-center justify-center">
-          <i className="h-8 text-foreground">
-            <LogoFull />
-          </i>
+          <Link
+            href="/"
+            className="h-8 text-foreground inline-flex items-center"
+            title="Back to site">
+            <i className="h-12 text-foreground">
+              <LogoFull />
+            </i>
+          </Link>
         </div>
-        <h2 className="text-center text-2xl font-semibold tracking-tight text-foreground">
+        <h2 className="text-center text-xl font-semibold tracking-tight text-foreground">
           {subtitle}
         </h2>
       </div>

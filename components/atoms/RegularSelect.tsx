@@ -86,7 +86,7 @@ export const RegularSelect = ({
           <SelectContent
             side="bottom"
             position="popper"
-            className="bg-white rounded-[6px] border p-2 shadow-md outline-hidden">
+            className="rounded-[6px] border-border p-2 shadow-md outline-hidden">
             {optionsTitle && (
               <SelectLabel className="py-1 px-3 text-sm font-medium text-muted-foreground">
                 {optionsTitle}

@@ -81,9 +81,23 @@ export const Footer = ({ initialSettings }: { initialSettings?: PublicFooterSett
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-white/[0.08] py-6 flex flex-col md:flex-row justify-between items-center text-zinc-500">
-          <p className="text-[0.9375rem]">
+        <div className="border-t border-white/[0.08] py-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-x-3 gap-y-2 text-zinc-500 text-[0.9375rem] text-center">
+          <p>
             &copy; {currentYear} {appName}. All rights reserved.
+          </p>
+          <span className="hidden sm:inline text-zinc-600" aria-hidden>
+            |
+          </span>
+          <p>
+            Built by{' '}
+            <a
+              href="https://portfolio-codegiyu.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block font-lobster text-red-600 hover:text-red-700 transition-colors">
+              <span className="text-xl font-black">C</span>
+              <span>odegiyu</span>
+            </a>
           </p>
         </div>
       </div>

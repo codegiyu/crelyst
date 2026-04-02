@@ -71,6 +71,8 @@ interface BaseSidebarLink {
   page: string;
   path?: SidebarLinkPath;
   action?: () => void;
+  /** When set, sidebar shows unread count badge for this inbox route */
+  inboxBadgeKey?: 'quoteRequest' | 'workWithUs';
 }
 
 interface SidebarLinkWithIcon extends BaseSidebarLink {

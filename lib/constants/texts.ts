@@ -55,4 +55,5 @@ export const NAV_LINKS: HeaderLinkProps[] = [
   { text: 'Projects', href: '/projects' },
   { text: 'Work With Us', href: '/work-with-us' },
   { text: 'Contact', href: '/contact' },
+  { text: 'Admin', href: '/admin', showInFooterOnly: true },
 ];

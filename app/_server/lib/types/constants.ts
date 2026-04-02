@@ -348,6 +348,8 @@ export interface ContactInfo {
   email: string[];
   whatsapp: string;
   locationUrl: string;
+  /** Google Maps embed iframe src for the public contact page */
+  mapsEmbedUrl?: string;
   officeHours: OfficeHours;
 }
 

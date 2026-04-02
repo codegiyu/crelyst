@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 const contactInfoSchema = z.object({
   whatsapp: z.string(),
   locationUrl: z.string().url('Invalid URL').or(z.literal('')),
+  mapsEmbedUrl: z.string().url('Invalid URL').or(z.literal('')),
 });
 
 type ContactInfoFormValues = z.infer<typeof contactInfoSchema>;
@@ -48,6 +49,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
     defaultFormValues: {
       whatsapp: settings.contactInfo?.whatsapp || '',
       locationUrl: settings.contactInfo?.locationUrl || '',
+      mapsEmbedUrl: settings.contactInfo?.mapsEmbedUrl || '',
     },
     noFocusOnFirstField: true,
     onSubmit: async (values: ContactInfoFormValues) => {
@@ -57,6 +59,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
         email: emails.filter(e => e.trim()),
         whatsapp: values.whatsapp,
         locationUrl: values.locationUrl,
+        mapsEmbedUrl: values.mapsEmbedUrl,
         officeHours: settings.contactInfo?.officeHours || {
           monday: null,
           tuesday: null,
@@ -95,6 +98,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
       setFormValues({
         whatsapp: settings.contactInfo.whatsapp || '',
         locationUrl: settings.contactInfo.locationUrl || '',
+        mapsEmbedUrl: settings.contactInfo.mapsEmbedUrl || '',
       });
       setAddresses(settings.contactInfo.address?.length ? settings.contactInfo.address : ['']);
       setPhones(settings.contactInfo.tel?.length ? settings.contactInfo.tel : ['']);
@@ -103,6 +107,7 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
   }, [
     settings.contactInfo?.whatsapp,
     settings.contactInfo?.locationUrl,
+    settings.contactInfo?.mapsEmbedUrl,
     settings.contactInfo?.address,
     settings.contactInfo?.tel,
     settings.contactInfo?.email,
@@ -264,6 +269,16 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
           onChange={handleInputChange}
           placeholder="https://maps.google.com/..."
           errors={errorsVisible ? formErrors.locationUrl : []}
+        />
+
+        <RegularInput
+          label="Google Maps embed URL (contact page map)"
+          name="mapsEmbedUrl"
+          value={formValues.mapsEmbedUrl}
+          onChange={handleInputChange}
+          placeholder="https://www.google.com/maps/embed?pb=..."
+          subtext="From Google Maps: Share → Embed a map → copy the iframe src URL only. Leave empty to show a branded placeholder instead."
+          errors={errorsVisible ? formErrors.mapsEmbedUrl : []}
         />
 
         <div className="flex justify-end pt-4 border-t">

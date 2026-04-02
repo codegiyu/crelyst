@@ -7,6 +7,10 @@ import {
   LogOut,
   FolderKanban,
   UsersRound,
+  Mail,
+  UserPlus,
+  Search,
+  History,
 } from 'lucide-react';
 import type { ISidebarLinkGroup } from '@/lib/types/general';
 
@@ -62,11 +66,33 @@ export const sidebarLinksData: ISidebarLinkGroup[] = [
         page: 'Team',
         path: { prefix: '/admin', suffix: '/dashboard/team' },
       },
+      {
+        LucideIcon: Mail,
+        page: 'Contact leads',
+        path: { prefix: '/admin', suffix: '/dashboard/inbox/contact' },
+        inboxBadgeKey: 'quoteRequest',
+      },
+      {
+        LucideIcon: UserPlus,
+        page: 'Work with us',
+        path: { prefix: '/admin', suffix: '/dashboard/inbox/work-with-us' },
+        inboxBadgeKey: 'workWithUs',
+      },
     ],
   },
   {
     groupName: 'System',
     links: [
+      {
+        LucideIcon: Search,
+        page: 'Search',
+        path: { prefix: '/admin', suffix: '/dashboard/search' },
+      },
+      {
+        LucideIcon: History,
+        page: 'Audit log',
+        path: { prefix: '/admin', suffix: '/dashboard/audit-logs' },
+      },
       {
         LucideIcon: Settings,
         page: 'Settings',
