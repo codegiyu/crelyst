@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Firebase Admin SDK initialization (server-side only)
  *
@@ -63,7 +64,7 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
     const clientEmail = ENVIRONMENT.FIREBASE_ADMIN.CLIENT_EMAIL;
     const privateKey = ENVIRONMENT.FIREBASE_ADMIN.PRIVATE_KEY;
 
-    logFirebaseAdminPrivateKeyDiagnostics();
+    // logFirebaseAdminPrivateKeyDiagnostics();
 
     if (projectId && clientEmail && privateKey) {
       adminApp = initializeApp({
@@ -74,9 +75,11 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
         }),
       });
 
-      console.log('adminApp initialized', adminApp);
+      console.log('adminApp initialized');
       adminAuth = getAuth(adminApp);
+      console.log('adminAuth initialized');
       adminDb = getFirestore(adminApp);
+      console.log('adminDb initialized');
       globalForFirebase.__crelystFirebaseAdmin = { adminApp, adminAuth, adminDb };
     } else {
       console.warn('Firebase Admin credentials not fully configured. Some features may not work.');
