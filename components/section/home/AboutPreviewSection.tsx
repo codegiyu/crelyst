@@ -6,6 +6,8 @@ import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { Check, ArrowRight } from 'lucide-react';
 
+const ABOUT_PREVIEW_STATS_BG = '/images/bg-section-7.jpg';
+
 const FEATURES = [
   'Expert team with 5+ years of experience',
   'Creative excellence in every design',
@@ -30,12 +32,14 @@ export const AboutPreviewSection = () => {
           className="relative order-2 lg:order-1">
           {/* Main visual container */}
           <div className="relative">
-            {/* Background decoration */}
-            <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-2xl opacity-50" />
-
             {/* Main card */}
-            <div className="relative bg-card rounded-2xl p-8 shadow-elegant">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="relative overflow-hidden rounded-2xl p-8">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('${ABOUT_PREVIEW_STATS_BG}')` }}
+                aria-hidden
+              />
+              <div className="relative z-10 grid grid-cols-2 gap-4">
                 {/* Stats cards */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}

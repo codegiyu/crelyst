@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { User, Settings, HelpCircle, LogOut, Home } from 'lucide-react';
 // import { useTheme } from 'next-themes';
 // import { RegularSelect } from '@/components/atoms/RegularSelect';
 // import type { SelectOption } from '@/lib/types/general';
@@ -69,6 +70,12 @@ const ProfileMenu = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/" className="cursor-pointer flex items-center">
+            <Home className="mr-2 h-4 w-4" />
+            <span>View site</span>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => push('/admin/dashboard/profile')}>
           <User className="mr-2 h-4 w-4" />
           <span>My Profile</span>

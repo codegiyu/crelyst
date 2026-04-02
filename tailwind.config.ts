@@ -22,6 +22,7 @@ export default {
       fontFamily: {
         sans: ['Montserrat', 'sans-serif'],
         serif: ['Poppins', 'sans-serif'],
+        lobster: ['Lobster', 'cursive'],
       },
       boxShadow: {
         elegant: 'var(--shadow-elegant)',

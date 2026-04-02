@@ -67,6 +67,14 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
     if (!currentSettings) throw new AppError('Current setting not found', 404);
 
     const currentSliceData = (currentSettings as any)[setting.name];
+
+    if (setting.name === 'contactInfo') {
+      const mergedValue = { ...currentSliceData, ...setting.value };
+      await updateSiteSettingsSlice('settings', setting.name, mergedValue);
+      updatedSettings[setting.name] = mergedValue;
+      continue;
+    }
+
     const currentKeysSet = new Set(getAllKeys(currentSliceData));
     const payloadKeysSet = new Set(getAllKeys(setting.value));
 

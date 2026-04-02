@@ -103,6 +103,7 @@ const DEFAULT_SITE_SETTINGS = {
     email: ['hello@crelyst.com'],
     whatsapp: '',
     locationUrl: '',
+    mapsEmbedUrl: '',
     officeHours: {
       monday: { start: '09:00', end: '17:00' },
       tuesday: { start: '09:00', end: '17:00' },

@@ -22,7 +22,7 @@ export const listBrands =
     return sendResponse(
       200,
       {
-        brands,
+        brands: brands.map(b => ({ ...b, _id: b.id })),
         pagination: {
           total,
           page,

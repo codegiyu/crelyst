@@ -199,6 +199,28 @@ export interface AllEndpoints {
   // Public lead forms
   SUBMIT_QUOTE_REQUEST: EndpointDefinition<IQuoteRequestPayload, { ok: boolean }, undefined>;
   SUBMIT_WORK_WITH_US: EndpointDefinition<IWorkWithUsPayload, { ok: boolean }, undefined>;
+
+  // Form submissions (Admin inbox)
+  ADMIN_LIST_FORM_SUBMISSIONS: EndpointDefinition<undefined, IFormSubmissionsListRes, `?${string}`>;
+  ADMIN_PATCH_FORM_SUBMISSION: EndpointDefinition<
+    { isRead?: boolean },
+    { submission: ClientFormSubmission },
+    `/${string}`
+  >;
+  ADMIN_FORM_SUBMISSION_UNREAD_COUNTS: EndpointDefinition<
+    undefined,
+    { quoteRequestUnread: number; workWithUsUnread: number },
+    undefined
+  >;
+  ADMIN_MARK_ALL_FORM_SUBMISSIONS_READ: EndpointDefinition<
+    { formType: FormSubmissionFormType },
+    { modifiedCount: number },
+    undefined
+  >;
+  ADMIN_DELETE_FORM_SUBMISSION: EndpointDefinition<undefined, { success: boolean }, `/${string}`>;
+
+  ADMIN_LIST_AUDIT_LOGS: EndpointDefinition<undefined, IAuditLogsListRes, `?${string}`>;
+  ADMIN_SEARCH: EndpointDefinition<undefined, IAdminSearchRes, `?${string}`>;
 }
 
 export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
@@ -443,6 +465,36 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
     method: 'POST',
     isNotAuthenticated: true,
   },
+
+  ADMIN_LIST_FORM_SUBMISSIONS: {
+    path: '/admin/form-submissions',
+    method: 'GET',
+  },
+  ADMIN_PATCH_FORM_SUBMISSION: {
+    path: '/admin/form-submissions',
+    method: 'PATCH',
+  },
+  ADMIN_FORM_SUBMISSION_UNREAD_COUNTS: {
+    path: '/admin/form-submissions/unread-counts',
+    method: 'GET',
+  },
+  ADMIN_MARK_ALL_FORM_SUBMISSIONS_READ: {
+    path: '/admin/form-submissions/mark-all-read',
+    method: 'POST',
+  },
+  ADMIN_DELETE_FORM_SUBMISSION: {
+    path: '/admin/form-submissions',
+    method: 'DELETE',
+  },
+
+  ADMIN_LIST_AUDIT_LOGS: {
+    path: '/admin/audit-logs',
+    method: 'GET',
+  },
+  ADMIN_SEARCH: {
+    path: '/admin/search',
+    method: 'GET',
+  },
 };
 
 // Pagination Query Type
@@ -467,6 +519,80 @@ export type IProjectsListRes = GetListRes<ClientProject, 'projects'>;
 export type IBrandsListRes = GetListRes<ClientBrand, 'brands'>;
 export type ITestimonialsListRes = GetListRes<ClientTestimonial, 'testimonials'>;
 export type ITeamMembersListRes = GetListRes<ClientTeamMember, 'teamMembers'>;
+
+export type FormSubmissionFormType = 'quote-request' | 'work-with-us';
+
+export interface ClientFormSubmission {
+  _id: string;
+  id?: string;
+  formType: FormSubmissionFormType;
+  isRead: boolean;
+  name: string;
+  email: string;
+  message: string;
+  company?: string;
+  projectType?: string;
+  budget?: string;
+  portfolio?: string;
+  experience?: string;
+  sourceIp?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type IFormSubmissionsListRes = {
+  submissions: ClientFormSubmission[];
+  /** Submissions with isRead !== true (small inboxes: exact; large: indexed on isRead === false only). */
+  unreadCount: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  pagination: {
+    total: number;
+    limit: number;
+  };
+};
+
+export type ClientAuditLogEntry = {
+  _id: string;
+  method: string;
+  path: string;
+  query: string;
+  statusCode: number;
+  actorId: string | null;
+  actorEmail: string | null;
+  clientIp: string | null;
+  summary: string;
+  searchText?: string;
+  createdAt: string;
+};
+
+export type IAuditLogsListRes = {
+  entries: ClientAuditLogEntry[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  searchActive: boolean;
+  pagination: {
+    /** Total rows when not searching; -1 when search is active (unknown total). */
+    total: number;
+    limit: number;
+  };
+};
+
+export type IAdminSearchHit = {
+  type: 'service' | 'project' | 'brand' | 'testimonial' | 'teamMember';
+  id: string;
+  title: string;
+  slug?: string;
+};
+
+export type IAdminSearchRes = {
+  query: string;
+  services: IAdminSearchHit[];
+  projects: IAdminSearchHit[];
+  brands: IAdminSearchHit[];
+  testimonials: IAdminSearchHit[];
+  teamMembers: IAdminSearchHit[];
+};
 
 // Service Payloads
 export interface IServiceCreatePayload {

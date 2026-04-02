@@ -5,7 +5,7 @@
 
 import { adminDb } from '@/lib/firebase/admin';
 import { Timestamp } from 'firebase-admin/firestore';
-import type { Query } from 'firebase-admin/firestore';
+import type { DocumentSnapshot, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const COLLECTIONS = {
   brands: 'brands',
@@ -17,6 +17,7 @@ const COLLECTIONS = {
   documents: 'documents',
   emailLogs: 'emailLogs',
   formSubmissions: 'formSubmissions',
+  auditLogs: 'auditLogs',
 } as const;
 
 export { COLLECTIONS };
@@ -500,10 +501,278 @@ export async function updateEmailLogDoc(id: string, patch: Record<string, unknow
 }
 
 // ----- Public form submissions -----
+export type FormSubmissionFormType = 'quote-request' | 'work-with-us';
+
 export async function createFormSubmission(data: Record<string, unknown>) {
   const now = Timestamp.now();
   const docRef = getCollection('formSubmissions').doc();
-  await docRef.set({ ...data, createdAt: now });
+  await docRef.set({ ...data, isRead: false, createdAt: now });
   const snap = await docRef.get();
   return { id: snap.id, ...snap.data() };
+}
+
+const FORM_SUBMISSION_PAGE_MAX = 100;
+
+function encodeFormSubmissionCursor(doc: QueryDocumentSnapshot): string {
+  const createdAt = doc.get('createdAt') as Timestamp | undefined;
+  const t = createdAt?.toMillis?.() ?? 0;
+  const payload = JSON.stringify({ id: doc.id, t });
+  return Buffer.from(payload, 'utf8').toString('base64url');
+}
+
+function decodeFormSubmissionCursor(cursor: string): { id: string; t: number } | null {
+  try {
+    const raw = Buffer.from(cursor, 'base64url').toString('utf8');
+    const o = JSON.parse(raw) as { id?: string; t?: number };
+    if (typeof o.id === 'string' && typeof o.t === 'number') return { id: o.id, t: o.t };
+  } catch {
+    /* invalid cursor */
+  }
+  return null;
+}
+
+export type ListFormSubmissionsResult = {
+  items: Array<{ id: string; [key: string]: unknown }>;
+  total: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  limit: number;
+};
+
+export async function listFormSubmissions(
+  formType: FormSubmissionFormType,
+  options: { limit?: number; cursor?: string | null }
+): Promise<ListFormSubmissionsResult> {
+  const limit = Math.min(Math.max(options.limit ?? 50, 1), FORM_SUBMISSION_PAGE_MAX);
+  const coll = getCollection('formSubmissions');
+  let q: Query = coll.where('formType', '==', formType).orderBy('createdAt', 'desc');
+
+  if (options.cursor) {
+    const decoded = decodeFormSubmissionCursor(options.cursor);
+    if (decoded) {
+      const cursorSnap = await coll.doc(decoded.id).get();
+      if (cursorSnap.exists) {
+        q = q.startAfter(cursorSnap);
+      }
+    }
+  }
+
+  const [totalSnap, pageSnap] = await Promise.all([
+    coll.where('formType', '==', formType).count().get(),
+    q.limit(limit + 1).get(),
+  ]);
+
+  const total = totalSnap.data().count;
+  const docs = pageSnap.docs;
+  const hasMore = docs.length > limit;
+  const pageDocs = hasMore ? docs.slice(0, limit) : docs;
+  const items = pageDocs.map(d => ({ id: d.id, ...d.data() }));
+  const nextCursor =
+    hasMore && pageDocs.length > 0
+      ? encodeFormSubmissionCursor(pageDocs[pageDocs.length - 1])
+      : null;
+
+  return { items, total, nextCursor, hasMore, limit };
+}
+
+/** Unread = isRead is not strictly true. Small inboxes: exact scan; large: indexed count on isRead==false only. */
+const UNREAD_COUNT_SCAN_THRESHOLD = 2000;
+
+export async function countUnreadByFormType(formType: FormSubmissionFormType): Promise<number> {
+  const coll = getCollection('formSubmissions');
+  const totalSnap = await coll.where('formType', '==', formType).count().get();
+  const total = totalSnap.data().count;
+  if (total === 0) return 0;
+  if (total <= UNREAD_COUNT_SCAN_THRESHOLD) {
+    const snap = await coll.where('formType', '==', formType).select('isRead').get();
+    return snap.docs.filter(d => d.get('isRead') !== true).length;
+  }
+  const unreadSnap = await coll
+    .where('formType', '==', formType)
+    .where('isRead', '==', false)
+    .count()
+    .get();
+  return unreadSnap.data().count;
+}
+
+export async function getFormSubmissionById(id: string) {
+  const doc = await getCollection('formSubmissions').doc(id).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+}
+
+export async function updateFormSubmission(id: string, patch: Partial<{ isRead: boolean }>) {
+  const ref = getCollection('formSubmissions').doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  await ref.update({ ...patch, updatedAt: Timestamp.now() });
+  const updated = await ref.get();
+  return { id: updated.id, ...updated.data() };
+}
+
+export async function deleteFormSubmission(id: string) {
+  const ref = getCollection('formSubmissions').doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return false;
+  await ref.delete();
+  return true;
+}
+
+const FORM_SUBMISSION_BATCH_SIZE = 400;
+
+export async function markAllFormSubmissionsRead(formType: FormSubmissionFormType) {
+  const snap = await getCollection('formSubmissions').where('formType', '==', formType).get();
+  const toUpdate = snap.docs.filter(d => d.data().isRead !== true);
+  const now = Timestamp.now();
+  let modifiedCount = 0;
+  for (let i = 0; i < toUpdate.length; i += FORM_SUBMISSION_BATCH_SIZE) {
+    const batch = adminDb!.batch();
+    const chunk = toUpdate.slice(i, i + FORM_SUBMISSION_BATCH_SIZE);
+    for (const d of chunk) {
+      batch.update(d.ref, { isRead: true, updatedAt: now });
+      modifiedCount++;
+    }
+    await batch.commit();
+  }
+  return { modifiedCount };
+}
+
+// ----- Admin audit logs -----
+const AUDIT_LOG_PAGE_MAX = 100;
+const AUDIT_SEARCH_BATCH = 150;
+const AUDIT_SEARCH_MAX_SCAN = 3000;
+
+function encodeAuditCursor(doc: QueryDocumentSnapshot): string {
+  const createdAt = doc.get('createdAt') as Timestamp | undefined;
+  const t = createdAt?.toMillis?.() ?? 0;
+  return Buffer.from(JSON.stringify({ id: doc.id, t }), 'utf8').toString('base64url');
+}
+
+function decodeAuditCursor(cursor: string): { id: string; t: number } | null {
+  try {
+    const raw = Buffer.from(cursor, 'base64url').toString('utf8');
+    const o = JSON.parse(raw) as { id?: string; t?: number };
+    if (typeof o.id === 'string' && typeof o.t === 'number') return { id: o.id, t: o.t };
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+export type ListAuditLogsResult = {
+  items: Array<{ id: string; [key: string]: unknown }>;
+  total: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  limit: number;
+  searchActive: boolean;
+};
+
+export async function createAuditLog(data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const docRef = getCollection('auditLogs').doc();
+  const payload = Object.fromEntries(
+    Object.entries({ ...data, createdAt: data.createdAt ?? now }).filter(([, v]) => v !== undefined)
+  );
+  await docRef.set(payload);
+}
+
+async function scanAuditLogsForQuery(
+  coll: ReturnType<typeof getCollection>,
+  opts: { limit: number; cursor: string | null; q: string }
+): Promise<ListAuditLogsResult> {
+  let startAfterSnap: DocumentSnapshot | null = null;
+  if (opts.cursor) {
+    const dec = decodeAuditCursor(opts.cursor);
+    if (dec) {
+      const s = await coll.doc(dec.id).get();
+      if (s.exists) startAfterSnap = s;
+    }
+  }
+
+  const matches: Array<{ id: string; [key: string]: unknown }> = [];
+  let scanned = 0;
+  let exhausted = false;
+
+  scan: while (matches.length < opts.limit && scanned < AUDIT_SEARCH_MAX_SCAN && !exhausted) {
+    let qy: Query = coll.orderBy('createdAt', 'desc').limit(AUDIT_SEARCH_BATCH);
+    if (startAfterSnap) qy = qy.startAfter(startAfterSnap);
+    const snap = await qy.get();
+    if (snap.empty) {
+      exhausted = true;
+      break;
+    }
+    for (const d of snap.docs) {
+      scanned++;
+      const row = d.data();
+      const st = String(row.searchText ?? '').toLowerCase();
+      if (st.includes(opts.q)) {
+        matches.push({ id: d.id, ...row });
+        if (matches.length >= opts.limit) {
+          startAfterSnap = d;
+          break scan;
+        }
+      }
+      startAfterSnap = d;
+    }
+    if (snap.size < AUDIT_SEARCH_BATCH) exhausted = true;
+  }
+
+  const hasMore = !exhausted;
+  const nextCursor =
+    hasMore && startAfterSnap?.exists
+      ? encodeAuditCursor(startAfterSnap as QueryDocumentSnapshot)
+      : null;
+
+  return {
+    items: matches,
+    total: -1,
+    nextCursor,
+    hasMore,
+    limit: opts.limit,
+    searchActive: true,
+  };
+}
+
+export async function listAuditLogs(options: {
+  limit?: number;
+  cursor?: string | null;
+  query?: string | null;
+}): Promise<ListAuditLogsResult> {
+  const limit = Math.min(Math.max(options.limit ?? 50, 1), AUDIT_LOG_PAGE_MAX);
+  const coll = getCollection('auditLogs');
+  const qRaw = options.query?.trim() ?? '';
+  const qNorm = qRaw.toLowerCase();
+
+  if (qNorm.length > 0) {
+    return scanAuditLogsForQuery(coll, { limit, cursor: options.cursor ?? null, q: qNorm });
+  }
+
+  let q: Query = coll.orderBy('createdAt', 'desc');
+  if (options.cursor) {
+    const dec = decodeAuditCursor(options.cursor);
+    if (dec) {
+      const cursorDoc = await coll.doc(dec.id).get();
+      if (cursorDoc.exists) q = q.startAfter(cursorDoc);
+    }
+  }
+
+  const [totalSnap, pageSnap] = await Promise.all([coll.count().get(), q.limit(limit + 1).get()]);
+
+  const total = totalSnap.data().count;
+  const docs = pageSnap.docs;
+  const hasMore = docs.length > limit;
+  const pageDocs = hasMore ? docs.slice(0, limit) : docs;
+  const items = pageDocs.map(d => ({ id: d.id, ...d.data() }));
+  const nextCursor =
+    hasMore && pageDocs.length > 0 ? encodeAuditCursor(pageDocs[pageDocs.length - 1]) : null;
+
+  return {
+    items,
+    total,
+    nextCursor,
+    hasMore,
+    limit,
+    searchActive: false,
+  };
 }
