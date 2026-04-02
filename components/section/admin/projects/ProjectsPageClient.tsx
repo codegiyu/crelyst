@@ -216,7 +216,7 @@ const ProjectCard = ({
   return (
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
-      <div className="relative h-40 bg-muted">
+      <div className="relative h-72 bg-muted">
         {project.featuredImage || project.cardImage ? (
           <Image
             src={project.featuredImage || project.cardImage || ''}

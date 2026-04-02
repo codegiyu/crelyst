@@ -31,6 +31,9 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
+/** Always render on request so CMS/admin updates are not served from the full route cache. */
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{

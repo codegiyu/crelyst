@@ -16,7 +16,7 @@ export const BrandsSection = ({ brands }: { brands: ClientBrand[] }) => {
   }
 
   return (
-    <section className="py-12 md:py-16 bg-black/90 border-y border-border overflow-hidden -mt-1">
+    <section className="py-12 md:py-16 bg-black/75 overflow-hidden -mt-1">
       <div className="regular-container">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -56,14 +56,14 @@ export const BrandsSection = ({ brands }: { brands: ClientBrand[] }) => {
                       <img
                         src={brand.logo}
                         alt={brand.name}
-                        className="h-8 md:h-10 w-auto max-w-[120px] object-contain"
+                        className="h-10 md:h-14 w-auto object-contain"
                       />
                     </a>
                   ) : (
                     <img
                       src={brand.logo}
                       alt={brand.name}
-                      className="h-8 md:h-10 w-auto max-w-[120px] object-contain"
+                      className="h-10 md:h-14 w-auto object-contain"
                     />
                   )}
                 </div>

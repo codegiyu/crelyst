@@ -7,6 +7,7 @@ import type { NextConfig } from 'next';
  */
 function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePatterns'] {
   const patterns: NonNullable<NextConfig['images']>['remotePatterns'] = [
+    { protocol: 'https', hostname: 'static.crelyst.com.ng', pathname: '/**' },
     { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
     { protocol: 'https', hostname: 'via.placeholder.com', pathname: '/**' },
     { protocol: 'https', hostname: 'randomuser.me', pathname: '/**' },

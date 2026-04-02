@@ -71,7 +71,7 @@ export const LoadAnimationScreen = () => {
           animate={pageLoaded ? { opacity: 0 } : {}}
           transition={{ duration: TRANSITION_DURATION, ease: 'easeInOut' }}
           onAnimationComplete={() => setSiteLoading(false)}
-          className="w-full h-screen grid place-items-center fixed inset-0 z-[99] overflow-hidden">
+          className="fixed inset-0 z-[99] grid h-dvh w-full max-w-full place-items-center overflow-hidden overflow-x-clip">
           {/* Animated background gradient */}
           <motion.div
             className="absolute inset-0 bg-background"
