@@ -1,4 +1,5 @@
 import { cookies, headers } from 'next/headers';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { logger } from '../utils/logger';
 
 const AUTH_COOKIE = 'authToken';
@@ -18,11 +19,11 @@ type ApiEnvelope<T> = {
  * Prefer NEXT_PUBLIC_APP_URL in production so prerender/build does not rely on `headers()`.
  */
 export async function getServerOrigin(): Promise<string> {
-  const explicit = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '');
+  const explicit = ENVIRONMENT.PUBLIC.APP_URL?.replace(/\/$/, '');
   if (explicit) return explicit;
 
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  if (ENVIRONMENT.RUNTIME.VERCEL_URL) {
+    return `https://${ENVIRONMENT.RUNTIME.VERCEL_URL}`;
   }
 
   try {
@@ -36,7 +37,7 @@ export async function getServerOrigin(): Promise<string> {
     // Prerender / static analysis paths where Request headers are unavailable
   }
 
-  const port = process.env.PORT || '3000';
+  const port = ENVIRONMENT.RUNTIME.PORT;
   return `http://127.0.0.1:${port}`;
 }
 

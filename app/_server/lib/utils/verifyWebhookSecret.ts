@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import type { NextRequest } from 'next/server';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { AppError } from './appError';
 
 function safeCompareStrings(a: string, b: string): boolean {
@@ -13,7 +14,7 @@ function safeCompareStrings(a: string, b: string): boolean {
  * Require `WEBHOOK_SECRET` and a matching `x-webhook-secret` header or `Authorization: Bearer <secret>`.
  */
 export function assertWebhookSecretConfigured(request: NextRequest): void {
-  const secret = process.env.WEBHOOK_SECRET?.trim();
+  const secret = ENVIRONMENT.WEBHOOK.SECRET;
   if (!secret) {
     throw new AppError('Webhook is not configured', 503);
   }

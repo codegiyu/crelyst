@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ENVIRONMENT } from '@/lib/config/environment';
 
 const COOKIE = 'authToken';
 
@@ -10,7 +11,7 @@ export async function POST() {
   const res = NextResponse.json({ success: true, message: 'Logged out' }, { status: 200 });
   res.cookies.set(COOKIE, '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: ENVIRONMENT.RUNTIME.IS_PRODUCTION,
     sameSite: 'lax',
     path: '/',
     maxAge: 0,

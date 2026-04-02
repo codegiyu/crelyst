@@ -1,6 +1,7 @@
 import { HeaderLinkProps } from '@/components/layout/Header';
+import { ENVIRONMENT } from '@/lib/config/environment';
 
-const liveUrl = process.env.live_url || 'https://example.com';
+const liveUrl = ENVIRONMENT.SEO.LIVE_URL;
 
 export const SEO_DETAILS = {
   title: {
@@ -15,9 +16,9 @@ export const SEO_DETAILS = {
   alternates: {
     canonical: liveUrl,
   },
-  image: `${liveUrl}/og-image.png`,
+  image: `https://static.crelyst.com.ng/site-preview.png`,
   // icons: `${liveUrl}/favicon.png`,
-  icons: `/favicon.png`,
+  icons: `https://static.crelyst.com.ng/favicon.png`,
   robots: {
     index: true,
     follow: true,
