@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { sendResponse } from '../../lib/utils/appResponse';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 
@@ -11,7 +12,7 @@ export const logout: RouteHandler = async () => {
   const cookieStore = await cookies();
   cookieStore.set(AUTH_COOKIE, '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: ENVIRONMENT.RUNTIME.IS_PRODUCTION,
     sameSite: 'lax',
     path: '/',
     maxAge: 0,

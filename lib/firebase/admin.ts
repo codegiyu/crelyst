@@ -9,23 +9,34 @@
 import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
 import { getAuth, Auth } from 'firebase-admin/auth';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
-import dotenv from 'dotenv';
-import { resolve } from 'path';
+import { ENVIRONMENT } from '@/lib/config/environment';
 
-try {
-  dotenv.config({ path: resolve(process.cwd(), '.env') });
-} catch {
-  // dotenv config failed - environment variables must be set manually
-}
+const pemDiagOnce = globalThis as typeof globalThis & { __crelystFirebasePemDiagLogged?: boolean };
 
-/** PEM from env is often mangled: quoted values, literal `\n` instead of newlines (Docker/Coolify). */
-function normalizePrivateKeyFromEnv(raw: string | undefined): string | undefined {
-  if (raw == null || raw === '') return undefined;
-  let key = raw.trim();
-  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
-    key = key.slice(1, -1);
-  }
-  return key.replace(/\\n/g, '\n').trimEnd();
+/** Safe diagnostics for Coolify/Docker PEM issues — never log the full private key. */
+function logFirebaseAdminPrivateKeyDiagnostics(): void {
+  if (pemDiagOnce.__crelystFirebasePemDiagLogged) return;
+  pemDiagOnce.__crelystFirebasePemDiagLogged = true;
+
+  const fa = ENVIRONMENT.FIREBASE_ADMIN;
+  console.log('fa', fa);
+  const nk = fa.PRIVATE_KEY;
+  const lines = nk ? nk.split('\n') : [];
+  const firstLine = lines[0] ?? '(empty)';
+  const lastLine = lines.length > 0 ? lines[lines.length - 1] : '(empty)';
+  console.info('[Firebase Admin] PEM diagnostics (private key material is not logged):', {
+    projectIdSet: Boolean(fa.PROJECT_ID),
+    clientEmailSet: Boolean(fa.CLIENT_EMAIL),
+    rawCharLength: fa.PRIVATE_KEY_RAW_CHAR_LENGTH,
+    normalizedCharLength: nk?.length ?? 0,
+    normalizedLineCount: lines.length,
+    rawBackslashNSequenceCount: fa.PRIVATE_KEY_RAW_BACKSLASH_N_COUNT,
+    normalizedNewlineCount: nk ? (nk.match(/\n/g) ?? []).length : 0,
+    pemFirstLine: firstLine,
+    pemLastLine: lastLine,
+    pemLooksLikePkcs8:
+      firstLine.includes('BEGIN PRIVATE KEY') && lastLine.includes('END PRIVATE KEY'),
+  });
 }
 
 const globalForFirebase = globalThis as typeof globalThis & {
@@ -47,9 +58,11 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
   adminDb = cached.adminDb;
 } else if (!getApps().length) {
   try {
-    const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-    const privateKey = normalizePrivateKeyFromEnv(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
+    const projectId = ENVIRONMENT.FIREBASE_ADMIN.PROJECT_ID;
+    const clientEmail = ENVIRONMENT.FIREBASE_ADMIN.CLIENT_EMAIL;
+    const privateKey = ENVIRONMENT.FIREBASE_ADMIN.PRIVATE_KEY;
+
+    logFirebaseAdminPrivateKeyDiagnostics();
 
     if (projectId && clientEmail && privateKey) {
       adminApp = initializeApp({

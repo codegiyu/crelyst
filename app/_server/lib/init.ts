@@ -1,3 +1,4 @@
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { logger } from './utils/logger';
 import { seedFirestore } from './seed/seedFirestore';
 
@@ -14,9 +15,10 @@ const cached = global.serverInit || (global.serverInit = {});
 
 /** Firestore seed on boot: opt-in in production; dev seeds unless SEED_FIRESTORE_ON_BOOT=false. */
 export function shouldRunFirestoreSeed(): boolean {
-  if (process.env.SEED_FIRESTORE_ON_BOOT === 'true') return true;
-  if (process.env.SEED_FIRESTORE_ON_BOOT === 'false') return false;
-  return process.env.NODE_ENV !== 'production';
+  const flag = ENVIRONMENT.SEED.FIRESTORE_ON_BOOT;
+  if (flag === 'true') return true;
+  if (flag === 'false') return false;
+  return !ENVIRONMENT.RUNTIME.IS_PRODUCTION;
 }
 
 export function resetInitializationCache(): void {
@@ -95,7 +97,7 @@ if (typeof process !== 'undefined') {
 
   process.on('unhandledRejection', async (reason, promise) => {
     logger.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
-    if (process.env.NODE_ENV !== 'production') {
+    if (!ENVIRONMENT.RUNTIME.IS_PRODUCTION) {
       await cleanupServer();
       process.exit(1);
     }

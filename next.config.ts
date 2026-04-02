@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { ENVIRONMENT } from './lib/config/environment';
 
 function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePatterns'] {
   const patterns: NonNullable<NextConfig['images']>['remotePatterns'] = [
@@ -11,7 +12,7 @@ function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePa
     { protocol: 'https', hostname: '*.r2.cloudflarestorage.com', pathname: '/**' },
   ];
 
-  const r2Url = process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  const r2Url = ENVIRONMENT.IMAGES.R2_PUBLIC_BASE_URL || undefined;
   if (r2Url) {
     try {
       const { hostname } = new URL(r2Url);
@@ -55,7 +56,7 @@ const nextConfig: NextConfig = {
       },
     ];
 
-    if (process.env.NODE_ENV === 'production') {
+    if (ENVIRONMENT.RUNTIME.IS_PRODUCTION) {
       security.push({
         key: 'Strict-Transport-Security',
         value: 'max-age=63072000; includeSubDomains; preload',

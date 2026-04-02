@@ -5,6 +5,7 @@
  */
 
 import { Timestamp } from 'firebase-admin/firestore';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { adminAuth } from '@/lib/firebase/admin';
 import { setDocument } from '@/lib/firebase/firestore';
 import { logger } from '../utils/logger';
@@ -60,7 +61,7 @@ const DEFAULT_SITE_SETTINGS = {
     ],
     ogImageUrl: '/og-image.png',
     faviconUrl: '/favicon.png',
-    canonicalUrlBase: process.env.APP_URL || 'https://crelyst.com',
+    canonicalUrlBase: ENVIRONMENT.APP.APP_URL || 'https://crelyst.com',
     robotsIndex: true,
     robotsFollow: true,
   },

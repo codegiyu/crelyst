@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { resolveConsoleAdminFromToken } from '@/lib/middleware/auth';
 
 const COOKIE = 'authToken';
@@ -7,7 +8,7 @@ const MAX_AGE_SEC = 55 * 60;
 function cookieOptions() {
   return {
     httpOnly: true as const,
-    secure: process.env.NODE_ENV === 'production',
+    secure: ENVIRONMENT.RUNTIME.IS_PRODUCTION,
     sameSite: 'lax' as const,
     path: '/',
     maxAge: MAX_AGE_SEC,

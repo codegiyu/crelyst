@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { Btns404Page } from '@/components/general/Btns404Page';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SectionContainer } from '@/components/general/SectionContainer';
@@ -28,11 +29,11 @@ export default function Error({
                 Something went wrong!
               </h2>
               <p className="text-lg text-muted-foreground">
-                {process.env.NODE_ENV === 'development'
+                {ENVIRONMENT.RUNTIME.IS_DEVELOPMENT
                   ? error.message || 'An unexpected error occurred'
                   : "We're sorry, but something went wrong. Please try again later."}
               </p>
-              {error.digest && process.env.NODE_ENV === 'development' && (
+              {error.digest && ENVIRONMENT.RUNTIME.IS_DEVELOPMENT && (
                 <p className="text-sm text-muted-foreground font-mono">Error ID: {error.digest}</p>
               )}
             </div>
