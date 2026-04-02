@@ -18,7 +18,14 @@ function normalizePrivateKeyFromEnv(raw: string | undefined): string | undefined
   if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
     key = key.slice(1, -1);
   }
-  return key.replace(/\\n/g, '\n').trimEnd();
+  key = key.replace(/\\n/g, '\n');
+  // Shell / dotenv line continuation and some hosts store `\` at EOL; PEM must not contain those.
+  key = key
+    .split('\n')
+    .map(line => line.replace(/\\+$/, '').trimEnd())
+    .join('\n')
+    .trimEnd();
+  return key;
 }
 
 function parsePort(s: string | undefined, fallback: number): number {

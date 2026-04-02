@@ -19,8 +19,8 @@ function logFirebaseAdminPrivateKeyDiagnostics(): void {
   pemDiagOnce.__crelystFirebasePemDiagLogged = true;
 
   const fa = ENVIRONMENT.FIREBASE_ADMIN;
-  console.log('fa', fa);
   const nk = fa.PRIVATE_KEY;
+  console.log('nk', nk);
   const lines = nk ? nk.split('\n') : [];
   const firstLine = lines[0] ?? '(empty)';
   const lastLine = lines.length > 0 ? lines[lines.length - 1] : '(empty)';
@@ -33,6 +33,7 @@ function logFirebaseAdminPrivateKeyDiagnostics(): void {
     rawBackslashNSequenceCount: fa.PRIVATE_KEY_RAW_BACKSLASH_N_COUNT,
     normalizedNewlineCount: nk ? (nk.match(/\n/g) ?? []).length : 0,
     pemFirstLine: firstLine,
+    pemSecondLine: lines[1] ?? '(empty)',
     pemLastLine: lastLine,
     pemLooksLikePkcs8:
       firstLine.includes('BEGIN PRIVATE KEY') && lastLine.includes('END PRIVATE KEY'),
@@ -73,6 +74,7 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
         }),
       });
 
+      console.log('adminApp initialized', adminApp);
       adminAuth = getAuth(adminApp);
       adminDb = getFirestore(adminApp);
       globalForFirebase.__crelystFirebaseAdmin = { adminApp, adminAuth, adminDb };
