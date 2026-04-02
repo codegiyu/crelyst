@@ -32,7 +32,7 @@ export const MainLayout = ({
   return (
     <>
       {!hideHeader && <Header transparentOnLoad={transparentHeader} />}
-      <main className={cn('min-h-screen', className)}>
+      <main className={cn('min-h-screen min-w-0 overflow-x-clip', className)}>
         {children}
         {!hideScrollToTop && <ScrollToTop />}
       </main>

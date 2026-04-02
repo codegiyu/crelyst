@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
+import { JSON_NO_STORE_HEADERS } from './httpNoCacheHeaders';
 import { serializeFirestoreForJson } from './serializeFirestoreJson';
 
 export function sendResponse(
@@ -25,6 +26,6 @@ export function sendResponse(
       responseCode: statusCode,
       message: message ?? 'Success',
     },
-    { status: statusCode }
+    { status: statusCode, headers: { ...JSON_NO_STORE_HEADERS } }
   );
 }

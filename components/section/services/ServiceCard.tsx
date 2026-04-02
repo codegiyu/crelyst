@@ -15,6 +15,8 @@ interface ServiceCardProps {
 export const ServiceCard = ({ service, index }: ServiceCardProps) => {
   const { siteLoading } = useSiteStore(state => state);
 
+  const imageSrc = service.cardImage || service.bannerImage || service.image || '';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -22,38 +24,45 @@ export const ServiceCard = ({ service, index }: ServiceCardProps) => {
       transition={{ duration: 0.5, delay: index * 0.1 }}>
       <Link
         href={`/services/${service.slug}`}
-        className="group block p-6 h-full bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300">
-        {/* Icon or Image */}
-        <div className="w-14 h-14 mb-4 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors overflow-hidden">
-          {service.cardImage ? (
+        className="group block h-full bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300 overflow-hidden">
+        {/* Image */}
+        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+          {imageSrc ? (
             <img
-              src={service.cardImage}
+              src={imageSrc}
               alt={service.title}
-              className="w-full h-full object-cover"
-            />
-          ) : service.icon ? (
-            <DynamicIcon
-              name={service.icon as LucideIconName}
-              props={{ className: 'w-7 h-7 text-primary' }}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="w-7 h-7 rounded bg-primary/30" />
+            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+              {service.icon ? (
+                <DynamicIcon
+                  name={service.icon as LucideIconName}
+                  props={{ className: 'w-16 h-16 text-primary/40' }}
+                />
+              ) : (
+                <span className="text-4xl font-bold text-primary/30">
+                  {service.title.charAt(0)}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
         {/* Content */}
-        <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-          {service.title}
-        </h3>
+        <div className="p-5">
+          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+            {service.title}
+          </h3>
 
-        <p className="text-muted-foreground mb-4 line-clamp-2">
-          {service.shortDescription || service.description}
-        </p>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+            {service.shortDescription || service.description}
+          </p>
 
-        {/* CTA */}
-        <div className="flex items-center text-primary font-medium">
-          <span>Learn More</span>
-          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          <div className="flex items-center text-primary font-medium text-sm">
+            <span>Learn More</span>
+            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          </div>
         </div>
       </Link>
     </motion.div>

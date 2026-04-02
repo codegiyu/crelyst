@@ -463,11 +463,19 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* overflow-x-clip: avoids phantom horizontal scroll from transforms (motion, marquees, rotated cols).
+     scroll-smooth on html makes touch/wheel scrolling feel stiff on mobile; use it only where needed. */
   html {
-    @apply text-[14px] md:text-[14px] lg:text-[14px] 2xl:text-[14px] scroll-smooth;
+    @apply text-[14px] md:text-[14px] lg:text-[14px] 2xl:text-[14px] overflow-x-clip;
+  }
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
   body {
-    @apply min-h-screen w-full bg-background text-foreground font-sans text-[1rem] leading-[1.5] tracking-[0.05em] break-words text-wrap text-start;
+    @apply min-h-screen min-w-0 w-full overflow-x-clip bg-background text-foreground font-sans text-[1rem] leading-[1.5] tracking-[0.05em] break-words text-wrap text-start;
+    overscroll-behavior-x: none;
   }
   .container-custom {
     @apply max-w-7xl mx-auto px-4;
@@ -692,8 +700,5 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }

@@ -40,11 +40,11 @@ export const CTASection = ({
     : '#';
 
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
-      {/* Three Vertical Marquees */}
+    <section className="relative isolate overflow-x-clip py-24 md:py-32 overflow-hidden">
+      {/* Three Vertical Marquees — clip + gentler X nudge on small viewports to avoid subpixel horizontal overflow */}
       {images.length > 0 && (
-        <div className="absolute inset-0 flex items-center justify-end pointer-events-none overflow-hidden z-0">
-          <div className="w-[75%] min-w-[75%] h-[150%] flex gap-1 sm:gap-1 md:gap-5 items-center justify-end translate-x-[10%]">
+        <div className="absolute inset-0 z-0 flex items-center justify-end overflow-hidden overflow-x-clip pointer-events-none">
+          <div className="flex h-[150%] w-[75%] min-w-[75%] translate-x-0 items-center justify-end gap-1 sm:gap-1 sm:translate-x-[4%] md:translate-x-[10%] md:gap-5">
             {[0, 1, 2].map(marqueeIndex => {
               const marqueeImages = getMarqueeImages(marqueeIndex);
               // Duplicate images for seamless infinite scroll (need at least 2 copies)

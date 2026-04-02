@@ -4,7 +4,11 @@ import { logger } from '../utils/logger';
 
 const AUTH_COOKIE = 'authToken';
 
-/** Default ISR window for public RSC internal fetches (site + listings). */
+/**
+ * Optional ISR window (seconds) for public RSC fetches.
+ * Pass `revalidate: PUBLIC_RSC_REVALIDATE_SECONDS` to {@link serverFetchJsonOrNull} to opt in.
+ * Default is always-fresh (`revalidate: false` / `cache: 'no-store'`).
+ */
 export const PUBLIC_RSC_REVALIDATE_SECONDS = 60;
 
 type ApiEnvelope<T> = {
@@ -136,15 +140,14 @@ function isNextDynamicServerMessage(message: string): boolean {
 
 /**
  * Same as serverFetchJson but returns null on failure.
- * Defaults to ISR-style revalidation ({@link PUBLIC_RSC_REVALIDATE_SECONDS}) unless
- * `revalidate: false` is passed for always-fresh reads.
+ * Defaults to no caching (`revalidate: false`). Pass a positive `revalidate` or
+ * {@link PUBLIC_RSC_REVALIDATE_SECONDS} to opt into time-based ISR.
  */
 export async function serverFetchJsonOrNull<T>(
   path: string,
   options: ServerFetchOptions = {}
 ): Promise<T | null> {
-  const revalidate =
-    options.revalidate === undefined ? PUBLIC_RSC_REVALIDATE_SECONDS : options.revalidate;
+  const revalidate = options.revalidate === undefined ? false : options.revalidate;
 
   try {
     return await serverFetchJson<T>(path, { ...options, revalidate });

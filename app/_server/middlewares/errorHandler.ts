@@ -1,5 +1,6 @@
 import { AppError } from '../lib/utils/appError';
 import { ENVIRONMENT } from '../lib/config/environment';
+import { JSON_NO_STORE_HEADERS } from '../lib/utils/httpNoCacheHeaders';
 import { logger } from '../lib/utils/logger';
 import { NextResponse } from 'next/server';
 
@@ -15,15 +16,18 @@ const handleTimeoutError = (): AppError => {
   return new AppError('Request timeout', 408);
 };
 
-function retryAfterHeaders(err: AppError): Record<string, string> | undefined {
-  if (err.statusCode !== 429 || err.data == null || typeof err.data !== 'object') return undefined;
-  const sec = (err.data as Record<string, unknown>).retryAfterSec;
-  if (typeof sec !== 'number' || !Number.isFinite(sec)) return undefined;
-  return { 'Retry-After': String(Math.max(1, Math.floor(sec))) };
+function errorResponseHeaders(err: AppError): Record<string, string> {
+  const base: Record<string, string> = { ...JSON_NO_STORE_HEADERS };
+  if (err.statusCode === 429 && err.data != null && typeof err.data === 'object') {
+    const sec = (err.data as Record<string, unknown>).retryAfterSec;
+    if (typeof sec === 'number' && Number.isFinite(sec)) {
+      base['Retry-After'] = String(Math.max(1, Math.floor(sec)));
+    }
+  }
+  return base;
 }
 
 const sendErrorDev = (err: AppError) => {
-  const extra = retryAfterHeaders(err);
   return NextResponse.json(
     {
       status: err.status,
@@ -32,12 +36,11 @@ const sendErrorDev = (err: AppError) => {
       error: err.data,
       responseCode: err.statusCode,
     },
-    { status: err.statusCode, headers: extra }
+    { status: err.statusCode, headers: errorResponseHeaders(err) }
   );
 };
 
 const sendErrorProd = (err: AppError) => {
-  const extra = retryAfterHeaders(err);
   if (err.isOperational) {
     logger.error('Error: ', err);
     return NextResponse.json(
@@ -47,7 +50,7 @@ const sendErrorProd = (err: AppError) => {
         error: err.data,
         responseCode: err.statusCode,
       },
-      { status: err.statusCode, headers: extra }
+      { status: err.statusCode, headers: errorResponseHeaders(err) }
     );
   }
   logger.error('Error: ', err);
@@ -57,7 +60,7 @@ const sendErrorProd = (err: AppError) => {
       status: 'error',
       message: 'Something went wrong. Please try again later.',
     },
-    { status: 500 }
+    { status: 500, headers: { ...JSON_NO_STORE_HEADERS } }
   );
 };
 

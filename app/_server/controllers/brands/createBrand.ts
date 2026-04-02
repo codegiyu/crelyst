@@ -8,7 +8,8 @@ import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
 
 const createBrandBodySchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  logo: z.string().min(1, 'Logo is required'),
+  /** Empty on create when the client uploads the logo after the brand id exists */
+  logo: z.string().optional(),
   websiteUrl: z.string().optional(),
   isActive: z.boolean().optional(),
   displayOrder: z.number().int().min(0).optional(),
@@ -28,7 +29,7 @@ export const createBrand: RouteHandler = async ({ body, user }) => {
 
   const brand = await createBrandRepo({
     name: payload.name,
-    logo: payload.logo,
+    logo: payload.logo ?? '',
     websiteUrl: payload.websiteUrl ?? '',
     isActive: payload.isActive ?? true,
     displayOrder: payload.displayOrder ?? 0,

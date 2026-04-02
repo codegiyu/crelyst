@@ -7,16 +7,17 @@ import { DashboardHeader } from './DashboardHeader';
 
 export function DashboardLayout({ children }: PropsWithChildren) {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen w-full bg-background flex">
-        <AppSidebar />
+    <SidebarProvider className="h-dvh max-h-dvh min-h-0 overflow-hidden">
+      <div className="flex h-full min-h-0 w-full bg-background">
+        <div className="shrink-0">
+          <AppSidebar />
+        </div>
 
-        <div className="flex-1 flex flex-col">
-          {/* Top header */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <DashboardHeader />
-
-          {/* Main content */}
-          <main className="flex-1 p-6">{children}</main>
+          <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-6">
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>
