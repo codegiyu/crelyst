@@ -18,6 +18,16 @@ try {
   // dotenv config failed - environment variables must be set manually
 }
 
+/** PEM from env is often mangled: quoted values, literal `\n` instead of newlines (Docker/Coolify). */
+function normalizePrivateKeyFromEnv(raw: string | undefined): string | undefined {
+  if (raw == null || raw === '') return undefined;
+  let key = raw.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+  return key.replace(/\\n/g, '\n').trimEnd();
+}
+
 const globalForFirebase = globalThis as typeof globalThis & {
   __crelystFirebaseAdmin?: {
     adminApp?: App;
@@ -39,7 +49,7 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
   try {
     const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    const privateKey = normalizePrivateKeyFromEnv(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
 
     if (projectId && clientEmail && privateKey) {
       adminApp = initializeApp({
