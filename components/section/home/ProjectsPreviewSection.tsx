@@ -5,7 +5,7 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientProject } from '@/lib/constants/endpoints';
-import { ArrowRight, Briefcase, Star, ExternalLink } from 'lucide-react';
+import { ArrowRight, Briefcase, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 
@@ -37,7 +37,7 @@ const ProjectPreviewCard = ({
               <img
                 src={project.cardImage || project.featuredImage}
                 alt={project.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-110"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-40"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
@@ -56,12 +56,12 @@ const ProjectPreviewCard = ({
           <div className="absolute inset-0 p-6 flex flex-col justify-end text-white">
             {/* Badges */}
             <div className="flex items-center gap-2 mb-3">
-              {project.isFeatured && (
+              {/* {project.isFeatured && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent text-accent-foreground text-xs font-medium rounded-full">
                   <Star className="w-3 h-3 fill-current" />
                   Featured
                 </span>
-              )}
+              )} */}
               {project.category && (
                 <span className="px-2 py-1 bg-white/20 backdrop-blur-sm text-xs font-medium rounded-full">
                   {project.category}
@@ -74,13 +74,14 @@ const ProjectPreviewCard = ({
               {project.title}
             </h3>
 
-            <p className={`text-white/80 mb-4 line-clamp-2 ${featured ? 'text-base' : 'text-sm'}`}>
+            <p
+              className={`hidden text-white/80 mb-4 line-clamp-2 ${featured ? 'text-base' : 'text-sm'}`}>
               {project.shortDescription || project.description}
             </p>
 
             {/* Technologies */}
             {project.technologies && project.technologies.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-4">
+              <div className="hidden flex-wrap gap-1.5 mb-4">
                 {project.technologies.slice(0, featured ? 5 : 3).map(tech => (
                   <span
                     key={tech}

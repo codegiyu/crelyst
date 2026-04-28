@@ -39,6 +39,7 @@ export const LoginForm = () => {
       email: '',
       password: '',
     },
+    validateOnChange: true,
     onSubmit: async (values: LoginFormValues) => {
       const result = await login(values.email, values.password);
 

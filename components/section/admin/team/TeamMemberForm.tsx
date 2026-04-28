@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { callApi } from '@/lib/services/callApi';
 import { toast } from 'sonner';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useFileUpload } from '@/lib/hooks/use-file-upload';
 
@@ -17,12 +17,12 @@ const teamMemberSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   role: z.string().min(1, 'Role is required'),
   bio: z.string().optional(),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
+  email: z.email('Invalid email').optional().or(z.literal('')),
   phone: z.string().optional(),
-  linkedinUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  twitterUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  githubUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-  websiteUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  linkedinUrl: z.url('Invalid URL').optional().or(z.literal('')),
+  twitterUrl: z.url('Invalid URL').optional().or(z.literal('')),
+  instagramUrl: z.url('Invalid URL').optional().or(z.literal('')),
+  websiteUrl: z.url('Invalid URL').optional().or(z.literal('')),
   isActive: z.boolean().optional(),
 });
 
@@ -55,26 +55,23 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
   });
 
   // Handle image file selection
-  const handleImageFileSelect = useCallback(
-    (file: File | null) => {
-      if (isEditing && file) {
-        // Immediate upload for editing
-        imageUpload.handleFileSelect(file);
-        imageUpload.uploadFile({ file });
-      } else {
-        // Store for later upload on creation
-        if (pendingImagePreview) {
-          URL.revokeObjectURL(pendingImagePreview);
-        }
-        setPendingImageFile(file);
-        setPendingImagePreview(file ? URL.createObjectURL(file) : null);
+  const handleImageFileSelect = (file: File | null) => {
+    if (isEditing && file) {
+      // Immediate upload for editing
+      imageUpload.handleFileSelect(file);
+      imageUpload.uploadFile({ file });
+    } else {
+      // Store for later upload on creation
+      if (pendingImagePreview) {
+        URL.revokeObjectURL(pendingImagePreview);
       }
-    },
-    [isEditing, imageUpload, pendingImagePreview]
-  );
+      setPendingImageFile(file);
+      setPendingImagePreview(file ? URL.createObjectURL(file) : null);
+    }
+  };
 
   // Clear image
-  const handleImageClear = useCallback(() => {
+  const handleImageClear = () => {
     if (isEditing) {
       imageUpload.clearFile();
     } else if (pendingImagePreview) {
@@ -83,7 +80,7 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
     setPendingImageFile(null);
     setPendingImagePreview(null);
     setImageUrl('');
-  }, [isEditing, imageUpload, pendingImagePreview]);
+  };
 
   const {
     formValues,
@@ -104,7 +101,7 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
       phone: member?.phone || '',
       linkedinUrl: member?.socials?.linkedin || '',
       twitterUrl: member?.socials?.twitter || '',
-      githubUrl: member?.socials?.github || '',
+      instagramUrl: member?.socials?.instagram || '',
       websiteUrl: member?.socials?.website || '',
       isActive: member?.isActive ?? true,
     },
@@ -114,7 +111,7 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
         const socials = {
           linkedin: values.linkedinUrl || undefined,
           twitter: values.twitterUrl || undefined,
-          github: values.githubUrl || undefined,
+          instagram: values.instagramUrl || undefined,
           website: values.websiteUrl || undefined,
         };
 
@@ -301,12 +298,12 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
             />
 
             <RegularInput
-              label="GitHub"
-              name="githubUrl"
-              placeholder="https://github.com/username"
-              value={formValues.githubUrl}
+              label="Instagram"
+              name="instagramUrl"
+              placeholder="https://instagram.com/username"
+              value={formValues.instagramUrl}
               onChange={handleInputChange}
-              errors={errorsVisible ? formErrors.githubUrl : []}
+              errors={errorsVisible ? formErrors.instagramUrl : []}
             />
 
             <RegularInput
