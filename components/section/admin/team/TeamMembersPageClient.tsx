@@ -129,7 +129,7 @@ export const TeamMembersPageClient = ({
           />
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {sortedMembers.map(member => (
             <TeamMemberCard
               key={member._id}
@@ -199,7 +199,7 @@ const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMember
   return (
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
-      <div className="relative aspect-[3/4] bg-muted">
+      <div className="relative aspect-[0.85] bg-muted">
         {member.image ? (
           <Image
             src={member.image}
@@ -316,7 +316,7 @@ const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMember
         </div>
 
         {/* Contact Info */}
-        <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+        <div className="flex items-center flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
           {member.email && (
             <Link href={`mailto:${member.email}`} className="hover:text-foreground">
               <div className="flex items-center gap-1 truncate">

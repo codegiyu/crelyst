@@ -216,7 +216,7 @@ export const TeamMemberForm = ({ member, onSuccess, onCancel }: TeamMemberFormPr
           onClear={handleImageClear}
           uploading={imageUpload.loading}
           progress={imageUpload.progress}
-          aspectRatio="3/4"
+          aspectRatio="0.85"
           placeholder="Upload profile photo"
           subtext="Recommended: Portrait orientation (3:4 aspect ratio)"
         />
