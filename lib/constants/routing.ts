@@ -69,13 +69,13 @@ export const sidebarLinksData: ISidebarLinkGroup[] = [
       {
         LucideIcon: Mail,
         page: 'Contact leads',
-        path: { prefix: '/admin', suffix: '/dashboard/inbox/contact' },
+        path: { prefix: '/admin', suffix: '/dashboard/contact-leads' },
         inboxBadgeKey: 'quoteRequest',
       },
       {
         LucideIcon: UserPlus,
         page: 'Work with us',
-        path: { prefix: '/admin', suffix: '/dashboard/inbox/work-with-us' },
+        path: { prefix: '/admin', suffix: '/dashboard/work-with-us' },
         inboxBadgeKey: 'workWithUs',
       },
     ],
