@@ -12,6 +12,10 @@ import {
   ArrowUpDown,
   Mail,
   Phone,
+  Linkedin,
+  Twitter,
+  Instagram,
+  Globe,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Modal } from '@/components/ui/Modal';
@@ -30,6 +34,7 @@ import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import Link from 'next/link';
 
 export const TeamMembersPageClient = ({
   initialTeamMembers,
@@ -124,7 +129,7 @@ export const TeamMembersPageClient = ({
           />
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
           {sortedMembers.map(member => (
             <TeamMemberCard
               key={member._id}
@@ -185,6 +190,12 @@ interface TeamMemberCardProps {
 }
 
 const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMemberCardProps) => {
+  const hasSocials =
+    member.socials?.linkedin ||
+    member.socials?.twitter ||
+    member.socials?.instagram ||
+    member.socials?.website;
+
   return (
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
@@ -213,17 +224,55 @@ const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMember
           }`}>
           {member.isActive ? 'Active' : 'Inactive'}
         </div>
+
+        {hasSocials && (
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            {member.socials?.twitter && (
+              <a
+                href={member.socials.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Twitter className="size-4 text-white" />
+              </a>
+            )}
+            {member.socials?.instagram && (
+              <a
+                href={member.socials.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Instagram className="size-4 text-white" />
+              </a>
+            )}
+            {member.socials?.linkedin && (
+              <a
+                href={member.socials.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Linkedin className="size-4 text-white" />
+              </a>
+            )}
+            {member.socials?.website && (
+              <a
+                href={member.socials.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Globe className="size-4 text-white" />
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="space-y-8 p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-foreground truncate">{member.name}</h3>
             <p className="text-sm text-primary truncate">{member.role}</p>
-            {member.bio && (
-              <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{member.bio}</p>
-            )}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -260,19 +309,31 @@ const TeamMemberCard = ({ member, onEdit, onDelete, onToggleActive }: TeamMember
           </DropdownMenu>
         </div>
 
+        <div className="">
+          {member.bio && (
+            <p className="text-xs leading-5 text-muted-foreground mt-1">{member.bio}</p>
+          )}
+        </div>
+
         {/* Contact Info */}
         <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
           {member.email && (
-            <div className="flex items-center gap-1 truncate">
-              <Mail className="size-3 shrink-0" />
-              <span className="truncate">{member.email}</span>
-            </div>
+            <Link href={`mailto:${member.email}`} className="hover:text-foreground">
+              <div className="flex items-center gap-1 truncate">
+                <Mail className="size-3 shrink-0" />
+                <span className="truncate">{member.email}</span>
+              </div>
+            </Link>
           )}
           {member.phone && (
-            <div className="flex items-center gap-1">
-              <Phone className="size-3 shrink-0" />
-              <span>{member.phone}</span>
-            </div>
+            <Link
+              href={`tel:${member.phone.replaceAll(' ', '')}`}
+              className="hover:text-foreground">
+              <div className="flex items-center gap-1">
+                <Phone className="size-3 shrink-0" />
+                <span>{member.phone}</span>
+              </div>
+            </Link>
           )}
         </div>
       </div>

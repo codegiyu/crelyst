@@ -15,6 +15,7 @@ import {
   getProjectById,
   getTestimonialById,
   createDocument,
+  getTeamMemberById,
 } from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 import { validateBody } from '../../lib/api/validateBody';
@@ -107,6 +108,8 @@ async function entityExists(entityType: EntityType, entityId: string): Promise<b
       return (await getTestimonialById(entityId)) !== null;
     case 'brand':
       return (await getBrandById(entityId)) !== null;
+    case 'team-member':
+      return (await getTeamMemberById(entityId)) !== null;
     default:
       return false;
   }

@@ -318,6 +318,8 @@ export interface ITeamMember {
   socials?: {
     linkedin?: string;
     twitter?: string;
+    instagram?: string;
+    /** @deprecated Use instagram instead. */
     github?: string;
     website?: string;
   };

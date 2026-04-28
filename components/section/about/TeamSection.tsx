@@ -5,7 +5,7 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
-import { Linkedin, Twitter, Github, Globe } from 'lucide-react';
+import { Linkedin, Twitter, Instagram, Globe } from 'lucide-react';
 
 interface TeamMemberCardProps {
   member: ClientTeamMember;
@@ -18,7 +18,7 @@ const TeamMemberCard = ({ member, index }: TeamMemberCardProps) => {
   const hasSocials =
     member.socials?.linkedin ||
     member.socials?.twitter ||
-    member.socials?.github ||
+    member.socials?.instagram ||
     member.socials?.website;
 
   return (
@@ -50,45 +50,43 @@ const TeamMemberCard = ({ member, index }: TeamMemberCardProps) => {
 
         {/* Social overlay */}
         {hasSocials && (
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
-            <div className="flex gap-3">
-              {member.socials?.linkedin && (
-                <a
-                  href={member.socials.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-                  <Linkedin className="w-5 h-5 text-white" />
-                </a>
-              )}
-              {member.socials?.twitter && (
-                <a
-                  href={member.socials.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-                  <Twitter className="w-5 h-5 text-white" />
-                </a>
-              )}
-              {member.socials?.github && (
-                <a
-                  href={member.socials.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-                  <Github className="w-5 h-5 text-white" />
-                </a>
-              )}
-              {member.socials?.website && (
-                <a
-                  href={member.socials.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-                  <Globe className="w-5 h-5 text-white" />
-                </a>
-              )}
-            </div>
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            {member.socials?.twitter && (
+              <a
+                href={member.socials.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Twitter className="w-5 h-5 text-white" />
+              </a>
+            )}
+            {member.socials?.instagram && (
+              <a
+                href={member.socials.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Instagram className="w-5 h-5 text-white" />
+              </a>
+            )}
+            {member.socials?.linkedin && (
+              <a
+                href={member.socials.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Linkedin className="w-5 h-5 text-white" />
+              </a>
+            )}
+            {member.socials?.website && (
+              <a
+                href={member.socials.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors">
+                <Globe className="w-5 h-5 text-white" />
+              </a>
+            )}
           </div>
         )}
       </div>
