@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
 import { RegularInput } from '@/components/atoms/RegularInput';
@@ -29,13 +29,6 @@ export const SocialsTab = ({ settings }: SocialsTabProps) => {
   const [socials, setSocials] = useState<Social[]>(settings.socials || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Update socials when settings change
-  useEffect(() => {
-    if (settings.socials) {
-      setSocials(settings.socials);
-    }
-  }, [settings.socials]);
 
   const handleAdd = () => {
     setSocials(prev => [...prev, { platform: 'facebook', href: '' }]);

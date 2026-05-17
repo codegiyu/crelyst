@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { FormErrors as FormErrorsType } from '@/lib/types/general';
 import { formatInputNumber } from '@/lib/utils/general';

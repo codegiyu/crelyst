@@ -3,6 +3,18 @@
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientBrand } from '@/lib/constants/endpoints';
+import Image from 'next/image';
+
+const BrandLogo = ({ brand }: { brand: ClientBrand }) => (
+  <Image
+    src={brand.logo}
+    alt={brand.name}
+    width={200}
+    height={56}
+    sizes="200px"
+    className="h-10 md:h-14 w-auto object-contain"
+  />
+);
 
 export const BrandsSection = ({ brands }: { brands: ClientBrand[] }) => {
   const { siteLoading } = useSiteStore(state => state);
@@ -53,18 +65,10 @@ export const BrandsSection = ({ brands }: { brands: ClientBrand[] }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block">
-                      <img
-                        src={brand.logo}
-                        alt={brand.name}
-                        className="h-10 md:h-14 w-auto object-contain"
-                      />
+                      <BrandLogo brand={brand} />
                     </a>
                   ) : (
-                    <img
-                      src={brand.logo}
-                      alt={brand.name}
-                      className="h-10 md:h-14 w-auto object-contain"
-                    />
+                    <BrandLogo brand={brand} />
                   )}
                 </div>
               ))}

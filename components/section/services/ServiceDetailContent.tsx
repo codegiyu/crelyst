@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { ClientService } from '@/lib/constants/endpoints';
 import { Check, HelpCircle, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import { PublicContactCTASection } from '@/components/section/shared';
 import {
   Accordion,
@@ -49,10 +50,12 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
               <div
                 key={i}
                 className="group relative min-h-[240px] overflow-hidden rounded-2xl border border-border bg-muted sm:min-h-[280px] md:min-h-[320px] lg:min-h-[380px]">
-                <img
+                <Image
                   src={src}
                   alt={`${service.title} gallery ${i + 1}`}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
             ))}

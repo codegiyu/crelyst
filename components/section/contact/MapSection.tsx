@@ -19,7 +19,7 @@ function MapImageFallback() {
     <div className="absolute inset-0 bg-zinc-950" aria-hidden>
       <Image
         src={CONTACT_MAP_FALLBACK_IMAGE_SRC}
-        alt=""
+        alt="Map location placeholder"
         fill
         className="object-cover"
         sizes="100vw"

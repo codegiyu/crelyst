@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -71,58 +69,36 @@ export const FeaturesTab = ({ settings }: FeaturesTabProps) => {
     actions: { updateSettings },
   } = useSiteSettingsStore(state => state);
 
-  const {
-    formValues,
-    formErrors,
-    errorsVisible,
-    loading,
-    handleSubmit,
-    setFormErrors,
-    setFormValues,
-    onChange,
-  } = useForm<typeof featuresSchema>({
-    formSchema: featuresSchema,
-    defaultFormValues: {
-      maintenanceMode: settings.features?.maintenanceMode ?? false,
-      registrationEnabled: settings.features?.registrationEnabled ?? true,
-      loginEnabled: settings.features?.loginEnabled ?? true,
-    },
-    noFocusOnFirstField: true,
-    onSubmit: async (values: FeaturesFormValues) => {
-      const data = await adminCallApiToast(
-        'Saving feature flags…',
-        () =>
-          callApi('ADMIN_UPDATE_SITE_SETTINGS', {
-            payload: {
-              settingsPayload: [{ name: 'features', value: values }],
-            },
-          }),
-        'Feature flags updated successfully'
-      );
+  const { formValues, formErrors, errorsVisible, loading, handleSubmit, setFormErrors, onChange } =
+    useForm<typeof featuresSchema>({
+      formSchema: featuresSchema,
+      defaultFormValues: {
+        maintenanceMode: settings.features?.maintenanceMode ?? false,
+        registrationEnabled: settings.features?.registrationEnabled ?? true,
+        loginEnabled: settings.features?.loginEnabled ?? true,
+      },
+      noFocusOnFirstField: true,
+      onSubmit: async (values: FeaturesFormValues) => {
+        const data = await adminCallApiToast(
+          'Saving feature flags…',
+          () =>
+            callApi('ADMIN_UPDATE_SITE_SETTINGS', {
+              payload: {
+                settingsPayload: [{ name: 'features', value: values }],
+              },
+            }),
+          'Feature flags updated successfully'
+        );
 
-      if (!data) {
-        setFormErrors({ root: ['Failed to update feature flags'] });
-        return false;
-      }
+        if (!data) {
+          setFormErrors({ root: ['Failed to update feature flags'] });
+          return false;
+        }
 
-      updateSettings({ features: values });
-      return true;
-    },
-  });
-
-  useEffect(() => {
-    if (settings.features) {
-      setFormValues({
-        maintenanceMode: settings.features.maintenanceMode ?? false,
-        registrationEnabled: settings.features.registrationEnabled ?? true,
-        loginEnabled: settings.features.loginEnabled ?? true,
-      });
-    }
-  }, [
-    settings.features?.maintenanceMode,
-    settings.features?.registrationEnabled,
-    settings.features?.loginEnabled,
-  ]);
+        updateSettings({ features: values });
+        return true;
+      },
+    });
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

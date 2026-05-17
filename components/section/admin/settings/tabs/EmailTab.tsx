@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -37,7 +35,6 @@ export const EmailTab = ({ settings }: EmailTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
   } = useForm<typeof emailSchema>({
     formSchema: emailSchema,
     defaultFormValues: {
@@ -67,16 +64,6 @@ export const EmailTab = ({ settings }: EmailTabProps) => {
       return true;
     },
   });
-
-  useEffect(() => {
-    if (settings.email) {
-      setFormValues({
-        fromEmail: settings.email.fromEmail || '',
-        fromName: settings.email.fromName || '',
-        replyToEmail: settings.email.replyToEmail || '',
-      });
-    }
-  }, [settings.email?.fromEmail, settings.email?.fromName, settings.email?.replyToEmail]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

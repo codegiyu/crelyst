@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -38,7 +36,6 @@ export const AnalyticsTab = ({ settings }: AnalyticsTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
   } = useForm<typeof analyticsSchema>({
     formSchema: analyticsSchema,
     defaultFormValues: {
@@ -77,20 +74,6 @@ export const AnalyticsTab = ({ settings }: AnalyticsTabProps) => {
       return true;
     },
   });
-
-  useEffect(() => {
-    if (settings.analytics) {
-      setFormValues({
-        googleAnalyticsId: settings.analytics.googleAnalyticsId || '',
-        facebookPixelId: settings.analytics.facebookPixelId || '',
-        otherTrackingIds: settings.analytics.otherTrackingIds?.join('\n') || '',
-      });
-    }
-  }, [
-    settings.analytics?.googleAnalyticsId,
-    settings.analytics?.facebookPixelId,
-    settings.analytics?.otherTrackingIds,
-  ]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

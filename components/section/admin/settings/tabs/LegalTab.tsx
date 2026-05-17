@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -39,7 +37,6 @@ export const LegalTab = ({ settings }: LegalTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
   } = useForm<typeof legalSchema>({
     formSchema: legalSchema,
     defaultFormValues: {
@@ -70,22 +67,6 @@ export const LegalTab = ({ settings }: LegalTabProps) => {
       return true;
     },
   });
-
-  useEffect(() => {
-    if (settings.legal) {
-      setFormValues({
-        termsOfServiceUrl: settings.legal.termsOfServiceUrl || '',
-        privacyPolicyUrl: settings.legal.privacyPolicyUrl || '',
-        cookiePolicyUrl: settings.legal.cookiePolicyUrl || '',
-        disclaimerText: settings.legal.disclaimerText || '',
-      });
-    }
-  }, [
-    settings.legal?.termsOfServiceUrl,
-    settings.legal?.privacyPolicyUrl,
-    settings.legal?.cookiePolicyUrl,
-    settings.legal?.disclaimerText,
-  ]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

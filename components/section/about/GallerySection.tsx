@@ -7,7 +7,8 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServiceImages';
-import { Image } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 import type { ClientProject, ClientService } from '@/lib/constants/endpoints';
 
 export const GallerySection = ({
@@ -61,7 +62,7 @@ export const GallerySection = ({
           <SectionHeading
             title="Our Work Gallery"
             text="A showcase of our projects and services"
-            Icon={Image}
+            Icon={ImageIcon}
           />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 mt-12">
@@ -73,12 +74,13 @@ export const GallerySection = ({
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 viewport={{ once: true }}
                 onClick={() => openLightbox(index)}
-                className="aspect-square rounded-xl overflow-hidden bg-muted hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 group">
-                <img
+                className="relative aspect-square rounded-xl overflow-hidden bg-muted hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 group">
+                <Image
                   src={image}
                   alt={`Gallery image ${index + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-300"
                 />
               </motion.button>
             ))}

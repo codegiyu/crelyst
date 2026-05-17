@@ -32,9 +32,31 @@ export function getCollection(name: keyof typeof COLLECTIONS) {
   return adminDb.collection(COLLECTIONS[name]);
 }
 
-export async function listBrands(options: { isActive?: boolean; limit?: number; page?: number }) {
+const MAX_LIST_PAGE_SIZE = 100;
+const MAX_LIST_OFFSET = 500;
+
+function clampListPagination(limit: number, page: number) {
+  const safeLimit = Math.min(Math.max(limit, 1), MAX_LIST_PAGE_SIZE);
+  const safePage = Math.max(page, 1);
+  const offset = Math.min((safePage - 1) * safeLimit, MAX_LIST_OFFSET);
+
+  return { safeLimit, offset };
+}
+
+type OrderedListOptions = {
+  isActive?: boolean;
+  limit?: number;
+  page?: number;
+};
+
+async function listOrderedCollection(
+  collName: 'brands' | 'services' | 'projects' | 'testimonials' | 'teamMembers',
+  options: OrderedListOptions
+) {
   const { isActive, limit = 50, page = 1 } = options;
-  const coll = getCollection('brands');
+  const { safeLimit, offset } = clampListPagination(limit, page);
+  const coll = getCollection(collName);
+
   let q: Query = coll.orderBy('displayOrder', 'asc').orderBy('createdAt', 'desc');
   if (isActive !== undefined && isActive !== null) {
     q = coll
@@ -43,20 +65,21 @@ export async function listBrands(options: { isActive?: boolean; limit?: number; 
       .orderBy('createdAt', 'desc') as Query;
   }
 
-  const [countSnap, allSnap] = await Promise.all([
+  const [countSnap, pageSnap] = await Promise.all([
     isActive !== undefined && isActive !== null
       ? coll.where('isActive', '==', isActive).count().get()
       : coll.count().get(),
-    q.limit(500).get(), // Reasonable max for in-memory pagination
+    q.offset(offset).limit(safeLimit).get(),
   ]);
 
   const total = countSnap.data().count;
-  let items = allSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const items = pageSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  const skip = (page - 1) * limit;
-  items = items.slice(skip, skip + limit);
+  return { items, total, limit: safeLimit, page };
+}
 
-  return { items, total };
+export async function listBrands(options: OrderedListOptions) {
+  return listOrderedCollection('brands', options);
 }
 
 export async function getBrandById(id: string) {
@@ -130,33 +153,8 @@ export async function reorderBrands(items: Array<{ id: string; displayOrder: num
 }
 
 // ----- Services -----
-async function listCollection(
-  collName: 'services' | 'projects' | 'testimonials' | 'teamMembers',
-  options: { isActive?: boolean; limit?: number; page?: number; projectId?: string }
-) {
-  const { isActive, limit = 50, page = 1 } = options;
-  const coll = getCollection(collName);
-  let q: Query = coll.orderBy('displayOrder', 'asc').orderBy('createdAt', 'desc');
-  if (isActive !== undefined && isActive !== null) {
-    q = coll
-      .where('isActive', '==', isActive)
-      .orderBy('displayOrder', 'asc')
-      .orderBy('createdAt', 'desc') as Query;
-  }
-  const [countSnap, allSnap] = await Promise.all([
-    isActive !== undefined && isActive !== null
-      ? coll.where('isActive', '==', isActive).count().get()
-      : coll.count().get(),
-    q.limit(500).get(),
-  ]);
-  const total = countSnap.data().count;
-  const items = allSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const skip = (page - 1) * limit;
-  return { items: items.slice(skip, skip + limit), total };
-}
-
-export async function listServices(opts: { isActive?: boolean; limit?: number; page?: number }) {
-  return listCollection('services', opts);
+export async function listServices(opts: OrderedListOptions) {
+  return listOrderedCollection('services', opts);
 }
 
 export async function getServiceBySlug(slug: string) {
@@ -206,8 +204,8 @@ export async function reorderServices(items: Array<{ id: string; displayOrder: n
 }
 
 // ----- Projects -----
-export async function listProjects(opts: { isActive?: boolean; limit?: number; page?: number }) {
-  return listCollection('projects', opts);
+export async function listProjects(opts: OrderedListOptions) {
+  return listOrderedCollection('projects', opts);
 }
 
 export async function getProjectBySlug(slug: string) {
@@ -273,13 +271,8 @@ export async function deleteAllProjects(): Promise<number> {
 }
 
 // ----- Testimonials -----
-export async function listTestimonials(opts: {
-  isActive?: boolean;
-  limit?: number;
-  page?: number;
-  projectId?: string;
-}) {
-  return listCollection('testimonials', opts);
+export async function listTestimonials(opts: OrderedListOptions & { projectId?: string }) {
+  return listOrderedCollection('testimonials', opts);
 }
 
 export async function getTestimonialById(id: string) {
@@ -336,8 +329,8 @@ export async function reorderTestimonials(items: Array<{ id: string; displayOrde
 }
 
 // ----- Team Members -----
-export async function listTeamMembers(opts: { isActive?: boolean; limit?: number; page?: number }) {
-  return listCollection('teamMembers', opts);
+export async function listTeamMembers(opts: OrderedListOptions) {
+  return listOrderedCollection('teamMembers', opts);
 }
 
 export async function getTeamMemberById(id: string) {

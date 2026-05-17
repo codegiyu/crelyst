@@ -79,7 +79,7 @@ export const ChangePasswordLink = ({
               <a style={{ ...anchor, color: branding.primaryColor }} href={`mailto:${to}`}>
                 {to}
               </a>
-              . If this wasn't you, please ignore and report to{' '}
+              . If this wasn&apos;t you, please ignore and report to{' '}
               <a
                 style={{ ...anchor, color: branding.primaryColor }}
                 href={`mailto:${branding.supportEmail}`}>

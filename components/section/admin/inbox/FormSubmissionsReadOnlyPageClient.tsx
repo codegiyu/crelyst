@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { format } from 'date-fns';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
@@ -53,6 +53,7 @@ export function FormSubmissionsReadOnlyPageClient({
   loadFailed = false,
 }: FormSubmissionsReadOnlyPageClientProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [submissions, setSubmissions] = useState<ClientFormSubmission[]>(initial.submissions);
   const [total, setTotal] = useState(initial.pagination.total);
   const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor);
@@ -100,12 +101,6 @@ export function FormSubmissionsReadOnlyPageClient({
     [formType]
   );
 
-  useEffect(() => {
-    if (loadFailed) {
-      void fetchPage(null, true);
-    }
-  }, [loadFailed, fetchPage]);
-
   const filteredSubmissions = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return submissions;
@@ -121,24 +116,32 @@ export function FormSubmissionsReadOnlyPageClient({
   const listEmpty = submissions.length === 0 && !fetchError;
   const filterEmpty = !listEmpty && filteredSubmissions.length === 0;
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      const ok = await fetchPage(null, true);
-      if (ok) router.refresh();
-    } finally {
-      setRefreshing(false);
-    }
+  const handleRefresh = () => {
+    startTransition(() => {
+      void (async () => {
+        setRefreshing(true);
+        try {
+          const ok = await fetchPage(null, true);
+          if (ok) router.refresh();
+        } finally {
+          setRefreshing(false);
+        }
+      })();
+    });
   };
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = () => {
     if (!nextCursor || loadingMore) return;
-    setLoadingMore(true);
-    try {
-      await fetchPage(nextCursor, false);
-    } finally {
-      setLoadingMore(false);
-    }
+    startTransition(() => {
+      void (async () => {
+        setLoadingMore(true);
+        try {
+          await fetchPage(nextCursor, false);
+        } finally {
+          setLoadingMore(false);
+        }
+      })();
+    });
   };
 
   return (
@@ -150,9 +153,9 @@ export function FormSubmissionsReadOnlyPageClient({
           variant="outline"
           LeftIcon={RefreshCw}
           leftIconProps={{ className: 'size-4' }}
-          loading={refreshing}
+          loading={refreshing || isPending}
           loadingIconBesideText
-          onClick={() => void handleRefresh()}
+          onClick={handleRefresh}
         />
       }>
       {fetchError ? (
@@ -160,12 +163,7 @@ export function FormSubmissionsReadOnlyPageClient({
           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           <div className="space-y-2">
             <p>Could not load submissions. Check your connection and try again.</p>
-            <RegularBtn
-              text="Retry"
-              size="sm"
-              variant="outline"
-              onClick={() => void handleRefresh()}
-            />
+            <RegularBtn text="Retry" size="sm" variant="outline" onClick={handleRefresh} />
           </div>
         </div>
       ) : null}
@@ -230,6 +228,7 @@ export function FormSubmissionsReadOnlyPageClient({
                       variant="outline"
                       LeftIcon={Eye}
                       leftIconProps={{ className: 'size-4' }}
+                      aria-label={`View submission from ${submission.name}`}
                       onClick={() => setSelectedSubmission(submission)}
                     />
                   </CardContent>
@@ -245,7 +244,7 @@ export function FormSubmissionsReadOnlyPageClient({
                 variant="outline"
                 loading={loadingMore}
                 loadingIconBesideText
-                onClick={() => void handleLoadMore()}
+                onClick={handleLoadMore}
               />
             </div>
           ) : null}

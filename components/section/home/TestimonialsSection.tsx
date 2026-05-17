@@ -11,6 +11,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) => {
   return (
@@ -42,9 +43,12 @@ const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) =>
       {/* Author */}
       <div className="flex items-center justify-center gap-4 md:gap-6">
         {testimonial.clientImage ? (
-          <img
+          <Image
             src={testimonial.clientImage}
             alt={testimonial.clientName}
+            width={64}
+            height={64}
+            sizes="64px"
             className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover shrink-0"
           />
         ) : (
@@ -67,10 +71,12 @@ const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) =>
 
         {testimonial.companyLogo && (
           <div className="relative h-10 w-24 md:h-12 md:w-32 shrink-0 ml-auto hidden md:block">
-            <img
+            <Image
               src={testimonial.companyLogo}
               alt={testimonial.companyName || 'Company'}
-              className="h-full w-full object-contain"
+              fill
+              sizes="128px"
+              className="object-contain"
             />
           </div>
         )}

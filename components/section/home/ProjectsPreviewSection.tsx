@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientProject } from '@/lib/constants/endpoints';
 import { ArrowRight, Briefcase, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 
@@ -34,10 +35,12 @@ const ProjectPreviewCard = ({
           {/* Image */}
           <div className="absolute inset-0 bg-muted">
             {project.cardImage || project.featuredImage ? (
-              <img
-                src={project.cardImage || project.featuredImage}
+              <Image
+                src={project.cardImage || project.featuredImage || ''}
                 alt={project.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-40"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-40"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">

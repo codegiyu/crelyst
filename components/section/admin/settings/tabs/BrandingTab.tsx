@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -44,7 +42,6 @@ export const BrandingTab = ({ settings }: BrandingTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
     onChange,
   } = useForm<typeof brandingSchema>({
     formSchema: brandingSchema,
@@ -75,20 +72,6 @@ export const BrandingTab = ({ settings }: BrandingTabProps) => {
       return true;
     },
   });
-
-  useEffect(() => {
-    if (settings.branding) {
-      setFormValues({
-        faviconUrl: settings.branding.faviconUrl || '',
-        primaryBrandColor: settings.branding.primaryBrandColor || '#000000',
-        secondaryBrandColor: settings.branding.secondaryBrandColor || '#ffffff',
-      });
-    }
-  }, [
-    settings.branding?.faviconUrl,
-    settings.branding?.primaryBrandColor,
-    settings.branding?.secondaryBrandColor,
-  ]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

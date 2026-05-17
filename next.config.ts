@@ -46,6 +46,8 @@ const nextConfig: NextConfig = {
         value: 'camera=(), microphone=(), geolocation=()',
       },
       {
+        // Next.js 16 and some third-party scripts may require unsafe-inline / unsafe-eval.
+        // Tighten further only after verifying production script requirements.
         key: 'Content-Security-Policy',
         value: [
           "default-src 'self'",

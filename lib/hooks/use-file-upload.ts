@@ -138,7 +138,7 @@ export const useFileUpload = ({
 
       try {
         await uploadFileWithProgress(fileToUpload, uploadUrl, (progressPercentage: number) => {
-          console.log({ progressPercentage });
+          // console.log({ progressPercentage });
           setProgress(progressPercentage);
         });
       } catch {

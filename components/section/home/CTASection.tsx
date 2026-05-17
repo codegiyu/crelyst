@@ -9,6 +9,7 @@ import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServi
 import { ArrowRight, MessageCircle, Phone } from 'lucide-react';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 import type { ClientProject, ClientService, ClientSiteSettings } from '@/lib/constants/endpoints';
+import Image from 'next/image';
 
 export const CTASection = ({
   contactInfo,
@@ -83,11 +84,13 @@ export const CTASection = ({
                     {duplicatedImages.map((image, index) => (
                       <div
                         key={`marquee-${marqueeIndex}-img-${index}`}
-                        className="shrink-0 w-full aspect-[3/4] rounded-none overflow-hidden opacity-80 hover:opacity-90 transition-opacity">
-                        <img
+                        className="relative shrink-0 w-full aspect-[3/4] rounded-none overflow-hidden opacity-80 hover:opacity-90 transition-opacity">
+                        <Image
                           src={image}
                           alt={`Marquee ${marqueeIndex} image ${index}`}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="25vw"
+                          className="object-cover"
                         />
                       </div>
                     ))}

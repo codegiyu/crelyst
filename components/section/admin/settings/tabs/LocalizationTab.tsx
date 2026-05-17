@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -41,7 +39,6 @@ export const LocalizationTab = ({ settings }: LocalizationTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
   } = useForm<typeof localizationSchema>({
     formSchema: localizationSchema,
     defaultFormValues: {
@@ -80,22 +77,6 @@ export const LocalizationTab = ({ settings }: LocalizationTabProps) => {
       return true;
     },
   });
-
-  useEffect(() => {
-    if (settings.localization) {
-      setFormValues({
-        defaultLanguage: settings.localization.defaultLanguage || 'en',
-        supportedLanguages: settings.localization.supportedLanguages?.join(', ') || 'en',
-        defaultTimezone: settings.localization.defaultTimezone || 'UTC',
-        defaultCurrency: settings.localization.defaultCurrency || 'USD',
-      });
-    }
-  }, [
-    settings.localization?.defaultLanguage,
-    settings.localization?.supportedLanguages,
-    settings.localization?.defaultTimezone,
-    settings.localization?.defaultCurrency,
-  ]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -45,7 +43,6 @@ export const SEOTab = ({ settings }: SEOTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
     onChange,
   } = useForm<typeof seoSchema>({
     formSchema: seoSchema,
@@ -89,30 +86,6 @@ export const SEOTab = ({ settings }: SEOTabProps) => {
       return true;
     },
   });
-
-  useEffect(() => {
-    if (settings.seo) {
-      setFormValues({
-        metaTitleTemplate: settings.seo.metaTitleTemplate || '',
-        metaDescription: settings.seo.metaDescription || '',
-        keywords: settings.seo.keywords?.join(', ') || '',
-        ogImageUrl: settings.seo.ogImageUrl || '',
-        faviconUrl: settings.seo.faviconUrl || '',
-        canonicalUrlBase: settings.seo.canonicalUrlBase || '',
-        robotsIndex: settings.seo.robotsIndex ?? true,
-        robotsFollow: settings.seo.robotsFollow ?? true,
-      });
-    }
-  }, [
-    settings.seo?.metaTitleTemplate,
-    settings.seo?.metaDescription,
-    settings.seo?.keywords,
-    settings.seo?.ogImageUrl,
-    settings.seo?.faviconUrl,
-    settings.seo?.canonicalUrlBase,
-    settings.seo?.robotsIndex,
-    settings.seo?.robotsFollow,
-  ]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

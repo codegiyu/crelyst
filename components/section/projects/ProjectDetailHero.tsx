@@ -7,6 +7,7 @@ import { ClientProject } from '@/lib/constants/endpoints';
 import { Star, Calendar, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface ProjectDetailHeroProps {
   project: ClientProject;
@@ -51,11 +52,14 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
           animate={siteLoading ? {} : { opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
           className="regular-container mx-auto px-4 sm:px-6 mt-12 md:mt-16 max-w-7xl">
-          <div className="rounded-xl overflow-hidden border border-border shadow-elegant">
-            <img
-              src={heroSrc}
+          <div className="relative aspect-video overflow-hidden rounded-xl border border-border shadow-elegant">
+            <Image
+              src={heroSrc!}
               alt={`${project.title} hero`}
-              className="w-full aspect-video object-cover"
+              fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover"
+              priority
             />
           </div>
         </motion.div>

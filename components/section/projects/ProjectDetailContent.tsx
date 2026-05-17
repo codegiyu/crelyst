@@ -18,6 +18,8 @@ import {
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 import { PublicContactCTASection } from '@/components/section/shared';
+import { plainTextToSafeHtml, sanitizeHtml } from '@/lib/utils/sanitizeHtml';
+import Image from 'next/image';
 
 interface ProjectDetailContentProps {
   project: ClientProject;
@@ -65,11 +67,13 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="rounded-2xl overflow-hidden aspect-video bg-muted shadow-elegant">
-            <img
+            className="relative rounded-2xl overflow-hidden aspect-video bg-muted shadow-elegant">
+            <Image
               src={project.featuredImage}
               alt={project.title}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover"
             />
           </motion.div>
         </SectionContainer>
@@ -525,8 +529,8 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
                     dangerouslySetInnerHTML={{
                       __html:
                         section.type === 'html' || section.type === 'markdown'
-                          ? section.content
-                          : section.content.replace(/\n/g, '<br />'),
+                          ? sanitizeHtml(section.content)
+                          : plainTextToSafeHtml(section.content),
                     }}
                   />
                 </motion.div>

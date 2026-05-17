@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import { Linkedin, Twitter, Instagram, Globe } from 'lucide-react';
+import Image from 'next/image';
 
 interface TeamMemberCardProps {
   member: ClientTeamMember;
@@ -30,10 +31,12 @@ const TeamMemberCard = ({ member, index }: TeamMemberCardProps) => {
       className="group text-center">
       <div className="relative mb-4 overflow-hidden rounded-xl aspect-[3/4] bg-gradient-to-br from-primary/10 to-accent/10">
         {member.image ? (
-          <img
+          <Image
             src={member.image}
             alt={member.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
