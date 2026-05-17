@@ -1,18 +1,22 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/Modal';
+import { callApi } from '@/lib/services/callApi';
 import type {
   ClientFormSubmission,
   FormSubmissionFormType,
   IFormSubmissionsListRes,
 } from '@/lib/constants/endpoints';
-import { Eye, Mail, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Eye, Mail, RefreshCw } from 'lucide-react';
+
+const PAGE_LIMIT = 25;
 
 function formatDate(value: string | undefined) {
   if (!value) return '—';
@@ -37,6 +41,8 @@ interface FormSubmissionsReadOnlyPageClientProps {
   formType: FormSubmissionFormType;
   title: string;
   description: string;
+  /** True when server-side initial fetch failed; client will retry on mount. */
+  loadFailed?: boolean;
 }
 
 export function FormSubmissionsReadOnlyPageClient({
@@ -44,24 +50,96 @@ export function FormSubmissionsReadOnlyPageClient({
   formType,
   title,
   description,
+  loadFailed = false,
 }: FormSubmissionsReadOnlyPageClientProps) {
+  const router = useRouter();
+  const [submissions, setSubmissions] = useState<ClientFormSubmission[]>(initial.submissions);
+  const [total, setTotal] = useState(initial.pagination.total);
+  const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor);
+  const [hasMore, setHasMore] = useState(initial.hasMore);
   const [search, setSearch] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState<ClientFormSubmission | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [fetchError, setFetchError] = useState(loadFailed);
+
+  useEffect(() => {
+    setSubmissions(initial.submissions);
+    setTotal(initial.pagination.total);
+    setNextCursor(initial.nextCursor);
+    setHasMore(initial.hasMore);
+    if (!loadFailed) setFetchError(false);
+  }, [initial, loadFailed]);
+
+  const fetchPage = useCallback(
+    async (cursor?: string | null, replace = false) => {
+      const cursorPart = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
+      const { data, error } = await callApi('ADMIN_LIST_FORM_SUBMISSIONS', {
+        query: `?formType=${encodeURIComponent(formType)}&limit=${PAGE_LIMIT}${cursorPart}`,
+      });
+
+      if (error || !data) {
+        setFetchError(true);
+        return false;
+      }
+
+      setFetchError(false);
+      setTotal(data.pagination.total);
+      setNextCursor(data.nextCursor);
+      setHasMore(data.hasMore);
+
+      setSubmissions(prev => {
+        if (replace) return data.submissions;
+        const have = new Set(prev.map(s => s._id));
+        const more = data.submissions.filter(s => !have.has(s._id));
+        return [...prev, ...more];
+      });
+
+      return true;
+    },
+    [formType]
+  );
+
+  useEffect(() => {
+    if (loadFailed) {
+      void fetchPage(null, true);
+    }
+  }, [loadFailed, fetchPage]);
 
   const filteredSubmissions = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return initial.submissions;
-    return initial.submissions.filter(s => {
+    if (!q) return submissions;
+    return submissions.filter(s => {
       const haystack = [s.name, s.email, s.message, s.company, s.projectType, s.portfolio]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [initial.submissions, search]);
+  }, [submissions, search]);
 
-  const listEmpty = initial.submissions.length === 0;
+  const listEmpty = submissions.length === 0 && !fetchError;
   const filterEmpty = !listEmpty && filteredSubmissions.length === 0;
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const ok = await fetchPage(null, true);
+      if (ok) router.refresh();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      await fetchPage(nextCursor, false);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <DashboardPageWrapper
@@ -72,9 +150,26 @@ export function FormSubmissionsReadOnlyPageClient({
           variant="outline"
           LeftIcon={RefreshCw}
           leftIconProps={{ className: 'size-4' }}
-          onClick={() => window.location.reload()}
+          loading={refreshing}
+          loadingIconBesideText
+          onClick={() => void handleRefresh()}
         />
       }>
+      {fetchError ? (
+        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div className="space-y-2">
+            <p>Could not load submissions. Check your connection and try again.</p>
+            <RegularBtn
+              text="Retry"
+              size="sm"
+              variant="outline"
+              onClick={() => void handleRefresh()}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {!listEmpty && (
         <div className="max-w-md">
           <Input
@@ -87,8 +182,9 @@ export function FormSubmissionsReadOnlyPageClient({
       )}
 
       <p className="text-sm text-muted-foreground">
-        {initial.pagination.total} total
-        {initial.pagination.total !== filteredSubmissions.length
+        {total} total
+        {hasMore ? ` · showing ${submissions.length} loaded` : ''}
+        {total !== filteredSubmissions.length && submissions.length > 0
           ? ` · ${filteredSubmissions.length} matching`
           : ''}
       </p>
@@ -103,43 +199,57 @@ export function FormSubmissionsReadOnlyPageClient({
           <p>No submissions match your search.</p>
         </div>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredSubmissions.map(submission => (
-            <li key={submission._id}>
-              <Card className="h-full">
-                <CardHeader className="space-y-1 pb-2">
-                  <p className="font-semibold text-foreground line-clamp-1">{submission.name}</p>
-                  <p className="text-sm text-muted-foreground line-clamp-1">{submission.email}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Submitted {formatDate(submission.createdAt)}
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {formType === 'quote-request'
-                    ? infoRow('Company', submission.company)
-                    : infoRow('Portfolio', submission.portfolio)}
-                  {formType === 'quote-request'
-                    ? infoRow('Project type', submission.projectType)
-                    : infoRow('Experience', submission.experience)}
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground">Message</p>
-                    <p className="text-sm text-foreground line-clamp-3">
-                      {submission.message || '—'}
+        <>
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {filteredSubmissions.map(submission => (
+              <li key={submission._id}>
+                <Card className="h-full">
+                  <CardHeader className="space-y-1 pb-2">
+                    <p className="font-semibold text-foreground line-clamp-1">{submission.name}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{submission.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Submitted {formatDate(submission.createdAt)}
                     </p>
-                  </div>
-                  <RegularBtn
-                    text="View"
-                    size="sm"
-                    variant="outline"
-                    LeftIcon={Eye}
-                    leftIconProps={{ className: 'size-4' }}
-                    onClick={() => setSelectedSubmission(submission)}
-                  />
-                </CardContent>
-              </Card>
-            </li>
-          ))}
-        </ul>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {formType === 'quote-request'
+                      ? infoRow('Company', submission.company)
+                      : infoRow('Portfolio', submission.portfolio)}
+                    {formType === 'quote-request'
+                      ? infoRow('Project type', submission.projectType)
+                      : infoRow('Experience', submission.experience)}
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">Message</p>
+                      <p className="text-sm text-foreground line-clamp-3">
+                        {submission.message || '—'}
+                      </p>
+                    </div>
+                    <RegularBtn
+                      text="View"
+                      size="sm"
+                      variant="outline"
+                      LeftIcon={Eye}
+                      leftIconProps={{ className: 'size-4' }}
+                      onClick={() => setSelectedSubmission(submission)}
+                    />
+                  </CardContent>
+                </Card>
+              </li>
+            ))}
+          </ul>
+
+          {hasMore ? (
+            <div className="flex justify-center pt-4">
+              <RegularBtn
+                text="Load more"
+                variant="outline"
+                loading={loadingMore}
+                loadingIconBesideText
+                onClick={() => void handleLoadMore()}
+              />
+            </div>
+          ) : null}
+        </>
       )}
 
       <Modal

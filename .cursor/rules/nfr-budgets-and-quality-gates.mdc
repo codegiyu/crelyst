@@ -1,0 +1,46 @@
+---
+description: Enforce performance, reliability, accessibility, and quality budgets
+alwaysApply: true
+---
+
+# NFR Budgets and Quality Gates
+
+## 1) Non-functional requirements are mandatory
+
+- Define and track NFR targets before implementation for any major feature.
+- No feature is complete unless functional acceptance and NFR acceptance both pass.
+
+## 2) Frontend performance and speed budgets
+
+- Core Web Vitals targets for key pages:
+  - LCP <= 2.5s
+  - INP <= 200ms
+  - CLS <= 0.1
+- JavaScript should be minimized by default:
+  - Prefer server rendering and selective client hydration
+  - Defer/lazy-load non-critical modules and media
+- Image and media optimization is required (responsive sizing, compression, lazy loading).
+
+## 3) Backend performance and reliability budgets
+
+- API latency targets for critical endpoints:
+  - P95 <= 300ms
+  - P99 <= 800ms
+- Error-rate target:
+  - 5xx error rate < 0.5% for stable releases
+- Use caching, indexing, pagination, and async queues to protect response times under load.
+
+## 4) Accessibility and resilience budgets
+
+- WCAG 2.2 AA baseline must pass for critical user journeys.
+- Keyboard navigation, focus visibility, and accessible forms are mandatory.
+- Graceful fallbacks and user-safe error states are required for failed or slow dependencies.
+
+## 5) Delivery quality gates
+
+- Before merge/deploy, verify:
+  - Performance budgets pass
+  - Accessibility baseline passes
+  - Backend latency/error-rate budgets pass in test environment
+  - Observability is in place for new critical paths
+- If any gate fails, fix it before marking the phase complete.
