@@ -6,8 +6,8 @@ import { GhostBtn } from '@/components/atoms/GhostBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { ArrowRight, Play } from 'lucide-react';
-import { CRELYST_TAGLINE } from '@/lib/constants/texts';
-import { LightRays } from '@/components/backgrounds/LightRays';
+// import { CRELYST_TAGLINE } from '@/lib/constants/texts';
+// import { LightRays } from '@/components/backgrounds/LightRays';
 import { TwinklingStars } from '@/components/backgrounds/TwinklingStars';
 
 export const HeroSection = () => {
@@ -27,7 +27,7 @@ export const HeroSection = () => {
       />
 
       {/* Light Rays Background */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+      {/* <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
         <LightRays
           raysOrigin="top-center"
           raysColor="#F27B35"
@@ -43,7 +43,7 @@ export const HeroSection = () => {
           fadeDistance={1}
           saturation={1}
         />
-      </div>
+      </div> */}
 
       {/* Floating Elements */}
       {/* <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -82,23 +82,23 @@ export const HeroSection = () => {
           </motion.div> */}
 
           {/* Tagline - Prominent */}
-          <motion.h2
+          {/* <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
             className="inline-flex text-sm sm:text-sm md:text-base font-light text-foreground/90 mb-4 px-4 py-1.5 font-serif italic bg-foreground/10 rounded-full border border-foreground/20 backdrop-blur-sm">
             {CRELYST_TAGLINE}
-          </motion.h2>
+          </motion.h2> */}
 
           {/* Main Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 font-sans leading-[1.1]">
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-8xl font-bold text-foreground mb-6 font-sans leading-[1.1]">
             Where{' '}
             <span className="relative">
-              <span className="text-primary">Creativity</span>
+              <span className="text-primary italic">Creativity</span>
               <motion.svg
                 initial={{ pathLength: 0 }}
                 animate={siteLoading ? {} : { pathLength: 1 }}
@@ -123,7 +123,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base md:text-lg lg:text-xl text-foreground/90 max-w-3xl mx-auto mb-10 leading-relaxed">
+            className="text-base md:text-lg lg:text-xl text-foreground/90 max-w-4xl mx-auto mb-10 leading-relaxed">
             We&apos;re a full-service design and branding agency specializing in photography, brand
             design, product design, packaging, and visual identity. We help brands express their
             unique personality through powerful visuals and storytelling.
@@ -152,7 +152,7 @@ export const HeroSection = () => {
               <span className="w-12 h-12 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
                 <Play className="w-5 h-5 ml-0.5" />
               </span>
-              <span className="font-medium">View Our Work</span>
+              <span className="font-medium">See Our Work</span>
             </GhostBtn>
           </motion.div>
 
