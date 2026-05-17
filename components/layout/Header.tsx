@@ -8,7 +8,7 @@ import { GhostBtn } from '../atoms/GhostBtn';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { NAV_LINKS } from '@/lib/constants/texts';
+import { HEADER_CTA, NAV_LINKS } from '@/lib/constants/texts';
 
 export type HeaderProps = ComponentProps<'section'> & {
   transparentOnLoad?: boolean;
@@ -60,9 +60,13 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
       )}
       {...props}>
       <div className="regular-container">
-        <div className={`flex items-center justify-between ${isTransparent ? 'h-28' : 'h-20'}`}>
+        <div
+          className={cn(
+            'flex items-center justify-between gap-4',
+            isTransparent ? 'h-28' : 'h-20'
+          )}>
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-start">
             <GhostBtn
               linkProps={{ href: '/' }}
               size="none"
@@ -74,33 +78,43 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <nav className="">
-              <ul className="list-none hidden lg:flex items-center space-x-8">
-                {NAV_LINKS.filter(s => !s.showInFooterOnly).map((item, idx) => (
-                  <HeaderLink
-                    key={idx}
-                    {...item}
-                    activePath={pathname}
-                    isTransparent={isTransparent}
-                  />
-                ))}
-              </ul>
-            </nav>
-          </div>
+          <nav className="hidden lg:flex justify-center" aria-label="Main navigation">
+            <ul className="list-none flex items-center space-x-8">
+              {NAV_LINKS.filter(s => !s.showInFooterOnly).map((item, idx) => (
+                <HeaderLink
+                  key={idx}
+                  {...item}
+                  activePath={pathname}
+                  isTransparent={isTransparent}
+                />
+              ))}
+            </ul>
+          </nav>
 
-          {/* Mobile Menu Button */}
-          <GhostBtn
-            className={cn('lg:hidden', isTransparent && 'text-white hover:text-white/80')}
-            wrapClassName="lg:hidden"
-            iconClass={cn(
-              'size-6',
-              isMenuOpen ? 'text-destructive' : '',
-              isTransparent && !isMenuOpen && 'text-white'
-            )}
-            LucideIcon={isMenuOpen ? X : Menu}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          />
+          {/* CTA + Mobile Menu Button */}
+          <div className="flex items-center justify-end gap-3">
+            <RegularBtn
+              className="hidden lg:inline-flex"
+              wrapClassName="hidden lg:inline-block"
+              linkProps={{ href: HEADER_CTA.href }}
+              text={HEADER_CTA.text}
+              size="default"
+            />
+
+            <GhostBtn
+              className={cn('lg:hidden', isTransparent && 'text-white hover:text-white/80')}
+              wrapClassName="lg:hidden"
+              iconClass={cn(
+                'size-6',
+                isMenuOpen ? 'text-destructive' : '',
+                isTransparent && !isMenuOpen && 'text-white'
+              )}
+              LucideIcon={isMenuOpen ? X : Menu}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            />
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -110,7 +124,7 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
             isMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
             isTransparent && 'bg-card/95 backdrop-blur-sm'
           )}>
-          <nav className="overflow-hidden">
+          <nav className="overflow-hidden" aria-label="Mobile navigation">
             <div className="pb-4">
               <ul className="list-none grid px-0 pb-6 gap-2">
                 {NAV_LINKS.filter(s => !s.showInFooterOnly).map((item, idx) => (
@@ -122,6 +136,15 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
                   />
                 ))}
               </ul>
+
+              <RegularBtn
+                className="w-full"
+                wrapClassName="w-full"
+                linkProps={{ href: HEADER_CTA.href }}
+                text={HEADER_CTA.text}
+                size="full"
+                onClick={() => setIsMenuOpen(false)}
+              />
             </div>
           </nav>
         </div>
