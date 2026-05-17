@@ -1,5 +1,10 @@
-import { RouteLoading } from '@/components/general/RouteLoading';
+import { PublicPageLoading } from '@/components/layout/PublicPageLoading';
+import { AboutPageLoadingContent } from '@/components/section/about/AboutPageLoadingContent';
 
-export default function AboutLoading() {
-  return <RouteLoading label="Loading about…" />;
+export default async function AboutLoading() {
+  return (
+    <PublicPageLoading transparentHeader>
+      <AboutPageLoadingContent />
+    </PublicPageLoading>
+  );
 }

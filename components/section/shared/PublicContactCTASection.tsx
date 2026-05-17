@@ -4,11 +4,13 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
+import { shouldRevealMotion } from '@/lib/utils/motionReveal';
 import type { ReactNode } from 'react';
 
 const DEFAULT_BG = '/images/bg-section-8.jpg';
 
 export type PublicContactCTASectionProps = {
+  immediate?: boolean;
   title: string;
   description: ReactNode;
   buttonLabel: string;
@@ -20,6 +22,7 @@ export type PublicContactCTASectionProps = {
 };
 
 export function PublicContactCTASection({
+  immediate,
   title,
   description,
   buttonLabel,
@@ -28,12 +31,13 @@ export function PublicContactCTASection({
   backgroundImageSrc = DEFAULT_BG,
 }: PublicContactCTASectionProps) {
   const { siteLoading } = useSiteStore(state => state);
+  const reveal = shouldRevealMotion(siteLoading, immediate);
 
   return (
     <SectionContainer className="py-0 md:py-0 lg:py-0">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
-        whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
+        whileInView={reveal ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: motionDelay }}
         viewport={{ once: true }}
         className="relative flex min-h-[400px] md:min-h-[500px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-border">

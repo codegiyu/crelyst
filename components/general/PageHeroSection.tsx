@@ -4,9 +4,12 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { cn } from '@/lib/utils';
+import { shouldRevealMotion } from '@/lib/utils/motionReveal';
 import { ReactNode } from 'react';
 
 interface PageHeroSectionProps {
+  /** Show hero copy immediately (route loading shells). */
+  immediate?: boolean;
   bannerImage?: string;
   title: string | ReactNode;
   description: string;
@@ -21,6 +24,7 @@ interface PageHeroSectionProps {
 }
 
 export const PageHeroSection = ({
+  immediate,
   bannerImage,
   title,
   description,
@@ -34,6 +38,7 @@ export const PageHeroSection = ({
   },
 }: PageHeroSectionProps) => {
   const { siteLoading } = useSiteStore(state => state);
+  const reveal = shouldRevealMotion(siteLoading, immediate);
 
   return (
     <div className="relative w-full">
@@ -64,7 +69,7 @@ export const PageHeroSection = ({
             {badge && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                animate={siteLoading ? {} : { opacity: 1, y: 0 }}
+                animate={reveal ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5 }}
                 className="mb-6">
                 {typeof badge === 'string' ? (
@@ -86,7 +91,7 @@ export const PageHeroSection = ({
             {/* Title */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
-              animate={siteLoading ? {} : { opacity: 1, y: 0 }}
+              animate={reveal ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 }}
               className={cn(
                 'text-4xl md:text-5xl lg:text-6xl font-bold mb-6',
@@ -99,7 +104,7 @@ export const PageHeroSection = ({
             {/* Description */}
             <motion.p
               initial={{ opacity: 0, y: 30 }}
-              animate={siteLoading ? {} : { opacity: 1, y: 0 }}
+              animate={reveal ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
               className={cn(
                 'text-lg md:text-xl max-w-2xl mx-auto',
@@ -113,7 +118,7 @@ export const PageHeroSection = ({
             {additionalContent && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={siteLoading ? {} : { opacity: 1, y: 0 }}
+                animate={reveal ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className={cn(bannerImage ? 'text-white/80' : 'text-muted-foreground')}>
                 {additionalContent}

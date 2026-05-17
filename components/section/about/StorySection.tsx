@@ -5,9 +5,15 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import { useSiteStore } from '@/lib/store/siteStore';
+import { shouldRevealMotion } from '@/lib/utils/motionReveal';
 
-export const StorySection = () => {
+type StorySectionProps = {
+  immediate?: boolean;
+};
+
+export const StorySection = ({ immediate }: StorySectionProps = {}) => {
   const { siteLoading } = useSiteStore(state => state);
+  const reveal = shouldRevealMotion(siteLoading, immediate);
 
   return (
     <SectionContainer background="muted">
@@ -15,7 +21,7 @@ export const StorySection = () => {
         {/* Image/Visual Side */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
-          whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
+          whileInView={reveal ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
           className="relative">
@@ -34,10 +40,11 @@ export const StorySection = () => {
         {/* Content Side */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
-          whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
+          whileInView={reveal ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}>
           <SectionHeading
+            immediate={immediate}
             title="The Crelyst Story"
             text="Where creativity meets purpose"
             className="text-start mb-8"
