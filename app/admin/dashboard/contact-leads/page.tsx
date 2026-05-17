@@ -1,6 +1,6 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { FormSubmissionsReadOnlyPageClient } from '@/components/section/admin/inbox/FormSubmissionsReadOnlyPageClient';
-import { fetchAdminJson } from '@/app/_server/lib/api/fetchAdminJson';
+import { fetchAdminJsonOrNull } from '@/app/_server/lib/api/fetchAdminJson';
 import type { IFormSubmissionsListRes } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
 
@@ -16,27 +16,23 @@ const EMPTY_SUBMISSIONS: IFormSubmissionsListRes = {
   hasMore: false,
   pagination: {
     total: 0,
-    limit: 50,
+    limit: 25,
   },
 };
 
 export default async function ContactLeadsPage() {
-  let res = EMPTY_SUBMISSIONS;
-  try {
-    res = await fetchAdminJson<IFormSubmissionsListRes>(
-      '/api/admin/form-submissions?formType=quote-request&limit=50'
-    );
-  } catch {
-    // Keep page reachable even when submissions API errors out.
-  }
+  const res = await fetchAdminJsonOrNull<IFormSubmissionsListRes>(
+    '/api/admin/form-submissions?formType=quote-request&limit=25'
+  );
 
   return (
     <DashboardLayout>
       <FormSubmissionsReadOnlyPageClient
-        initial={res}
+        initial={res ?? EMPTY_SUBMISSIONS}
         formType="quote-request"
         title="Contact leads"
         description="Quote requests submitted through the contact form"
+        loadFailed={res === null}
       />
     </DashboardLayout>
   );

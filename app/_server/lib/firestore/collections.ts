@@ -6,6 +6,7 @@
 import { adminDb } from '@/lib/firebase/admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import type { DocumentSnapshot, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { logger } from '../utils/logger';
 
 const COLLECTIONS = {
   brands: 'brands',
@@ -539,11 +540,30 @@ export type ListFormSubmissionsResult = {
   limit: number;
 };
 
-export async function listFormSubmissions(
+function formSubmissionCreatedAtMillis(data: Record<string, unknown>): number {
+  const createdAt = data.createdAt;
+  if (createdAt instanceof Timestamp) return createdAt.toMillis();
+  if (createdAt instanceof Date) return createdAt.getTime();
+  if (typeof createdAt === 'string') {
+    const parsed = Date.parse(createdAt);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
+function isFirestoreIndexError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const code = (err as { code?: number }).code;
+  if (code === 9) return true;
+  const message = String((err as { message?: string }).message ?? '');
+  return /index|FAILED_PRECONDITION/i.test(message);
+}
+
+async function listFormSubmissionsIndexed(
   formType: FormSubmissionFormType,
-  options: { limit?: number; cursor?: string | null }
+  options: { limit?: number; cursor?: string | null },
+  limit: number
 ): Promise<ListFormSubmissionsResult> {
-  const limit = Math.min(Math.max(options.limit ?? 50, 1), FORM_SUBMISSION_PAGE_MAX);
   const coll = getCollection('formSubmissions');
   let q: Query = coll.where('formType', '==', formType).orderBy('createdAt', 'desc');
 
@@ -573,6 +593,66 @@ export async function listFormSubmissions(
       : null;
 
   return { items, total, nextCursor, hasMore, limit };
+}
+
+/** Used when composite index (formType + createdAt) is not yet deployed. */
+async function listFormSubmissionsInMemory(
+  formType: FormSubmissionFormType,
+  options: { limit?: number; cursor?: string | null },
+  limit: number
+): Promise<ListFormSubmissionsResult> {
+  const coll = getCollection('formSubmissions');
+  const snap = await coll.where('formType', '==', formType).get();
+  const sorted = snap.docs
+    .map(d => ({ doc: d, data: d.data() as Record<string, unknown> }))
+    .sort(
+      (a, b) =>
+        formSubmissionCreatedAtMillis(b.data) - formSubmissionCreatedAtMillis(a.data) ||
+        b.doc.id.localeCompare(a.doc.id)
+    );
+
+  let startIndex = 0;
+  if (options.cursor) {
+    const decoded = decodeFormSubmissionCursor(options.cursor);
+    if (decoded) {
+      const idx = sorted.findIndex(row => row.doc.id === decoded.id);
+      if (idx >= 0) startIndex = idx + 1;
+    }
+  }
+
+  const pageRows = sorted.slice(startIndex, startIndex + limit + 1);
+  const hasMore = pageRows.length > limit;
+  const pageDocs = hasMore ? pageRows.slice(0, limit) : pageRows;
+  const items = pageDocs.map(row => ({ id: row.doc.id, ...row.data }));
+
+  return {
+    items,
+    total: sorted.length,
+    nextCursor:
+      hasMore && pageDocs.length > 0
+        ? encodeFormSubmissionCursor(pageDocs[pageDocs.length - 1].doc)
+        : null,
+    hasMore,
+    limit,
+  };
+}
+
+export async function listFormSubmissions(
+  formType: FormSubmissionFormType,
+  options: { limit?: number; cursor?: string | null }
+): Promise<ListFormSubmissionsResult> {
+  const limit = Math.min(Math.max(options.limit ?? 50, 1), FORM_SUBMISSION_PAGE_MAX);
+
+  try {
+    return await listFormSubmissionsIndexed(formType, options, limit);
+  } catch (err) {
+    if (!isFirestoreIndexError(err)) throw err;
+    logger.warn('formSubmissions indexed query failed; using in-memory fallback', {
+      formType,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return listFormSubmissionsInMemory(formType, options, limit);
+  }
 }
 
 /** Unread = isRead is not strictly true. Small inboxes: exact scan; large: indexed count on isRead==false only. */

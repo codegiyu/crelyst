@@ -1,0 +1,32 @@
+---
+description: Readability, modern implementation patterns, and flow quality standards
+alwaysApply: true
+---
+
+# Readability and Modern Flow Standards
+
+## 1) Prefer modern, efficient patterns
+
+- Favor modern framework primitives/hooks when they solve critical problems better and are supported by the project version.
+- In React codebases (v18+), prefer patterns like `useTransition`, `use`, server/data-layer fetching, and framework-native async patterns over unnecessary `useEffect`-driven data fetching.
+- Avoid legacy or verbose approaches when a newer, stable pattern improves performance, clarity, or reliability.
+
+## 2) Comment complex reasoning
+
+- Add concise comments in complex logic to explain **why** a decision or flow exists, not just what the code does.
+- Place comments above the relevant block and keep them brief and specific.
+- Do not add obvious comments for self-explanatory lines.
+
+## 3) Enforce readability-focused spacing
+
+- Keep related lines grouped with no unnecessary blank lines inside the same immediate mindset.
+- Insert one empty line when the mindset shifts (example: declarations -> transformation/calculation -> branching -> return).
+- Add an empty line before and after substantial code blocks to improve scanability.
+- Single-line conditionals/blocks should still be visually separated with surrounding empty lines when they represent a distinct step.
+- In functions, leave an empty line before the final `return` (or final output statement) unless the function is intentionally tiny.
+
+## 4) Build production-grade flows
+
+- Implement flows with performance, security, and scalability in mind from the start.
+- Prefer patterns that reduce blocking work, improve responsiveness, and handle growth safely.
+- Choose solutions that are maintainable and explicit over clever but opaque shortcuts.

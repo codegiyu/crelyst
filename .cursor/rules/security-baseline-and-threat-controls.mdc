@@ -1,0 +1,45 @@
+---
+description: Security-first baseline for API, app, infrastructure, and delivery workflows
+alwaysApply: true
+---
+
+# Security Baseline and Threat Controls
+
+## 1) Secure-by-default development
+
+- Treat security requirements as first-class acceptance criteria for every phase.
+- Prefer secure defaults over convenience defaults in libraries, configs, and infrastructure.
+
+## 2) API and application security controls
+
+- Enforce strict input validation and sanitization on all external inputs.
+- Enforce authentication and authorization at route boundaries.
+- Apply rate limiting and abuse protection for public and sensitive endpoints.
+- Use security headers and strict CORS policies per environment.
+- Never expose sensitive internals in error responses.
+
+## 3) Data and secret protection
+
+- Do not hardcode secrets, tokens, or credentials in code or committed files.
+- Use environment-based secret management and least-privilege access.
+- Protect sensitive data in transit and at rest where applicable.
+- Minimize retained sensitive data; store only what is necessary.
+
+## 4) Dependency and supply-chain hygiene
+
+- Keep dependencies updated within stable, supported ranges.
+- Run vulnerability checks regularly and before release.
+- Block release if critical/high vulnerabilities are unresolved unless explicitly approved with mitigation.
+
+## 5) Operational security readiness
+
+- Ensure audit-friendly logs for authentication, authorization, and privileged actions.
+- Define incident response basics for compromise, abuse, and outage scenarios.
+- Validate backup and restore procedures for critical data.
+
+## 6) Security review gate
+
+- Before phase completion, confirm:
+  - Threats for the new/changed flow were considered
+  - Security controls are implemented and tested
+  - No unresolved critical security issues remain

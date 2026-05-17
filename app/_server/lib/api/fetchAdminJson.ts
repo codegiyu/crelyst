@@ -25,3 +25,15 @@ export async function fetchAdminJson<T>(
     throw e;
   }
 }
+
+/** Same as {@link fetchAdminJson} but returns null on failure (except auth redirects). */
+export async function fetchAdminJsonOrNull<T>(
+  path: string,
+  options: Omit<ServerFetchOptions, 'forwardAuthCookies'> = {}
+): Promise<T | null> {
+  try {
+    return await fetchAdminJson<T>(path, options);
+  } catch {
+    return null;
+  }
+}
