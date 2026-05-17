@@ -2,9 +2,14 @@
 
 import { PageHeroSection } from '@/components/general/PageHeroSection';
 
-export const HeroSection = () => {
+type HeroSectionProps = {
+  immediate?: boolean;
+};
+
+export const HeroSection = ({ immediate }: HeroSectionProps = {}) => {
   return (
     <PageHeroSection
+      immediate={immediate}
       bannerImage="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1920&auto=format&fit=crop"
       badge="About Us"
       title="Where Ideas Take Shape"
