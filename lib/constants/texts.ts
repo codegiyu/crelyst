@@ -48,12 +48,17 @@ export const SEO_DETAILS = {
 
 export const CRELYST_TAGLINE = 'Where Ideas Take Shape and Colors Speak.';
 
+export const HEADER_CTA = {
+  text: 'Start Your Project',
+  href: '/contact',
+} as const;
+
 export const NAV_LINKS: HeaderLinkProps[] = [
   // { text: 'Home', href: '/' },
   { text: 'About', href: '/about' },
   { text: 'Services', href: '/services' },
   { text: 'Projects', href: '/projects' },
   { text: 'Work With Us', href: '/work-with-us' },
-  { text: 'Contact', href: '/contact' },
+  { text: 'Contact', href: '/contact', showInFooterOnly: true },
   { text: 'Admin', href: '/admin', showInFooterOnly: true },
 ];
