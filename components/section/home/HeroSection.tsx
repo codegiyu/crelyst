@@ -124,7 +124,7 @@ export const HeroSection = () => {
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base md:text-lg lg:text-xl text-foreground/90 max-w-3xl mx-auto mb-10 leading-relaxed">
-            We're a full-service design and branding agency specializing in photography, brand
+            We&apos;re a full-service design and branding agency specializing in photography, brand
             design, product design, packaging, and visual identity. We help brands express their
             unique personality through powerful visuals and storytelling.
           </motion.p>

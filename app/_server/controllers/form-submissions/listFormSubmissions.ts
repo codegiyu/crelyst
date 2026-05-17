@@ -1,9 +1,10 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
+import { validateQuery } from '../../lib/api/validateQuery';
+import { formSubmissionsListQuerySchema } from '../../lib/validation/listQuery';
 import {
   listFormSubmissions as listFormSubmissionsRepo,
   countUnreadByFormType,
-  type FormSubmissionFormType,
 } from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 
@@ -22,17 +23,14 @@ export const listFormSubmissions: RouteHandler = async ({ request, user }) => {
   }
 
   const url = new URL(request.url);
-  const formType = url.searchParams.get('formType') as FormSubmissionFormType | null;
-  if (formType !== 'quote-request' && formType !== 'work-with-us') {
-    throw new AppError('formType must be quote-request or work-with-us', 400);
-  }
-
-  const limit = parseInt(url.searchParams.get('limit') || '50', 10);
-  const cursor = url.searchParams.get('cursor');
+  const { formType, limit, cursor } = validateQuery(
+    formSubmissionsListQuerySchema,
+    url.searchParams
+  );
 
   const [{ items, total, nextCursor, hasMore, limit: appliedLimit }, unreadCount] =
     await Promise.all([
-      listFormSubmissionsRepo(formType, { limit, cursor: cursor || null }),
+      listFormSubmissionsRepo(formType, { limit, cursor }),
       countUnreadByFormType(formType),
     ]);
   const submissions = items.map(item =>

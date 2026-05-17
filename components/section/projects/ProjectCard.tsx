@@ -3,6 +3,7 @@
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { ClientProject } from '@/lib/constants/endpoints';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Star } from 'lucide-react';
 
@@ -25,10 +26,12 @@ export const ProjectCard = ({ project, index }: ProjectCardProps) => {
         {/* Image */}
         <div className="relative aspect-[4/3] bg-muted overflow-hidden">
           {project.cardImage || project.featuredImage ? (
-            <img
-              src={project.cardImage || project.featuredImage}
+            <Image
+              src={project.cardImage || project.featuredImage || ''}
               alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">

@@ -5,12 +5,10 @@
 
 function setupReactCompatibility() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const React = require('react');
 
     if (React && !React.version) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const reactPackage = require('react/package.json');
         if (reactPackage?.version) {
           Object.defineProperty(React, 'version', {
@@ -39,7 +37,7 @@ function setupReactCompatibility() {
 function getRenderFunction() {
   try {
     setupReactCompatibility();
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+
     const renderModule = require('@react-email/render');
     return renderModule.render || renderModule.default || renderModule;
   } catch (error) {

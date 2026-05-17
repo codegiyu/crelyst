@@ -1,5 +1,7 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
+import { validateQuery } from '../../lib/api/validateQuery';
+import { auditLogsListQuerySchema } from '../../lib/validation/listQuery';
 import { listAuditLogs as listAuditLogsRepo } from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 
@@ -14,13 +16,11 @@ export const listAuditLogs: RouteHandler = async ({ request, user }) => {
   }
 
   const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get('limit') || '50', 10);
-  const cursor = url.searchParams.get('cursor');
-  const q = url.searchParams.get('q');
+  const { limit, cursor, q } = validateQuery(auditLogsListQuerySchema, url.searchParams);
 
   const result = await listAuditLogsRepo({
     limit,
-    cursor: cursor || null,
+    cursor,
     query: q,
   });
 

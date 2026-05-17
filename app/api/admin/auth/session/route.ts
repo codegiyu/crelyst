@@ -3,6 +3,7 @@ import { adminAuth } from '@/lib/firebase/admin';
 import { extractToken, resolveConsoleAdminFromToken } from '@/lib/middleware/auth';
 import { ensureAdminProfile } from '@/app/_server/lib/auth/ensureAdminProfile';
 import { sendResponse } from '@/app/_server/lib/utils/appResponse';
+import { logger } from '@/app/_server/lib/utils/logger';
 
 const LOG_PREFIX = '[api/admin/auth/session]';
 
@@ -19,24 +20,24 @@ export async function GET(request: NextRequest) {
     const token = extractToken(request);
 
     if (!token) {
-      console.warn(LOG_PREFIX, 'exit: no token');
+      logger.warn(`${LOG_PREFIX} exit: no token`);
       return sendResponse(200, { admin: null }, 'No active session');
     }
 
     step = 'adminAuth';
     if (!adminAuth) {
-      console.warn(LOG_PREFIX, 'exit: adminAuth not initialized');
+      logger.warn(`${LOG_PREFIX} exit: adminAuth not initialized`);
       return sendResponse(200, { admin: null }, 'Auth not configured');
     }
 
     step = 'resolveConsoleAdminFromToken';
     const resolved = await resolveConsoleAdminFromToken(token);
     if (resolved.status === 'invalid_token') {
-      console.warn(LOG_PREFIX, 'exit: invalid or unverifiable token');
+      logger.warn(`${LOG_PREFIX} exit: invalid or unverifiable token`);
       return sendResponse(200, { admin: null }, 'Invalid token');
     }
     if (resolved.status === 'forbidden') {
-      console.warn(LOG_PREFIX, 'exit: not a console admin');
+      logger.warn(`${LOG_PREFIX} exit: not a console admin`);
       return sendResponse(200, { admin: null }, 'Admin access required');
     }
 
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
     try {
       profile = await ensureAdminProfile(resolved.user);
     } catch (e) {
-      console.error(LOG_PREFIX, 'exit: ensureAdminProfile failed', e);
+      logger.error(`${LOG_PREFIX} exit: ensureAdminProfile failed`, e);
       return sendResponse(200, { admin: null }, 'Profile not found');
     }
 
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     return sendResponse(200, { admin }, 'Session retrieved');
   } catch (error) {
-    console.error(LOG_PREFIX, 'threw during step:', step, error);
+    logger.error(`${LOG_PREFIX} threw during step: ${step}`, error);
     return sendResponse(200, { admin: null }, 'Session error');
   }
 }

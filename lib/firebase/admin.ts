@@ -15,31 +15,34 @@ import { ENVIRONMENT } from '@/lib/config/environment';
 const pemDiagOnce = globalThis as typeof globalThis & { __crelystFirebasePemDiagLogged?: boolean };
 
 /** Safe diagnostics for Coolify/Docker PEM issues — never log the full private key. */
-function logFirebaseAdminPrivateKeyDiagnostics(): void {
-  if (pemDiagOnce.__crelystFirebasePemDiagLogged) return;
-  pemDiagOnce.__crelystFirebasePemDiagLogged = true;
+// function logFirebaseAdminPrivateKeyDiagnostics(): void {
+//   if (pemDiagOnce.__crelystFirebasePemDiagLogged) return;
+//   pemDiagOnce.__crelystFirebasePemDiagLogged = true;
 
-  const fa = ENVIRONMENT.FIREBASE_ADMIN;
-  const nk = fa.PRIVATE_KEY;
-  console.log('nk', nk);
-  const lines = nk ? nk.split('\n') : [];
-  const firstLine = lines[0] ?? '(empty)';
-  const lastLine = lines.length > 0 ? lines[lines.length - 1] : '(empty)';
-  console.info('[Firebase Admin] PEM diagnostics (private key material is not logged):', {
-    projectIdSet: Boolean(fa.PROJECT_ID),
-    clientEmailSet: Boolean(fa.CLIENT_EMAIL),
-    rawCharLength: fa.PRIVATE_KEY_RAW_CHAR_LENGTH,
-    normalizedCharLength: nk?.length ?? 0,
-    normalizedLineCount: lines.length,
-    rawBackslashNSequenceCount: fa.PRIVATE_KEY_RAW_BACKSLASH_N_COUNT,
-    normalizedNewlineCount: nk ? (nk.match(/\n/g) ?? []).length : 0,
-    pemFirstLine: firstLine,
-    pemSecondLine: lines[1] ?? '(empty)',
-    pemLastLine: lastLine,
-    pemLooksLikePkcs8:
-      firstLine.includes('BEGIN PRIVATE KEY') && lastLine.includes('END PRIVATE KEY'),
-  });
-}
+//   const fa = ENVIRONMENT.FIREBASE_ADMIN;
+//   const nk = fa.PRIVATE_KEY;
+
+//   console.log('nk', nk);
+
+//   const lines = nk ? nk.split('\n') : [];
+//   const firstLine = lines[0] ?? '(empty)';
+//   const lastLine = lines.length > 0 ? lines[lines.length - 1] : '(empty)';
+
+//   console.info('[Firebase Admin] PEM diagnostics (private key material is not logged):', {
+//     projectIdSet: Boolean(fa.PROJECT_ID),
+//     clientEmailSet: Boolean(fa.CLIENT_EMAIL),
+//     rawCharLength: fa.PRIVATE_KEY_RAW_CHAR_LENGTH,
+//     normalizedCharLength: nk?.length ?? 0,
+//     normalizedLineCount: lines.length,
+//     rawBackslashNSequenceCount: fa.PRIVATE_KEY_RAW_BACKSLASH_N_COUNT,
+//     normalizedNewlineCount: nk ? (nk.match(/\n/g) ?? []).length : 0,
+//     pemFirstLine: firstLine,
+//     pemSecondLine: lines[1] ?? '(empty)',
+//     pemLastLine: lastLine,
+//     pemLooksLikePkcs8:
+//       firstLine.includes('BEGIN PRIVATE KEY') && lastLine.includes('END PRIVATE KEY'),
+//   });
+// }
 
 const globalForFirebase = globalThis as typeof globalThis & {
   __crelystFirebaseAdmin?: {
@@ -75,10 +78,15 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
         }),
       });
 
+      // eslint-disable-next-line no-console
       console.log('adminApp initialized');
       adminAuth = getAuth(adminApp);
+
+      // eslint-disable-next-line no-console
       console.log('adminAuth initialized');
       adminDb = getFirestore(adminApp);
+
+      // eslint-disable-next-line no-console
       console.log('adminDb initialized');
       globalForFirebase.__crelystFirebaseAdmin = { adminApp, adminAuth, adminDb };
     } else {
@@ -89,9 +97,11 @@ if (cached?.adminDb && cached.adminAuth && cached.adminApp) {
   }
 } else {
   const app = getApps()[0];
+
   adminApp = app;
   adminAuth = getAuth(app);
   adminDb = getFirestore(app);
+
   globalForFirebase.__crelystFirebaseAdmin = { adminApp, adminAuth, adminDb };
 }
 

@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -105,17 +104,6 @@ export const AppDetailsTab = ({ settings }: AppDetailsTabProps) => {
     logoUpload.clearFile();
     setFormValues(prev => ({ ...prev, logo: '' }));
   };
-
-  // Update form when settings change
-  useEffect(() => {
-    if (settings.appDetails) {
-      setFormValues({
-        appName: settings.appDetails.appName || '',
-        description: settings.appDetails.description || '',
-        logo: settings.appDetails.logo ?? '',
-      });
-    }
-  }, [settings.appDetails?.appName, settings.appDetails?.description, settings.appDetails?.logo]);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">

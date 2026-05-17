@@ -24,12 +24,14 @@ export const adminSearch: RouteHandler = async ({ request, user }) => {
     throw new AppError('Search query must be at least 2 characters', 400);
   }
 
+  const SEARCH_FETCH_LIMIT = 50;
+
   const [servicesR, projectsR, brandsR, testimonialsR, teamR] = await Promise.all([
-    listServices({ limit: 200, page: 1 }),
-    listProjects({ limit: 200, page: 1 }),
-    listBrands({ limit: 200, page: 1 }),
-    listTestimonials({ limit: 200, page: 1 }),
-    listTeamMembers({ limit: 200, page: 1 }),
+    listServices({ limit: SEARCH_FETCH_LIMIT, page: 1 }),
+    listProjects({ limit: SEARCH_FETCH_LIMIT, page: 1 }),
+    listBrands({ limit: SEARCH_FETCH_LIMIT, page: 1 }),
+    listTestimonials({ limit: SEARCH_FETCH_LIMIT, page: 1 }),
+    listTeamMembers({ limit: SEARCH_FETCH_LIMIT, page: 1 }),
   ]);
 
   type Svc = {

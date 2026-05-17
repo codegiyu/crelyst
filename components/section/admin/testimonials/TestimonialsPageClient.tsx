@@ -305,7 +305,7 @@ const TestimonialCard = ({
 
         {/* Quote */}
         <p className="text-sm text-muted-foreground line-clamp-4 italic">
-          "{testimonial.testimonial}"
+          &ldquo;{testimonial.testimonial}&rdquo;
         </p>
 
         {/* Badges and Company Logo */}

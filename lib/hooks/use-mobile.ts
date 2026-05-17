@@ -1,21 +1,28 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useMemo, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 const MOBILE_BREAKPOINT = 768;
 
+function subscribe(query: string, onChange: () => void) {
+  const mql = window.matchMedia(query);
+  mql.addEventListener('change', onChange);
+  return () => mql.removeEventListener('change', onChange);
+}
+
+function getSnapshot(query: string, breakpoint: number) {
+  return () => window.innerWidth < breakpoint;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 export function useIsMobile(width?: number) {
-  const queryString = useMemo(() => `(max-width: ${width ?? MOBILE_BREAKPOINT - 1}px)`, [width]);
-  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
+  const breakpoint = width ?? MOBILE_BREAKPOINT;
+  const query = `(max-width: ${breakpoint - 1}px)`;
 
-  useEffect(() => {
-    const mql = window.matchMedia(queryString);
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
-    mql.addEventListener('change', onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    return () => mql.removeEventListener('change', onChange);
-  }, [queryString]);
-
-  return !!isMobile;
+  return useSyncExternalStore(
+    onChange => subscribe(query, onChange),
+    getSnapshot(query, breakpoint),
+    getServerSnapshot
+  );
 }

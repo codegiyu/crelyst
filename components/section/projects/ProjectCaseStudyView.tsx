@@ -10,6 +10,7 @@ import type { CaseStudyParagraph, SectionHeading } from '@/lib/types/project-cas
 import type { AdjacentProjectNav } from '@/lib/ssr/adjacentPublishedProjects';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 function DynamicHeading({
   heading,
@@ -222,11 +223,13 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                 <ParagraphBlock paragraphs={cs.logoDesign.breakdown} />
               </Section>
               <Section delay={0.15}>
-                <div className="rounded-xl overflow-hidden border border-border">
-                  <img
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border">
+                  <Image
                     src={cs.logoDesign.gridImage}
                     alt="Logo construction"
-                    className="w-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                   />
                 </div>
               </Section>
@@ -291,9 +294,12 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
         <div className="w-full flex flex-col">
           {vi.identityImages.map((img, idx) => (
             <Section key={idx}>
-              <img
+              <Image
                 src={img}
                 alt={`Visual identity ${idx + 1}`}
+                width={1920}
+                height={1080}
+                sizes="100vw"
                 className="w-full h-auto object-cover"
               />
             </Section>
@@ -318,9 +324,12 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
           <div className="w-full flex flex-col">
             {apps.images.map((img, idx) => (
               <Section key={idx}>
-                <img
+                <Image
                   src={img}
                   alt={`Brand application ${idx + 1}`}
+                  width={1920}
+                  height={1080}
+                  sizes="100vw"
                   className="w-full h-auto object-cover"
                 />
               </Section>

@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
@@ -43,7 +42,6 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
     handleInputChange,
     handleSubmit,
     setFormErrors,
-    setFormValues,
   } = useForm<typeof contactInfoSchema>({
     formSchema: contactInfoSchema,
     defaultFormValues: {
@@ -91,27 +89,6 @@ export const ContactInfoTab = ({ settings }: ContactInfoTabProps) => {
       return true;
     },
   });
-
-  // Update form and arrays when settings change
-  useEffect(() => {
-    if (settings.contactInfo) {
-      setFormValues({
-        whatsapp: settings.contactInfo.whatsapp || '',
-        locationUrl: settings.contactInfo.locationUrl || '',
-        mapsEmbedUrl: settings.contactInfo.mapsEmbedUrl || '',
-      });
-      setAddresses(settings.contactInfo.address?.length ? settings.contactInfo.address : ['']);
-      setPhones(settings.contactInfo.tel?.length ? settings.contactInfo.tel : ['']);
-      setEmails(settings.contactInfo.email?.length ? settings.contactInfo.email : ['']);
-    }
-  }, [
-    settings.contactInfo?.whatsapp,
-    settings.contactInfo?.locationUrl,
-    settings.contactInfo?.mapsEmbedUrl,
-    settings.contactInfo?.address,
-    settings.contactInfo?.tel,
-    settings.contactInfo?.email,
-  ]);
 
   // Array helpers
   const handleArrayAdd = (setter: React.Dispatch<React.SetStateAction<string[]>>) => {

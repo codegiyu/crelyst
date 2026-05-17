@@ -1,17 +1,12 @@
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
-import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
 
 const eslintConfig = [
+  ...nextCoreWebVitals,
   {
     ignores: [
-      '.next/**',
-      'out/**',
-      'build/**',
-      'next-env.d.ts',
-      'node_modules/**',
       'public/sw.js',
       'public/sw.js.map',
       'public/workbox-*.js',
@@ -21,29 +16,17 @@ const eslintConfig = [
       '**/*.config.ts',
       '**/*.config.js',
       '**/*.config.mjs',
-      '**/*.js',
+      'scripts/**/*.js',
     ],
   },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    languageOptions: {
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
     plugins: {
       prettier,
-      'react-hooks': reactHooks,
+      '@typescript-eslint': tseslint.plugin,
     },
     rules: {
       ...prettierConfig.rules,
-      ...reactHooks.configs.recommended.rules,
       'prettier/prettier': [
         'error',
         {
@@ -67,6 +50,13 @@ const eslintConfig = [
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  {
+    files: ['scripts/**/*.{js,ts}'],
+    rules: {
+      'no-console': 'off',
     },
   },
 ];

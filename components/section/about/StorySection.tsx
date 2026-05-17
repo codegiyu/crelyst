@@ -3,6 +3,7 @@
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
+import Image from 'next/image';
 import { useSiteStore } from '@/lib/store/siteStore';
 
 export const StorySection = () => {
@@ -18,8 +19,14 @@ export const StorySection = () => {
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
           className="relative">
-          <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted">
-            <img src="/images/bg-section-5.jpg" alt="" className="h-full w-full object-cover" />
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted">
+            <Image
+              src="/images/bg-section-5.jpg"
+              alt="Crelyst creative studio workspace"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
           </div>
           <div className="absolute -bottom-4 -right-4 -z-10 h-24 w-24 rounded-xl bg-accent/20" />
         </motion.div>

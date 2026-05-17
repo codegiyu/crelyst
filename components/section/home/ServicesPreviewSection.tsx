@@ -8,6 +8,7 @@ import type { ClientService } from '@/lib/constants/endpoints';
 import { DynamicIcon, LucideIconName } from '@/components/general/DynamicIcon';
 import { ArrowRight, Layers } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 
 const ServicePreviewCard = ({ service, index }: { service: ClientService; index: number }) => {
@@ -28,26 +29,30 @@ const ServicePreviewCard = ({ service, index }: { service: ClientService; index:
         className="group block h-full w-full rounded-2xl overflow-hidden relative border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl">
         {/* Background Image */}
         <div className="absolute inset-0">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={service.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 flex items-center justify-center">
-              {service.icon ? (
-                <DynamicIcon
-                  name={service.icon as LucideIconName}
-                  props={{
-                    className: 'w-16 h-16 text-primary/40',
-                  }}
-                />
-              ) : (
-                <Layers className="w-16 h-16 text-primary/40" />
-              )}
-            </div>
-          )}
+          <div className="w-full h-full relative">
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={service.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 flex items-center justify-center">
+                {service.icon ? (
+                  <DynamicIcon
+                    name={service.icon as LucideIconName}
+                    props={{
+                      className: 'w-16 h-16 text-primary/40',
+                    }}
+                  />
+                ) : (
+                  <Layers className="w-16 h-16 text-primary/40" />
+                )}
+              </div>
+            )}
+          </div>
           {/* Gradient Overlay - Darker on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 group-hover:from-black/85 group-hover:via-black/60 group-hover:to-black/30 transition-all duration-500" />
         </div>

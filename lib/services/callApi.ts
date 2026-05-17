@@ -94,7 +94,7 @@ export const callApi = async <T extends keyof AllEndpoints>(
     let apiError: ApiErrorResponse | undefined;
 
     if (axios.isCancel(error)) {
-      console.info('Request cancelled', error.message);
+      console.warn('Request cancelled', error.message);
       apiError = {
         message: error.message || 'Request cancelled',
         error: {},

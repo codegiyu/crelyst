@@ -1,48 +1,15 @@
 ---
-description: Standardize Express stack choices, architecture, and middleware defaults
-alwaysApply: true
+description: Disabled — this repo uses Next.js App Router API routes, not Express
+alwaysApply: false
 ---
 
-# Express Stack Standards
+# Express Stack Standards (disabled)
+
+This project does **not** use Express.js. Backend APIs live under `app/api/*` with `handleApiRoute` → controllers → Firestore (`app/_server/`). Do not apply Express-specific requirements (helmet, `/api/v1`, BullMQ, etc.) to this codebase.
+
+<!--
+Original rule body retained for reference only — not applied to agents.
 
 ## 1) Required backend baseline
-
-- Use Express.js with clear modular architecture and typed request/response boundaries where applicable.
-- Default project layering: `routes -> controllers -> services -> repositories`.
-- Keep route handlers thin; business logic belongs in services.
-
-## 2) Recommended core libraries
-
-- Validation: Zod (preferred) or Joi for request schemas.
-- Security headers: helmet.
-- CORS: cors with explicit environment-based allowlists.
-- Rate limiting: express-rate-limit with Redis-backed store for distributed environments.
-- Logging: pino (or equivalent structured logger) with request ID correlation.
-- Env/config validation: schema-validated config at startup.
-
-## 3) API conventions
-
-- Version APIs (for example: `/api/v1/...`).
-- Use consistent response and error shapes across endpoints.
-- Enforce pagination for list endpoints and bounded query parameters.
-- Avoid breaking changes without versioning or migration strategy.
-
-## 4) Reliability and async workloads
-
-- Offload heavy/non-immediate tasks to BullMQ workers.
-- Apply timeouts and retries for external dependencies.
-- Expose health and readiness endpoints.
-- Implement graceful shutdown for API and worker processes.
-
-## 5) Data and performance defaults
-
-- Require indexed query paths for high-traffic filters and sorting.
-- Use Redis caching for hot reads with explicit invalidation strategy.
-- Prevent N+1 patterns and unbounded collection scans.
-- Track and optimize endpoint latency using P95/P99 targets.
-
-## 6) Testing and delivery requirements
-
-- Follow TDD for new feature work: tests first, then implementation.
-- Add integration tests for route + service + persistence flows.
-- Block phase completion if active phase tests or security/performance gates fail.
+- Use Express.js with clear modular architecture...
+-->

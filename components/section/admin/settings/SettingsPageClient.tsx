@@ -29,6 +29,7 @@ import { FeaturesTab } from './tabs/FeaturesTab';
 import { LocalizationTab } from './tabs/LocalizationTab';
 import { AnalyticsTab } from './tabs/AnalyticsTab';
 import { Skeleton } from '@/components/ui/skeleton';
+import { settingsTabRemountKey } from '@/lib/utils/settingsTabKey';
 
 const SETTINGS_TABS = [
   'app-details',
@@ -141,27 +142,71 @@ export const SettingsPageClient = ({
 
     switch (activeTab) {
       case 'app-details':
-        return <AppDetailsTab settings={effective} />;
+        return (
+          <AppDetailsTab
+            key={settingsTabRemountKey('app-details', effective.appDetails)}
+            settings={effective}
+          />
+        );
       case 'contact-info':
-        return <ContactInfoTab settings={effective} />;
+        return (
+          <ContactInfoTab
+            key={settingsTabRemountKey('contact-info', effective.contactInfo)}
+            settings={effective}
+          />
+        );
       case 'socials':
-        return <SocialsTab settings={effective} />;
+        return (
+          <SocialsTab
+            key={settingsTabRemountKey('socials', effective.socials)}
+            settings={effective}
+          />
+        );
       case 'seo':
-        return <SEOTab settings={effective} />;
+        return <SEOTab key={settingsTabRemountKey('seo', effective.seo)} settings={effective} />;
       case 'branding':
-        return <BrandingTab settings={effective} />;
+        return (
+          <BrandingTab
+            key={settingsTabRemountKey('branding', effective.branding)}
+            settings={effective}
+          />
+        );
       case 'email':
-        return <EmailTab settings={effective} />;
+        return (
+          <EmailTab key={settingsTabRemountKey('email', effective.email)} settings={effective} />
+        );
       case 'legal':
-        return <LegalTab settings={effective} />;
+        return (
+          <LegalTab key={settingsTabRemountKey('legal', effective.legal)} settings={effective} />
+        );
       case 'features':
-        return <FeaturesTab settings={effective} />;
+        return (
+          <FeaturesTab
+            key={settingsTabRemountKey('features', effective.features)}
+            settings={effective}
+          />
+        );
       case 'localization':
-        return <LocalizationTab settings={effective} />;
+        return (
+          <LocalizationTab
+            key={settingsTabRemountKey('localization', effective.localization)}
+            settings={effective}
+          />
+        );
       case 'analytics':
-        return <AnalyticsTab settings={effective} />;
+        return (
+          <AnalyticsTab
+            key={settingsTabRemountKey('analytics', effective.analytics)}
+            settings={effective}
+          />
+        );
       default:
-        return <AppDetailsTab settings={effective} />;
+        return (
+          <AppDetailsTab
+            key={settingsTabRemountKey('app-details', effective.appDetails)}
+            settings={effective}
+          />
+        );
     }
   };
 

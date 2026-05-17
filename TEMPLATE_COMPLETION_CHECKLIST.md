@@ -8,12 +8,10 @@ This document outlines what's missing or needs improvement to make this a comple
 - ✅ Next.js 16 with App Router
 - ✅ TypeScript configuration
 - ✅ Tailwind CSS v4 setup
-- ✅ MongoDB/Mongoose integration
-- ✅ Redis caching
-- ✅ Admin panel with authentication (no user login as requested)
+- ✅ Firestore (Firebase Admin) data layer
+- ✅ Admin panel with authentication (no public user login)
 - ✅ File uploads (Cloudflare R2)
 - ✅ Email system (Nodemailer)
-- ✅ Job queues (BullMQ)
 - ✅ Error handling middleware
 - ✅ Request validation
 - ✅ Database seeding
@@ -42,12 +40,9 @@ LICENSE file has been created with MIT license.
 Error boundary page created at `app/error.tsx` with proper error handling and UI.
 
 ### 4. Loading States
-**Priority: MEDIUM**
+**Priority: MEDIUM** (partial)
 
-Missing loading.tsx files for:
-- Root layout loading
-- Route-level loading states
-- Better UX during data fetching
+Route-level `loading.tsx` added for admin dashboard, projects, services, and about. Root layout loading still optional.
 
 ### 5. Comprehensive README
 **Priority: HIGH**
@@ -124,17 +119,16 @@ Documentation for:
 
 ### 6. Health Check Endpoint
 - Add `/api/health` endpoint for monitoring
-- Check database, Redis, and R2 connectivity
+- Check Firestore and R2 connectivity
 
 ### 7. Admin Documentation
 - Document default admin credentials
 - Admin panel feature guide
 - Permission system explanation
 
-### 8. Testing Setup (Optional)
-- Jest/Vitest configuration
-- Test examples for common patterns
-- CI/CD examples
+### 8. Testing Setup
+- ✅ Vitest with `test:unit`, `test:integration`, and `test:phase` scripts
+- Optional: CI/CD pipeline and E2E (Playwright)
 
 ## 📋 Quick Start Checklist for New Users
 
@@ -158,9 +152,20 @@ Once completed, users should be able to:
 7. **Add loading states** - Improves UX
 8. **Create CHANGELOG.md** - For version tracking
 
+## Release readiness checklist
+
+Before deploy, run:
+
+- `npm run lint`
+- `npm run format:check`
+- `npm run test:phase`
+- `npm run build`
+
+Verify admin auth, public form submission, and critical content pages manually.
+
 ## 📝 Notes
 
 - The template is functionally complete but needs better documentation
-- Environment variables are scattered and need central documentation
+- Environment variables are documented in SETUP.md
 - Admin panel works but needs usage documentation
-- Database seeding is automatic but needs explanation
+- Firestore seeding can run on API readiness when enabled via env

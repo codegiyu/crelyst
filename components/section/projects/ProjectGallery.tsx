@@ -7,6 +7,7 @@ import { useSiteStore } from '@/lib/store/siteStore';
 import { ClientProject } from '@/lib/constants/endpoints';
 import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 interface ProjectGalleryProps {
   project: ClientProject;
@@ -62,11 +63,13 @@ export const ProjectGallery = ({ project }: ProjectGalleryProps) => {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 onClick={() => openLightbox(index)}
-                className="aspect-square rounded-xl overflow-hidden bg-muted hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                <img
+                className="relative aspect-square rounded-xl overflow-hidden bg-muted hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <Image
                   src={image}
                   alt={`${project.title} - Image ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover"
                 />
               </motion.button>
             ))}
@@ -109,11 +112,15 @@ export const ProjectGallery = ({ project }: ProjectGalleryProps) => {
           )}
 
           {/* Image */}
-          <div className="max-w-5xl max-h-[85vh] px-4" onClick={e => e.stopPropagation()}>
-            <img
+          <div
+            className="relative h-[85vh] w-full max-w-5xl px-4"
+            onClick={e => e.stopPropagation()}>
+            <Image
               src={images[currentIndex]}
               alt={`${project.title} - Image ${currentIndex + 1}`}
-              className="max-w-full max-h-[85vh] object-contain rounded-lg"
+              fill
+              sizes="100vw"
+              className="object-contain rounded-lg"
             />
           </div>
 
