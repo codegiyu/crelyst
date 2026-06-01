@@ -1,0 +1,434 @@
+'use client';
+
+import { useEffect } from 'react';
+import Link from 'next/link';
+import { ArrowRight, Briefcase, Play } from 'lucide-react';
+import { useSiteStore } from '@/lib/store/siteStore';
+import { RegularBtn } from '@/components/atoms/RegularBtn';
+import { GhostBtn } from '@/components/atoms/GhostBtn';
+import { SectionHeading } from '@/components/general/SectionHeading';
+import { PageHeroSection } from '@/components/general/PageHeroSection';
+import { SectionContainer } from '@/components/general/SectionContainer';
+import { HeroSection } from '@/components/section/home/HeroSection';
+import { ProjectsPreviewSection } from '@/components/section/home/ProjectsPreviewSection';
+import { ProjectPreviewCard } from '@/components/section/home/ProjectPreviewCard';
+import { WhatWeCreateCard } from '@/components/section/home/WhatWeCreateCard';
+import { ProjectCard } from '@/components/section/projects/ProjectCard';
+import { ServiceCard } from '@/components/section/services/ServiceCard';
+import { ProjectDetailHero } from '@/components/section/projects/ProjectDetailHero';
+import { ServiceDetailHero } from '@/components/section/services/ServiceDetailHero';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+  designColors,
+  designRadii,
+  designShadows,
+  designSpacing,
+  designTypeScale,
+  designTypography,
+  styleguideNav,
+  styleguideSectionIds,
+} from '@/lib/design-tokens';
+import { useStyleguideScrollspy } from '@/hooks/use-styleguide-scrollspy';
+import {
+  styleguideBannerProject,
+  styleguideCaseStudyProject,
+  styleguideListingProject,
+  styleguidePreviewProjects,
+  styleguideService,
+  styleguideWhatWeCreateCards,
+} from '@/lib/fixtures/styleguideMocks';
+import { cn } from '@/lib/utils';
+import { StyleguidePreviewBox, StyleguideSection } from './StyleguideSection';
+
+const buttonVariantKeys = [
+  'default',
+  'destructive',
+  'outline',
+  'secondary',
+  'ghost',
+  'link',
+  'hero',
+  'accent',
+] as const;
+
+export const StyleguideView = () => {
+  const setSiteLoading = useSiteStore(s => s.actions.setSiteLoading);
+  const activeSectionId = useStyleguideScrollspy(
+    styleguideSectionIds,
+    styleguideSectionIds[0] ?? 'foundations'
+  );
+
+  useEffect(() => {
+    setSiteLoading(false);
+  }, [setSiteLoading]);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="regular-container py-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-primary text-sm tracking-[0.3em] uppercase mb-1">Internal</p>
+            <h1 className="text-xl font-bold font-sans">Crelyst Styleguide</h1>
+          </div>
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            Back to site
+          </Link>
+        </div>
+      </header>
+
+      <div className="regular-container py-10 lg:py-14">
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-12">
+          <nav
+            aria-label="Styleguide sections"
+            className="hidden lg:block sticky top-24 self-start w-52 shrink-0">
+            <ul className="space-y-1 text-sm">
+              {styleguideNav.map(item => {
+                const isActive = activeSectionId === item.id;
+
+                return (
+                  <li key={item.id}>
+                    <a
+                      href={`#${item.id}`}
+                      aria-current={isActive ? 'location' : undefined}
+                      className={cn(
+                        'block rounded-md border-l-2 py-2 pl-3 pr-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        isActive
+                          ? 'border-primary bg-primary/10 font-medium text-primary'
+                          : 'border-transparent text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground'
+                      )}>
+                      {item.label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="min-w-0">
+            <StyleguideSection
+              id="foundations"
+              title="Foundations"
+              description="Colors, typography, spacing, radius, and shadows from Figma (desktop) and globals.css.">
+              <div className="space-y-10">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Colors</h3>
+                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {designColors.map(c => (
+                      <div key={c.name} className="rounded-lg border border-border overflow-hidden">
+                        <div
+                          className="h-16 w-full"
+                          style={{ background: `hsl(var(${c.cssVar}))` }}
+                        />
+                        <div className="p-3 text-sm space-y-1">
+                          <p className="font-medium">{c.name}</p>
+                          <p className="text-muted-foreground font-mono text-xs">{c.cssVar}</p>
+                          <p className="text-muted-foreground text-xs">{c.hex}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Typography families</h3>
+                  <div className="grid gap-4">
+                    {designTypography.map(t => (
+                      <StyleguidePreviewBox key={t.name} label={t.name}>
+                        <p className={cn('text-2xl md:text-3xl', t.cssClass)}>{t.sample}</p>
+                        <p className="mt-2 text-xs text-muted-foreground">{t.family}</p>
+                      </StyleguidePreviewBox>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Type scale</h3>
+                  <div className="space-y-6">
+                    {designTypeScale.map(scale => (
+                      <div key={scale.label}>
+                        <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">
+                          {scale.label}
+                        </p>
+                        <p className={scale.classes}>
+                          {scale.label === 'Eyebrow label' ? 'Project Overview' : 'Sample text'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Spacing & layout</h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {designSpacing.map(s => (
+                        <li key={s.name}>
+                          <code className="text-primary">{s.utility}</code> — {s.note}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Radius & shadows</h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground mb-4">
+                      {designRadii.map(r => (
+                        <li key={r.name}>
+                          <span className="text-foreground">{r.name}</span>
+                          {'value' in r && r.value ? ` — ${r.value}` : ''}
+                          {'note' in r && r.note ? ` — ${r.note}` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex flex-wrap gap-4">
+                      {designShadows.map(s => (
+                        <div
+                          key={s.name}
+                          className={cn(
+                            'w-32 h-20 rounded-xl bg-card border border-border flex items-center justify-center text-xs',
+                            s.utility
+                          )}>
+                          {s.name}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="buttons"
+              title="Buttons & CTAs"
+              description="shadcn button variants, RegularBtn, and patterns used on the homepage and projects section.">
+              <div className="space-y-8">
+                <StyleguidePreviewBox label="Button variants">
+                  <div className="flex flex-wrap gap-3">
+                    {buttonVariantKeys.map(v => (
+                      <Button key={v} variant={v}>
+                        {v}
+                      </Button>
+                    ))}
+                  </div>
+                </StyleguidePreviewBox>
+
+                <StyleguidePreviewBox label="Homepage hero CTAs (production)">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <RegularBtn
+                      linkProps={{ href: '/contact' }}
+                      className="px-8 py-6 text-lg group"
+                      RightIcon={ArrowRight}
+                      rightIconProps={{
+                        className: 'size-5 group-hover:translate-x-1 transition-transform',
+                      }}
+                      text="Request a Quote"
+                    />
+                    <GhostBtn
+                      linkProps={{ href: '/projects' }}
+                      size="none"
+                      className="flex items-center gap-3 px-6 py-3 text-foreground hover:text-primary transition-colors group">
+                      <span className="w-12 h-12 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
+                        <Play className="w-5 h-5 ml-0.5" />
+                      </span>
+                      <span className="font-medium">See Our Work</span>
+                    </GhostBtn>
+                  </div>
+                </StyleguidePreviewBox>
+
+                <StyleguidePreviewBox label="Projects section CTA">
+                  <RegularBtn
+                    linkProps={{ href: '/projects' }}
+                    variant="outline"
+                    RightIcon={ArrowRight}
+                    rightIconProps={{ className: 'size-4' }}
+                    text="View All Projects"
+                    className="px-8"
+                  />
+                </StyleguidePreviewBox>
+
+                <StyleguidePreviewBox label="Utility classes">
+                  <div className="flex flex-wrap gap-3">
+                    <button type="button" className={buttonVariants({ variant: 'hero' })}>
+                      btn-hero variant
+                    </button>
+                    <button type="button" className="btn-hero px-6 py-3 rounded-[6px]">
+                      .btn-hero
+                    </button>
+                    <button type="button" className="btn-accent px-6 py-3 rounded-[6px]">
+                      .btn-accent
+                    </button>
+                  </div>
+                </StyleguidePreviewBox>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="headings"
+              title="Section headings"
+              description="SectionHeading as used on the homepage projects block and about page.">
+              <div className="space-y-12">
+                <StyleguidePreviewBox label="Centered with icon">
+                  <SectionHeading
+                    immediate
+                    Icon={Briefcase}
+                    title="Our Creative Work"
+                    text="Discover how we've helped brands express their unique personality through powerful visuals and storytelling"
+                  />
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Left-aligned">
+                  <SectionHeading
+                    immediate
+                    title="The Crelyst Story"
+                    text="Where creativity meets purpose"
+                    className="text-start mb-0"
+                  />
+                </StyleguidePreviewBox>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="page-heroes"
+              title="Page heroes (listing / marketing)"
+              description="PageHeroSection for About, Services index, etc.">
+              <div className="space-y-8">
+                <StyleguidePreviewBox label="With banner image" className="p-0 overflow-hidden">
+                  <PageHeroSection
+                    immediate
+                    bannerImage="https://images.unsplash.com/photo-1558655146-364adaf1fcc9?q=80&w=1920&auto=format&fit=crop"
+                    badge="What We Offer"
+                    title="Our Creative Services"
+                    description="From photography to packaging, we offer a full range of design and branding services."
+                    titleFont="sans"
+                  />
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox
+                  label="Gradient + pattern (no banner)"
+                  className="p-0 overflow-hidden">
+                  <PageHeroSection
+                    immediate
+                    badge="About"
+                    title="Who We Are"
+                    description="A full-service design and branding agency."
+                    titleFont="serif"
+                  />
+                </StyleguidePreviewBox>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="detail-heroes"
+              title="Detail page heroes"
+              description="Project and service single-page headers.">
+              <div className="space-y-8">
+                <StyleguidePreviewBox
+                  label="Project — case study layout"
+                  className="p-0 overflow-hidden">
+                  <ProjectDetailHero project={styleguideCaseStudyProject} />
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Project — banner hero" className="p-0 overflow-hidden">
+                  <ProjectDetailHero project={styleguideBannerProject} />
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Service detail hero" className="p-0 overflow-hidden">
+                  <ServiceDetailHero service={styleguideService} />
+                </StyleguidePreviewBox>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="cards"
+              title="Cards"
+              description="Listing cards, homepage overlay previews, and What We Create service cards (Figma Landing Page — Desktop).">
+              <div className="space-y-10">
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
+                    What We Create — Figma landing cards
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
+                    Image card with bottom gradient, orange eyebrow, and white title. Wide +
+                    standard pair as on Crelyst Landing Page (Desktop).
+                  </p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] md:gap-5 max-w-5xl">
+                    {styleguideWhatWeCreateCards.map((entry, index) => (
+                      <WhatWeCreateCard
+                        key={entry.service.slug}
+                        service={entry.service}
+                        index={index}
+                        eyebrow={entry.eyebrow}
+                        layout={entry.layout}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
+                    Project listing card
+                  </h3>
+                  <div className="max-w-sm">
+                    <ProjectCard project={styleguideListingProject} index={0} />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
+                    Service listing card
+                  </h3>
+                  <div className="max-w-sm">
+                    <ServiceCard service={styleguideService} index={0} />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
+                    Homepage preview cards
+                  </h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <ProjectPreviewCard
+                      project={styleguidePreviewProjects[0]!}
+                      index={0}
+                      featured
+                    />
+                    <ProjectPreviewCard project={styleguidePreviewProjects[1]!} index={1} />
+                  </div>
+                </div>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="homepage"
+              title="Homepage patterns (frozen)"
+              description="Production HeroSection and ProjectsPreviewSection — do not restyle without explicit approval.">
+              <div className="space-y-8">
+                <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 text-sm text-foreground/90">
+                  Production reference — homepage hero and projects grid structure must remain
+                  unchanged on the live site.
+                </div>
+                <StyleguidePreviewBox label="HeroSection" className="p-0 overflow-hidden">
+                  <div className="relative border-b border-border">
+                    <HeroSection />
+                  </div>
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox
+                  label="ProjectsPreviewSection"
+                  className="p-0 overflow-hidden">
+                  <ProjectsPreviewSection projects={styleguidePreviewProjects} />
+                </StyleguidePreviewBox>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="layout"
+              title="Layout utilities"
+              description="SectionContainer and container widths.">
+              <StyleguidePreviewBox label="SectionContainer + regular-container">
+                <SectionContainer className="bg-muted/30 rounded-lg border border-dashed border-border">
+                  <p className="text-center text-muted-foreground text-sm py-8">
+                    Content inside SectionContainer uses regular-container padding and max-width.
+                  </p>
+                </SectionContainer>
+              </StyleguidePreviewBox>
+            </StyleguideSection>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

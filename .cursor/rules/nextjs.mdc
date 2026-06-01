@@ -1,0 +1,45 @@
+---
+description: Next.js guard rails for crelyst (App Router, internal API, Firestore)
+globs: app/**/*.{ts,tsx}, components/**/*.{ts,tsx}, lib/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# crelyst — Next.js Guard Rails
+
+## File and routing
+
+- App Router only (`app/`). No `pages/` router.
+- Do not delete route segments, `loading.tsx`, or admin auth shells without user confirmation.
+- Public marketing routes and `app/admin/*` share patterns—preserve admin layout guards when adding admin pages.
+
+## Data layer (internal API, not Express)
+
+- Domain APIs live under `app/api/*` and delegate to `handleApiRoute` in `app/_server/lib/api/routeHandler.ts`.
+- Controllers and Firestore access live under `app/_server/controllers/` and `app/_server/lib/firestore/`.
+- **Server Components**: prefer `serverFetchJson` / `serverFetchJsonOrNull` from `app/_server/lib/api/serverFetch.ts` for reads.
+- **Client Components**: use `callApi` from `lib/services/callApi.ts` with typed endpoints in `lib/constants/endpoints.ts` (`/api` base).
+- Do not add a separate Express server inside this repo or call `crelyst-backend` unless the user explicitly wires integration.
+
+## Auth and admin
+
+- Admin auth uses Firebase + session cookies; preserve `protectRoutes` / access types on new admin API routes.
+- Admin mutations under `/api/admin` may trigger audit logging via `recordAdminAuditLog`—do not disable unless asked.
+
+## Components and styling
+
+- UI under `components/` + `components/ui/` (shadcn). Tailwind v4 via `app/globals.css`.
+- Zustand stores in `lib/` for client state where already used.
+
+## Styling and SEO
+
+- Extend Tailwind classes; avoid mass-replacing existing class strings.
+- Use `metadata` / shared SEO helpers on server pages.
+
+## Testing
+
+- Vitest projects: `test:unit`, `test:integration`, `test:phase` in `package.json`—add tests in the same style as existing `*.test.ts` / `*.integration.test.ts` under `app/_server/`.
+
+## Boundaries
+
+- Never import server-only modules (`app/_server/*`, `firebase-admin`) into Client Components.
+- Keep Zod validation aligned with existing API controller patterns.

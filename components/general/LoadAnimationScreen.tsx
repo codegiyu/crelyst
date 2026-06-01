@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { debounce } from '@/lib/utils/general';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Logo, LogoFull } from '../icons';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
@@ -18,13 +20,14 @@ type Particle = {
 };
 
 export const LoadAnimationScreen = () => {
+  const pathname = usePathname();
   const {
     siteLoading,
     actions: { setSiteLoading },
   } = useSiteStore(state => state);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const isInternalRoute = pathname?.startsWith('/internal') ?? false;
   const [animationPhase, setAnimationPhase] = useState<'logo' | 'logofull' | 'fadeout'>('logo');
-  // Generate floating particles with lazy initializer
   const [particles] = useState<Particle[]>(() =>
     Array.from({ length: 12 }, (_, i) => ({
       id: i,
@@ -37,6 +40,11 @@ export const LoadAnimationScreen = () => {
   );
 
   useEffect(() => {
+    if (isInternalRoute) {
+      setSiteLoading(false);
+      return;
+    }
+
     const handleLoad = async () => {
       // Phase 1: Show Logo icon (0-1.5s)
       await debounce(1500);
@@ -61,7 +69,11 @@ export const LoadAnimationScreen = () => {
     return () => {
       window.removeEventListener('load', handleLoad);
     };
-  }, []);
+  }, [isInternalRoute]);
+
+  if (isInternalRoute) {
+    return null;
+  }
 
   return (
     <>
