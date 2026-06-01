@@ -105,7 +105,7 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
               className={cn('lg:hidden', isTransparent && 'text-white hover:text-white/80')}
               wrapClassName="lg:hidden"
               iconClass={cn(
-                'size-6',
+                'size-10',
                 isMenuOpen ? 'text-destructive' : '',
                 isTransparent && !isMenuOpen && 'text-white'
               )}

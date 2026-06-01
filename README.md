@@ -107,6 +107,9 @@ APP_NAME=next-16-template
 APP_URL=http://localhost:3000
 NODE_ENV=development
 
+# Internal styleguide (production only): /internal/styleguide?key=YOUR_SECRET
+STYLEGUIDE_SECRET=
+
 # Database (MongoDB)
 DB_URL=mongodb://localhost:27017/your-database-name
 

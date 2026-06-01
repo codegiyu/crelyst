@@ -99,6 +99,10 @@ export interface IEnvironment {
     FOLDER_PREFIX: string;
   };
   COMPANIES: CompanyBrandingConfig;
+  STYLEGUIDE: {
+    /** Secret for `/internal/styleguide` in production (`?key=` or httpOnly cookie). */
+    SECRET: string | undefined;
+  };
 }
 
 export const ENVIRONMENT: IEnvironment = {
@@ -161,6 +165,9 @@ export const ENVIRONMENT: IEnvironment = {
     CDN_URL: process.env.R2_CDN_URL || '',
     PUBLIC_URL: process.env.R2_PUBLIC_URL || '',
     FOLDER_PREFIX: process.env.R2_FOLDER_PREFIX || 'staging-files',
+  },
+  STYLEGUIDE: {
+    SECRET: process.env.STYLEGUIDE_SECRET?.trim() || undefined,
   },
   COMPANIES: {
     crelyst: {
