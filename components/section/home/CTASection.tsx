@@ -152,7 +152,7 @@ export const CTASection = ({
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-serif leading-tight">
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-heading leading-tight">
             Ready to Transform Your <span className="text-accent">Digital Presence</span>?
           </motion.h2>
 

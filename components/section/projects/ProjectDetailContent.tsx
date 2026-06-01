@@ -224,7 +224,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className="prose prose-lg max-w-none">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-heading">
             About This Project
           </h2>
           <p className="text-muted-foreground text-lg leading-relaxed">{project.description}</p>
@@ -242,7 +242,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             className="p-6 bg-destructive/5 border-l-4 border-destructive rounded-lg">
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="w-6 h-6 text-destructive" />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-serif">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-heading">
                 The Challenge
               </h2>
             </div>
@@ -262,7 +262,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             className="p-6 bg-primary/5 border-l-4 border-primary rounded-lg">
             <div className="flex items-center gap-3 mb-4">
               <Lightbulb className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-serif">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-heading">
                 Our Solution
               </h2>
             </div>
@@ -279,7 +279,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
             viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-heading">
               Our Approach
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">{project.approach}</p>
@@ -297,7 +297,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             viewport={{ once: true }}>
             <div className="flex items-center gap-3 mb-6">
               <TrendingUp className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-serif">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-heading">
                 Key Results
               </h2>
             </div>
@@ -333,7 +333,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             transition={{ duration: 0.6, delay: 0.25 }}
             viewport={{ once: true }}
             className="p-6 bg-gradient-to-br from-accent/5 to-primary/5 rounded-xl border border-border">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-heading">
               Results & Impact
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">{project.results}</p>
@@ -351,7 +351,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             viewport={{ once: true }}>
             <div className="flex items-center gap-3 mb-6">
               <Calendar className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-serif">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-heading">
                 Project Timeline
               </h2>
             </div>
@@ -413,7 +413,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
             viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-serif">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-heading">
               Challenges & Solutions
             </h2>
             <div className="grid gap-6">
@@ -452,7 +452,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             viewport={{ once: true }}>
             <div className="flex items-center gap-3 mb-6">
               <BookOpen className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-serif">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground font-heading">
                 Lessons Learned
               </h2>
             </div>
@@ -482,7 +482,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.45 }}
             viewport={{ once: true }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-serif">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 font-heading">
               Technologies Used
             </h2>
             <div className="flex flex-wrap gap-3">
@@ -521,7 +521,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   className="prose prose-lg max-w-none">
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif">
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-heading">
                     {section.title}
                   </h2>
                   <div

@@ -86,7 +86,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="inline-flex text-sm sm:text-sm md:text-base font-light text-foreground/90 mb-4 px-4 py-1.5 font-serif italic bg-foreground/10 rounded-full border border-foreground/20 backdrop-blur-sm">
+            className="inline-flex text-sm sm:text-sm md:text-base font-light text-foreground/90 mb-4 px-4 py-1.5 font-heading italic bg-foreground/10 rounded-full border border-foreground/20 backdrop-blur-sm">
             {CRELYST_TAGLINE}
           </motion.h2> */}
 
@@ -95,7 +95,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-8xl font-bold text-foreground mb-6 font-sans leading-[1.1]">
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-8xl font-bold text-foreground mb-6 font-heading leading-[1.1]">
             Where{' '}
             <span className="relative">
               <span className="text-primary italic">Creativity</span>

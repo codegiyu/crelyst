@@ -14,7 +14,7 @@ export const HeroSection = ({ immediate }: HeroSectionProps = {}) => {
       badge="About Us"
       title="Where Ideas Take Shape"
       description="We're a creative design agency specializing in photography, branding, product design, packaging, and visual identity. We help brands express their unique personality through powerful visuals and storytelling."
-      titleFont="sans"
+      titleFont="heading"
     />
   );
 };

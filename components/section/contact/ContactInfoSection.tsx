@@ -62,7 +62,7 @@ export const ContactInfoSection = ({
         whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2 font-serif text-accent">
+        <h2 className="text-2xl md:text-3xl font-bold mb-2 font-heading text-accent">
           Contact Information
         </h2>
         <p className="text-secondary-foreground/80 mb-8">

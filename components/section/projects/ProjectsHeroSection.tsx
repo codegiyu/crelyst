@@ -14,7 +14,7 @@ export const ProjectsHeroSection = ({ immediate }: ProjectsHeroSectionProps = {}
       badge="Our Portfolio"
       title="Our Projects"
       description="Explore our portfolio of successful projects that showcase our expertise and commitment to delivering exceptional results."
-      titleFont="serif"
+      titleFont="heading"
       gradientColors={{
         from: 'from-accent/5',
         via: 'via-background',

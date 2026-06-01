@@ -37,7 +37,7 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}>
             <p className="text-primary text-sm tracking-[0.3em] uppercase mb-4">{cs!.industry}</p>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 font-serif">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 font-heading">
               {project.title}
             </h1>
             <p className="text-muted-foreground text-lg md:text-xl font-light max-w-2xl mb-10">
@@ -130,7 +130,7 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
               animate={siteLoading ? {} : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               className={cn(
-                'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-serif',
+                'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-heading',
                 project.bannerImage ? 'text-white' : 'text-foreground'
               )}>
               {project.title}

@@ -48,7 +48,7 @@ export function PublicContactCTASection({
         />
         <div className="absolute inset-0 bg-black/60" aria-hidden />
         <div className="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 text-center sm:px-10 md:px-12">
-          <h3 className="mb-4 font-serif text-2xl font-bold text-foreground md:text-3xl">
+          <h3 className="mb-4 font-heading text-2xl font-bold text-foreground md:text-3xl">
             {title}
           </h3>
           <p className="mx-auto mb-6 max-w-lg text-muted-foreground">{description}</p>

@@ -50,7 +50,7 @@ export const ProjectGallery = ({ project }: ProjectGalleryProps) => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className="w-full">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 font-serif text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 font-heading text-center">
             Project Gallery
           </h2>
 

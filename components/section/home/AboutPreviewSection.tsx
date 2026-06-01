@@ -108,7 +108,7 @@ export const AboutPreviewSection = () => {
             Why Choose Us
           </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 font-serif">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 font-heading">
             We Transform Vision into <span className="text-primary">Digital Success</span>
           </h2>
 

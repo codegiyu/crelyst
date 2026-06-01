@@ -9,7 +9,7 @@ export const ContactHeroSection = () => {
       badge="Get In Touch"
       title="Contact Us"
       description="Have a question or want to work together? We'd love to hear from you. Reach out and let's start a conversation."
-      titleFont="serif"
+      titleFont="heading"
       gradientColors={{
         from: 'from-secondary/5',
         via: 'via-background',

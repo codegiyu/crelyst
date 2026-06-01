@@ -14,7 +14,7 @@ export const ServicesHeroSection = ({ immediate }: ServicesHeroSectionProps = {}
       badge="What We Offer"
       title="Our Creative Services"
       description="From photography to packaging, we offer a full range of design and branding services to help your brand express its unique personality through powerful visuals and storytelling."
-      titleFont="sans"
+      titleFont="heading"
     />
   );
 };

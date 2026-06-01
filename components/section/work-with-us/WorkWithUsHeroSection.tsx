@@ -62,7 +62,7 @@ export const WorkWithUsHeroSection = () => {
       title={customTitle}
       description="We believe in the power of collaboration. We work with talented freelance designers on select projects, sharing a percentage of each job. If you're a creative designer looking to collaborate on exciting projects, we'd love to hear from you."
       additionalContent={additionalContent}
-      titleFont="sans"
+      titleFont="heading"
     />
   );
 };

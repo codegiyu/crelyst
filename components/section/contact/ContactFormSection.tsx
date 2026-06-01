@@ -78,7 +78,7 @@ export const ContactFormSection = () => {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <FileText className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 font-sans">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 font-heading">
             Request a Quote
           </h2>
           <p className="text-muted-foreground">

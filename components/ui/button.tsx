@@ -29,8 +29,8 @@ const buttonVariants = cva(
         full: 'w-full py-3 px-8',
       },
       typo: {
-        default: 'font-montserrat text-sm font-medium',
-        small: 'font-montserrat text-xs font-medium',
+        default: 'font-sans text-sm font-medium',
+        small: 'font-sans text-xs font-medium',
         large: 'font-semibold text-base',
         custom: '',
       },
