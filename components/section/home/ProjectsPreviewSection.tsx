@@ -5,7 +5,7 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientProject } from '@/lib/constants/endpoints';
-import { ArrowRight, Briefcase } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { ProjectPreviewCard } from './ProjectPreviewCard';
 
@@ -28,7 +28,7 @@ export const ProjectsPreviewSection = ({ projects }: { projects: ClientProject[]
   return (
     <SectionContainer>
       <SectionHeading
-        Icon={Briefcase}
+        caption="Portfolio"
         title="Our Creative Work"
         text="Discover how we've helped brands express their unique personality through powerful visuals and storytelling"
       />

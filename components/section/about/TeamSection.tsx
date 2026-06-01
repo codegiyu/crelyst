@@ -116,7 +116,11 @@ export const TeamSection = ({ teamMembers }: { teamMembers: ClientTeamMember[] }
 
   return (
     <SectionContainer background="muted">
-      <SectionHeading title="Meet Our Team" text="The talented people behind our success" />
+      <SectionHeading
+        caption="Team"
+        title="Meet Our Team"
+        text="The talented people behind our success"
+      />
 
       <motion.div
         initial={{ opacity: 0 }}

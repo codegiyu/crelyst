@@ -7,7 +7,6 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServiceImages';
-import { Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import type { ClientProject, ClientService } from '@/lib/constants/endpoints';
 
@@ -60,9 +59,9 @@ export const GallerySection = ({
           viewport={{ once: true }}
           className="w-full">
           <SectionHeading
+            caption="Gallery"
             title="Our Work Gallery"
             text="A showcase of our projects and services"
-            Icon={ImageIcon}
           />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 mt-12">

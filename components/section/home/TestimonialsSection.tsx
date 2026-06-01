@@ -6,7 +6,7 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
-import { MessageSquareQuote, Star, Quote } from 'lucide-react';
+import { Star, Quote } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -116,7 +116,7 @@ export const TestimonialsSection = ({ testimonials }: { testimonials: ClientTest
   return (
     <SectionContainer background="muted">
       <SectionHeading
-        Icon={MessageSquareQuote}
+        caption="Testimonials"
         title="What Our Clients Say"
         text="Don't just take our word for it - hear from the businesses we've helped succeed"
       />

@@ -2,10 +2,11 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { ClientService } from '@/lib/constants/endpoints';
-import { Check, HelpCircle, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { PublicContactCTASection } from '@/components/section/shared';
 import {
@@ -66,16 +67,12 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
       {/* ───── Expertise Breakdown ───── */}
       {service.expertise && (
         <SectionContainer background="muted">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={anim()}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
-              {service.expertise.title}
-            </h2>
-          </motion.div>
+          <SectionHeading
+            caption="Expertise"
+            title={service.expertise.title}
+            spacing="tight"
+            className="mb-12"
+          />
 
           <div className="grid gap-8 md:grid-cols-3">
             {service.expertise.breakdown.map((group, gi) => (
@@ -126,16 +123,12 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
       {/* ───── What Makes Us Unique ───── */}
       {service.whatMakesUsUnique && (
         <SectionContainer background="muted">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={anim()}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
-              {service.whatMakesUsUnique.title}
-            </h2>
-          </motion.div>
+          <SectionHeading
+            caption="Differentiators"
+            title={service.whatMakesUsUnique.title}
+            spacing="tight"
+            className="mb-12"
+          />
 
           <div className="grid gap-6 sm:grid-cols-2">
             {service.whatMakesUsUnique.groups.map((group, i) => (
@@ -164,16 +157,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
       {/* ───── Process ───── */}
       {service.process && service.process.length > 0 && (
         <SectionContainer>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={anim()}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
-              Our Process
-            </h2>
-          </motion.div>
+          <SectionHeading caption="Process" title="Our Process" spacing="tight" className="mb-12" />
 
           <div className="relative mx-auto max-w-3xl grid gap-0">
             {service.process
@@ -208,16 +192,12 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
       {/* ───── Benefits ───── */}
       {service.benefits && service.benefits.length > 0 && (
         <SectionContainer background="muted">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={anim()}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
-              Key Benefits
-            </h2>
-          </motion.div>
+          <SectionHeading
+            caption="Benefits"
+            title="Key Benefits"
+            spacing="tight"
+            className="mb-12"
+          />
 
           <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
             {service.benefits.map((benefit, i) => (
@@ -241,16 +221,12 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
       {/* ───── Package Pricing ───── */}
       {service.packagePricing && service.packagePricing.length > 0 && (
         <SectionContainer>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={anim()}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
-              Packages & Pricing
-            </h2>
-          </motion.div>
+          <SectionHeading
+            caption="Pricing"
+            title="Packages & Pricing"
+            spacing="tight"
+            className="mb-12"
+          />
 
           <div className="grid gap-16">
             {service.packagePricing.map(category => (
@@ -316,19 +292,12 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
       {/* ───── FAQ ───── */}
       {service.faq && service.faq.length > 0 && (
         <SectionContainer background="muted">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={anim()}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <HelpCircle className="h-6 w-6 text-primary" />
-            </div>
-            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
-              Frequently Asked Questions
-            </h2>
-          </motion.div>
+          <SectionHeading
+            caption="FAQ"
+            title="Frequently Asked Questions"
+            spacing="tight"
+            className="mb-12"
+          />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -376,6 +345,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
 
       {/* ───── CTA ───── */}
       <PublicContactCTASection
+        caption="Get Started"
         title="Ready to Get Started?"
         description={
           <>

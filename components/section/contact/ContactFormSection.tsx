@@ -1,6 +1,7 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularSelect } from '@/components/atoms/RegularSelect';
@@ -9,7 +10,7 @@ import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { useForm } from '@/lib/hooks/use-form';
 import { z } from 'zod';
-import { Send, FileText } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
 
@@ -74,18 +75,13 @@ export const ContactFormSection = () => {
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
         className="max-w-xl">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <FileText className="w-8 h-8 text-primary" />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 font-heading">
-            Request a Quote
-          </h2>
-          <p className="text-muted-foreground">
-            Tell us about your project and we&apos;ll provide a customized quote tailored to your
-            needs.
-          </p>
-        </div>
+        <SectionHeading
+          caption="Get a Quote"
+          title="Request a Quote"
+          text="Tell us about your project and we'll provide a customized quote tailored to your needs."
+          variant="compact"
+          spacing="tight"
+        />
 
         <form onSubmit={handleSubmit} className="grid gap-6">
           {errorsVisible && formErrors.root && formErrors.root.length > 0 && (

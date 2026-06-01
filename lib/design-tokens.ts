@@ -32,6 +32,13 @@ export const designTypography = [
     sample: 'Our Creative Work',
   },
   {
+    name: 'Mono (UI / code)',
+    family: 'JetBrains Mono',
+    cssClass: 'font-mono',
+    sample: 'GET-QUOTE-01',
+    note: 'Admin and technical UI only',
+  },
+  {
     name: 'Display accent',
     family: 'Lobster',
     cssClass: 'font-lobster',
@@ -47,9 +54,12 @@ export const designTypeScale = [
   },
   { label: 'Page hero H1', classes: 'text-4xl md:text-5xl lg:text-6xl font-bold font-heading' },
   {
+    label: 'Section caption',
+    classes: 'text-[11px] font-medium uppercase tracking-[0.28em] text-primary md:text-xs',
+  },
+  {
     label: 'Section H2',
-    classes:
-      'text-3xl md:text-4xl lg:text-5xl font-semibold font-heading tracking-tight text-primary',
+    classes: 'text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-foreground',
   },
   { label: 'Case study H2', classes: 'text-3xl md:text-5xl font-bold leading-tight font-heading' },
   {
@@ -58,8 +68,8 @@ export const designTypeScale = [
   },
   { label: 'Body', classes: 'text-base text-foreground leading-relaxed font-sans' },
   {
-    label: 'Eyebrow label',
-    classes: 'text-primary text-sm tracking-[0.3em] uppercase font-heading',
+    label: 'Eyebrow label (cards)',
+    classes: 'text-primary text-[11px] font-medium uppercase tracking-[0.28em] font-heading',
   },
 ] as const;
 

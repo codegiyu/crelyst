@@ -17,6 +17,7 @@ export function TeamGridSkeleton({
       <SectionContainer background="muted">
         <SectionHeading
           immediate
+          caption="Team"
           title="Meet Our Team"
           text="The talented people behind our success"
         />

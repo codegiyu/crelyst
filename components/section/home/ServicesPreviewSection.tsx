@@ -5,7 +5,6 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientService } from '@/lib/constants/endpoints';
-import { Layers } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { ServicePreviewCard } from './ServicePreviewCard';
 
@@ -20,7 +19,7 @@ export const ServicesPreviewSection = ({ services }: { services: ClientService[]
   return (
     <SectionContainer>
       <SectionHeading
-        Icon={Layers}
+        caption="Services"
         title="What We Create"
         text="From photography to packaging, we bring your brand's vision to life through powerful design and visual storytelling"
       />

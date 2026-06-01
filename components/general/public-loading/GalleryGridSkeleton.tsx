@@ -1,7 +1,6 @@
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Image as ImageIcon } from 'lucide-react';
 
 type GalleryGridSkeletonProps = {
   label?: string;
@@ -18,9 +17,9 @@ export function GalleryGridSkeleton({
       <SectionContainer background="default" fullWidth>
         <SectionHeading
           immediate
+          caption="Gallery"
           title="Our Work Gallery"
           text="A showcase of our projects and services"
-          Icon={ImageIcon}
         />
         <div className="mt-12 grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: count }, (_, i) => (

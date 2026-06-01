@@ -2,6 +2,7 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { ClientProject } from '@/lib/constants/endpoints';
@@ -50,9 +51,12 @@ export const ProjectGallery = ({ project }: ProjectGalleryProps) => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className="w-full">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 font-heading text-center">
-            Project Gallery
-          </h2>
+          <SectionHeading
+            caption="Gallery"
+            title="Project Gallery"
+            variant="compact"
+            spacing="tight"
+          />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image, index) => (
