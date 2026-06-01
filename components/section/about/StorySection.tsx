@@ -45,9 +45,11 @@ export const StorySection = ({ immediate }: StorySectionProps = {}) => {
           viewport={{ once: true }}>
           <SectionHeading
             immediate={immediate}
+            caption="Our Story"
             title="The Crelyst Story"
             text="Where creativity meets purpose"
-            className="text-start mb-8"
+            align="start"
+            spacing="tight"
           />
 
           <div className="grid gap-4 text-muted-foreground">

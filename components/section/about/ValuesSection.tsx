@@ -72,6 +72,7 @@ export const ValuesSection = ({ immediate }: ValuesSectionProps = {}) => {
     <SectionContainer>
       <SectionHeading
         immediate={immediate}
+        caption="Values"
         title="Our Values"
         text="The principles that guide everything we do"
       />

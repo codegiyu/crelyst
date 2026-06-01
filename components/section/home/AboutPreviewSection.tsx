@@ -1,6 +1,7 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
@@ -104,13 +105,17 @@ export const AboutPreviewSection = () => {
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
           className="order-1 lg:order-2">
-          <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium text-primary bg-primary/10 rounded-full">
-            Why Choose Us
-          </span>
-
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 font-heading">
-            We Transform Vision into <span className="text-primary">Digital Success</span>
-          </h2>
+          <SectionHeading
+            caption="Why Choose Us"
+            title={
+              <>
+                We Transform Vision into <span className="text-primary">Digital Success</span>
+              </>
+            }
+            align="start"
+            spacing="tight"
+            className="mb-6 gap-4"
+          />
 
           <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
             With a passion for innovation and a commitment to excellence, we partner with businesses

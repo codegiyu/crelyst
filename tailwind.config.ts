@@ -22,6 +22,7 @@ export default {
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
         heading: ['Montserrat', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
         lobster: ['Lobster', 'cursive'],
       },
       boxShadow: {

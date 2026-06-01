@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientService } from '@/lib/constants/endpoints';
+import { sectionCaptionClassName } from '@/components/general/SectionHeading';
 import { cn } from '@/lib/utils';
 
 export type WhatWeCreateCardLayout = 'wide' | 'standard';
@@ -70,7 +71,11 @@ export function WhatWeCreateCard({
         />
 
         <div className="absolute inset-0 z-10 flex flex-col justify-end p-6 md:p-8">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.28em] text-primary md:mb-3 md:text-xs">
+          <p
+            className={cn(
+              sectionCaptionClassName,
+              'mb-2 text-primary md:mb-3'
+            )}>
             {eyebrow}
           </p>
           <h3 className="font-heading text-2xl font-bold leading-[1.1] text-white md:text-3xl lg:text-4xl">

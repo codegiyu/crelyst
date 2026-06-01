@@ -2,11 +2,15 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Briefcase, Play } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
-import { SectionHeading } from '@/components/general/SectionHeading';
+import {
+  SectionHeading,
+  sectionCaptionClassName,
+  sectionTitleClassName,
+} from '@/components/general/SectionHeading';
 import { PageHeroSection } from '@/components/general/PageHeroSection';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { HeroSection } from '@/components/section/home/HeroSection';
@@ -155,7 +159,7 @@ export const StyleguideView = () => {
                           {scale.label}
                         </p>
                         <p className={scale.classes}>
-                          {scale.label === 'Eyebrow label' ? 'Project Overview' : 'Sample text'}
+                          {scale.label.includes('Eyebrow') ? 'Project Overview' : 'Sample text'}
                         </p>
                       </div>
                     ))}
@@ -269,23 +273,36 @@ export const StyleguideView = () => {
             <StyleguideSection
               id="headings"
               title="Section headings"
-              description="SectionHeading as used on the homepage projects block and about page.">
+              description="Mono caption + Montserrat title — used on homepage sections and about pages.">
               <div className="space-y-12">
-                <StyleguidePreviewBox label="Centered with icon">
+                <StyleguidePreviewBox label="Centered (portfolio block)">
                   <SectionHeading
                     immediate
-                    Icon={Briefcase}
+                    caption="Portfolio"
                     title="Our Creative Work"
                     text="Discover how we've helped brands express their unique personality through powerful visuals and storytelling"
+                    spacing="none"
                   />
                 </StyleguidePreviewBox>
-                <StyleguidePreviewBox label="Left-aligned">
+                <StyleguidePreviewBox label="Left-aligned (about preview)">
                   <SectionHeading
                     immediate
-                    title="The Crelyst Story"
-                    text="Where creativity meets purpose"
-                    className="text-start mb-0"
+                    caption="Why Choose Us"
+                    title={
+                      <>
+                        We Transform Vision into{' '}
+                        <span className="text-primary">Digital Success</span>
+                      </>
+                    }
+                    align="start"
+                    spacing="none"
                   />
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Primitives">
+                  <p className={cn(sectionCaptionClassName, 'text-primary mb-4')}>
+                    Section caption
+                  </p>
+                  <p className={cn(sectionTitleClassName, 'text-foreground')}>Section title</p>
                 </StyleguidePreviewBox>
               </div>
             </StyleguideSection>

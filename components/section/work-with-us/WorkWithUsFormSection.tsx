@@ -1,6 +1,7 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularSelect } from '@/components/atoms/RegularSelect';
@@ -10,7 +11,7 @@ import Image from 'next/image';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { useForm } from '@/lib/hooks/use-form';
 import { z } from 'zod';
-import { Send, Briefcase } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
 
@@ -75,18 +76,15 @@ export const WorkWithUsFormSection = () => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className="w-full max-w-xl mx-auto md:max-w-none md:mx-0">
-          <div className="text-center md:text-start mb-8">
-            <div className="w-16 h-16 mx-auto md:mx-0 mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-              <Briefcase className="w-8 h-8 text-primary" />
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 font-heading">
-              Apply to Collaborate
-            </h2>
-            <p className="text-muted-foreground">
-              Tell us about yourself and your work. We&apos;ll review your application and get back
-              to you soon.
-            </p>
-          </div>
+          <SectionHeading
+            caption="Careers"
+            title="Apply to Collaborate"
+            text="Tell us about yourself and your work. We'll review your application and get back to you soon."
+            variant="compact"
+            align="start"
+            spacing="tight"
+            className="max-md:text-center max-md:[&_p:first-child]:mx-auto max-md:[&_h2]:mx-auto"
+          />
 
           <form onSubmit={handleSubmit} className="grid gap-6">
             {errorsVisible && formErrors.root && formErrors.root.length > 0 && (

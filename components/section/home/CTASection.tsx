@@ -2,11 +2,12 @@
 
 import { useMemo } from 'react';
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServiceImages';
-import { ArrowRight, MessageCircle, Phone } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 import type { ClientProject, ClientService, ClientSiteSettings } from '@/lib/constants/endpoints';
 import Image from 'next/image';
@@ -137,35 +138,27 @@ export const CTASection = ({
 
       <SectionContainer className="relative z-40 py-0 md:py-0 lg:py-0">
         <div className="max-w-4xl mx-auto md:mx-0 text-center md:text-left">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-white/10 rounded-full text-white/90 text-sm font-medium backdrop-blur-sm">
-            <MessageCircle className="w-4 h-4" />
-            Let&apos;s Start a Conversation
-          </motion.span>
-
-          <motion.h2
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-heading leading-tight">
-            Ready to Transform Your <span className="text-accent">Digital Presence</span>?
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto md:mx-0 mb-10">
-            Whether you have a specific project in mind or just want to explore possibilities,
-            we&apos;re here to help. Get in touch and let&apos;s create something extraordinary
-            together.
-          </motion.p>
+            className="mb-10">
+            <SectionHeading
+              static
+              whiteText
+              caption="Let's Talk"
+              title={
+                <>
+                  Ready to Transform Your <span className="text-accent">Digital Presence</span>?
+                </>
+              }
+              text="Whether you have a specific project in mind or just want to explore possibilities, we're here to help. Get in touch and let's create something extraordinary together."
+              align="start"
+              spacing="none"
+              className="max-md:text-center [&_h2]:text-3xl [&_h2]:sm:text-4xl [&_h2]:md:text-5xl [&_h2]:lg:text-6xl [&_p:first-child]:text-white/90 [&_p:last-of-type]:text-lg [&_p:last-of-type]:md:text-xl [&_p:last-of-type]:text-white/80 [&_p:last-of-type]:max-w-2xl max-md:[&_p:last-of-type]:mx-auto"
+            />
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -1,6 +1,7 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
@@ -11,6 +12,7 @@ const DEFAULT_BG = '/images/bg-section-8.jpg';
 
 export type PublicContactCTASectionProps = {
   immediate?: boolean;
+  caption?: string;
   title: string;
   description: ReactNode;
   buttonLabel: string;
@@ -23,6 +25,7 @@ export type PublicContactCTASectionProps = {
 
 export function PublicContactCTASection({
   immediate,
+  caption = "Let's Talk",
   title,
   description,
   buttonLabel,
@@ -48,10 +51,18 @@ export function PublicContactCTASection({
         />
         <div className="absolute inset-0 bg-black/60" aria-hidden />
         <div className="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 text-center sm:px-10 md:px-12">
-          <h3 className="mb-4 font-heading text-2xl font-bold text-foreground md:text-3xl">
-            {title}
-          </h3>
-          <p className="mx-auto mb-6 max-w-lg text-muted-foreground">{description}</p>
+          <SectionHeading
+            static
+            caption={caption}
+            title={title}
+            text={typeof description === 'string' ? description : undefined}
+            variant="compact"
+            spacing="none"
+            className="mb-6 [&_p:last-of-type]:mx-auto [&_p:last-of-type]:max-w-lg"
+          />
+          {typeof description !== 'string' && (
+            <p className="mx-auto mb-6 max-w-lg text-muted-foreground">{description}</p>
+          )}
           <RegularBtn linkProps={{ href: contactHref }} className="px-8">
             {buttonLabel}
           </RegularBtn>

@@ -1,6 +1,7 @@
 'use client';
 
 import { SectionContainer } from '@/components/general/SectionContainer';
+import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
@@ -62,12 +63,15 @@ export const ContactInfoSection = ({
         whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2 font-heading text-accent">
-          Contact Information
-        </h2>
-        <p className="text-secondary-foreground/80 mb-8">
-          Reach out through any of these channels.
-        </p>
+        <SectionHeading
+          caption="Reach Out"
+          title="Contact Information"
+          text="Reach out through any of these channels."
+          variant="compact"
+          align="start"
+          spacing="tight"
+          className="[&_p:first-child]:text-accent [&_h2]:text-accent [&_p:last-of-type]:text-secondary-foreground/80"
+        />
 
         <div className="grid gap-6">
           {contactItems.map((item, index) => (
