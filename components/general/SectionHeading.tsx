@@ -39,7 +39,7 @@ export const SectionHeading = ({
         />
       )}
       <h2
-        className={`text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight 
+        className={`text-3xl md:text-4xl lg:text-5xl font-semibold font-heading tracking-tight 
         ${whiteText ? 'text-primary-foreground' : 'text-primary'}`}>
         {title}
       </h2>

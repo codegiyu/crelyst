@@ -15,7 +15,8 @@ interface PageHeroSectionProps {
   description: string;
   badge?: string | ReactNode;
   additionalContent?: ReactNode;
-  titleFont?: 'serif' | 'sans';
+  /** `heading` = Montserrat (default); `body` = Poppins */
+  titleFont?: 'heading' | 'body';
   gradientColors?: {
     from?: string;
     via?: string;
@@ -30,7 +31,7 @@ export const PageHeroSection = ({
   description,
   badge,
   additionalContent,
-  titleFont = 'sans',
+  titleFont = 'heading',
   gradientColors = {
     from: 'from-primary/5',
     via: 'via-background',
@@ -95,7 +96,7 @@ export const PageHeroSection = ({
               transition={{ duration: 0.6, delay: 0.1 }}
               className={cn(
                 'text-4xl md:text-5xl lg:text-6xl font-bold mb-6',
-                titleFont === 'serif' ? 'font-serif' : 'font-sans',
+                titleFont === 'body' ? 'font-sans' : 'font-heading',
                 bannerImage ? 'text-white' : 'text-foreground'
               )}>
               {title}

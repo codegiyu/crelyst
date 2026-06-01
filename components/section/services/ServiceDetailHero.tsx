@@ -74,7 +74,7 @@ export const ServiceDetailHero = ({ service }: ServiceDetailHeroProps) => {
               animate={siteLoading ? {} : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               className={cn(
-                'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-serif',
+                'text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-heading',
                 service.bannerImage ? 'text-white' : 'text-foreground'
               )}>
               {service.pageTitle || service.title}

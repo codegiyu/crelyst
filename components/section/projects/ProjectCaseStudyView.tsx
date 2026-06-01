@@ -28,7 +28,7 @@ function DynamicHeading({
   return (
     <h2
       className={cn(
-        'text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-serif',
+        'text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-heading',
         className
       )}>
       {heading?.headingTextStart ?? defaultStart}
@@ -49,7 +49,7 @@ function ParagraphBlock({
     <div className={cn('grid gap-6', className)}>
       {paragraphs.map((p, i) => (
         <div key={i}>
-          {p.heading && <h3 className="text-xl font-bold mb-3 font-serif">{p.heading}</h3>}
+          {p.heading && <h3 className="text-xl font-bold mb-3 font-heading">{p.heading}</h3>}
           {(p.inlineHeading || p.text) && (
             <p className="text-muted-foreground text-lg leading-relaxed font-light">
               {p.inlineHeading && (
@@ -150,7 +150,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                   heading={about.heading}
                   defaultStart="Who we "
                   defaultSpecial="Worked With"
-                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-serif"
+                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-heading"
                 />
                 <ParagraphBlock paragraphs={about.paragraphs} />
               </div>
@@ -169,7 +169,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                   heading={cs.summary.heading}
                   defaultStart="Project "
                   defaultSpecial="Overview"
-                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-serif"
+                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-heading"
                 />
               )}
               <ParagraphBlock paragraphs={cs.summary.paragraphs} />
@@ -246,7 +246,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
               heading={vi.heading}
               defaultStart="Identity "
               defaultSpecial="System"
-              className="text-3xl md:text-5xl font-bold leading-tight mb-16 max-w-3xl font-serif"
+              className="text-3xl md:text-5xl font-bold leading-tight mb-16 max-w-3xl font-heading"
             />
           </Section>
 
@@ -275,8 +275,8 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                 <p className="text-primary text-xs tracking-[0.2em] uppercase mb-3">
                   Primary — Headlines
                 </p>
-                <p className="font-serif text-4xl font-bold">{vi.typographyPrimary}</p>
-                <p className="font-serif text-xl text-muted-foreground mt-2">
+                <p className="font-heading text-4xl font-bold">{vi.typographyPrimary}</p>
+                <p className="font-heading text-xl text-muted-foreground mt-2">
                   Aa Bb Cc Dd Ee Ff Gg
                 </p>
               </div>
@@ -316,7 +316,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                 heading={apps.heading}
                 defaultStart="Brand in "
                 defaultSpecial="Context"
-                className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl font-serif"
+                className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl font-heading"
               />
             </Section>
           </SectionContainer>
@@ -349,7 +349,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                 heading={cs.results.heading}
                 defaultStart="Measurable "
                 defaultSpecial="Impact"
-                className="text-3xl md:text-5xl font-bold leading-tight mb-16 max-w-3xl font-serif"
+                className="text-3xl md:text-5xl font-bold leading-tight mb-16 max-w-3xl font-heading"
               />
             </Section>
 
@@ -357,7 +357,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
               {cs.results.metrics.map((r, i) => (
                 <Section key={r.label} delay={i * 0.1}>
                   <div className="border border-border rounded-xl p-8 text-center hover:border-primary/30 transition-colors duration-300">
-                    <p className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">
+                    <p className="font-heading text-3xl md:text-4xl font-bold text-primary mb-2">
                       {r.value}
                     </p>
                     <p className="text-muted-foreground text-sm">{r.label}</p>
@@ -382,7 +382,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                     <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
                       Previous
                     </p>
-                    <p className="font-serif text-lg font-semibold truncate group-hover:text-primary transition-colors">
+                    <p className="font-heading text-lg font-semibold truncate group-hover:text-primary transition-colors">
                       {adjacent.prev.title}
                     </p>
                   </div>
@@ -398,7 +398,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                     <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
                       Next
                     </p>
-                    <p className="font-serif text-lg font-semibold truncate group-hover:text-primary transition-colors">
+                    <p className="font-heading text-lg font-semibold truncate group-hover:text-primary transition-colors">
                       {adjacent.next.title}
                     </p>
                   </div>

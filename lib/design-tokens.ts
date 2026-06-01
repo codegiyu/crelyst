@@ -21,43 +21,45 @@ export const designColors = [
 export const designTypography = [
   {
     name: 'Sans (body / UI)',
-    family: 'Montserrat',
+    family: 'Poppins',
     cssClass: 'font-sans',
-    sample: 'Where Creativity Meets Vision',
+    sample: 'Where creativity meets vision — body copy and interface text.',
   },
   {
-    name: 'Serif (headings)',
-    family: 'Poppins',
-    cssClass: 'font-serif',
+    name: 'Heading (brand)',
+    family: 'Montserrat',
+    cssClass: 'font-heading',
     sample: 'Our Creative Work',
   },
   {
     name: 'Display accent',
     family: 'Lobster',
     cssClass: 'font-lobster',
-    sample: 'Crelyst',
+    sample: 'Codegiyu',
+    note: 'Footer developer credit only',
   },
 ] as const;
 
 export const designTypeScale = [
   {
     label: 'Hero H1',
-    classes: 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-sans leading-[1.1]',
+    classes: 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-heading leading-[1.1]',
   },
-  { label: 'Page hero H1', classes: 'text-4xl md:text-5xl lg:text-6xl font-bold font-serif' },
+  { label: 'Page hero H1', classes: 'text-4xl md:text-5xl lg:text-6xl font-bold font-heading' },
   {
     label: 'Section H2',
-    classes: 'text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-primary',
+    classes:
+      'text-3xl md:text-4xl lg:text-5xl font-semibold font-heading tracking-tight text-primary',
   },
-  { label: 'Case study H2', classes: 'text-3xl md:text-5xl font-bold leading-tight font-serif' },
+  { label: 'Case study H2', classes: 'text-3xl md:text-5xl font-bold leading-tight font-heading' },
   {
     label: 'Body large',
-    classes: 'text-base md:text-lg lg:text-xl text-foreground/90 leading-relaxed',
+    classes: 'text-base md:text-lg lg:text-xl text-foreground/90 leading-relaxed font-sans',
   },
-  { label: 'Body', classes: 'text-base text-foreground leading-relaxed' },
+  { label: 'Body', classes: 'text-base text-foreground leading-relaxed font-sans' },
   {
     label: 'Eyebrow label',
-    classes: 'text-primary text-sm tracking-[0.3em] uppercase',
+    classes: 'text-primary text-sm tracking-[0.3em] uppercase font-heading',
   },
 ] as const;
 

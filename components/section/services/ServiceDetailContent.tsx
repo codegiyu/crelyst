@@ -72,7 +72,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               {service.expertise.title}
             </h2>
           </motion.div>
@@ -86,7 +86,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
                 transition={{ duration: 0.5, delay: gi * 0.1 }}
                 viewport={{ once: true }}
                 className="rounded-2xl border border-border bg-card p-6 md:p-8">
-                <h3 className="mb-5 font-serif text-lg font-semibold text-foreground">
+                <h3 className="mb-5 font-heading text-lg font-semibold text-foreground">
                   {group.title}
                 </h3>
                 <ul className="grid gap-3">
@@ -132,7 +132,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               {service.whatMakesUsUnique.title}
             </h2>
           </motion.div>
@@ -150,7 +150,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <h3 className="font-serif text-lg font-semibold text-foreground">
+                  <h3 className="font-heading text-lg font-semibold text-foreground">
                     {group.title}
                   </h3>
                 </div>
@@ -170,7 +170,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               Our Process
             </h2>
           </motion.div>
@@ -214,7 +214,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               Key Benefits
             </h2>
           </motion.div>
@@ -247,7 +247,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-center mb-12">
-            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               Packages & Pricing
             </h2>
           </motion.div>
@@ -260,7 +260,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
                   whileInView={anim()}
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
-                  className="mb-8 text-center font-serif text-xl font-semibold capitalize text-foreground md:text-2xl">
+                  className="mb-8 text-center font-heading text-xl font-semibold capitalize text-foreground md:text-2xl">
                   {category.id.replace(/_/g, ' ')}
                 </motion.h3>
 
@@ -325,7 +325,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <HelpCircle className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+            <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               Frequently Asked Questions
             </h2>
           </motion.div>

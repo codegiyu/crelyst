@@ -68,7 +68,7 @@ export const StyleguideView = () => {
         <div className="regular-container py-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-primary text-sm tracking-[0.3em] uppercase mb-1">Internal</p>
-            <h1 className="text-xl font-bold font-sans">Crelyst Styleguide</h1>
+            <h1 className="text-xl font-bold font-heading">Crelyst Styleguide</h1>
           </div>
           <Link
             href="/"
@@ -137,7 +137,10 @@ export const StyleguideView = () => {
                     {designTypography.map(t => (
                       <StyleguidePreviewBox key={t.name} label={t.name}>
                         <p className={cn('text-2xl md:text-3xl', t.cssClass)}>{t.sample}</p>
-                        <p className="mt-2 text-xs text-muted-foreground">{t.family}</p>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {t.family}
+                          {'note' in t && t.note ? ` — ${t.note}` : ''}
+                        </p>
                       </StyleguidePreviewBox>
                     ))}
                   </div>
@@ -299,7 +302,7 @@ export const StyleguideView = () => {
                     badge="What We Offer"
                     title="Our Creative Services"
                     description="From photography to packaging, we offer a full range of design and branding services."
-                    titleFont="sans"
+                    titleFont="heading"
                   />
                 </StyleguidePreviewBox>
                 <StyleguidePreviewBox
@@ -310,7 +313,7 @@ export const StyleguideView = () => {
                     badge="About"
                     title="Who We Are"
                     description="A full-service design and branding agency."
-                    titleFont="serif"
+                    titleFont="body"
                   />
                 </StyleguidePreviewBox>
               </div>

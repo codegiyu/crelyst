@@ -20,8 +20,8 @@ export default {
         'gradient-hero': 'var(--gradient-hero)',
       },
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
-        serif: ['Poppins', 'sans-serif'],
+        sans: ['Poppins', 'sans-serif'],
+        heading: ['Montserrat', 'sans-serif'],
         lobster: ['Lobster', 'cursive'],
       },
       boxShadow: {

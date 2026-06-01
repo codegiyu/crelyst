@@ -79,7 +79,7 @@ export const WorkWithUsFormSection = () => {
             <div className="w-16 h-16 mx-auto md:mx-0 mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <Briefcase className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 font-sans">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 font-heading">
               Apply to Collaborate
             </h2>
             <p className="text-muted-foreground">

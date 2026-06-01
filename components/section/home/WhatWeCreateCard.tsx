@@ -36,7 +36,10 @@ export function WhatWeCreateCard({
       whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       viewport={{ once: true }}
-      className={cn('h-full', layout === 'wide' ? 'min-h-[240px] md:min-h-[320px]' : 'min-h-[240px] md:min-h-[320px]')}>
+      className={cn(
+        'h-full',
+        layout === 'wide' ? 'min-h-[240px] md:min-h-[320px]' : 'min-h-[240px] md:min-h-[320px]'
+      )}>
       <Link
         href={`/services/${service.slug}`}
         className="group relative block h-full min-h-[inherit] overflow-hidden rounded-lg border border-white/10">
@@ -54,7 +57,10 @@ export function WhatWeCreateCard({
               className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-primary/25 to-background" aria-hidden />
+            <div
+              className="h-full w-full bg-gradient-to-br from-primary/25 to-background"
+              aria-hidden
+            />
           )}
         </div>
 
@@ -67,7 +73,7 @@ export function WhatWeCreateCard({
           <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.28em] text-primary md:mb-3 md:text-xs">
             {eyebrow}
           </p>
-          <h3 className="font-sans text-2xl font-bold leading-[1.1] text-white md:text-3xl lg:text-4xl">
+          <h3 className="font-heading text-2xl font-bold leading-[1.1] text-white md:text-3xl lg:text-4xl">
             {service.title}
           </h3>
         </div>
