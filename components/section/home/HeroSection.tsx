@@ -20,7 +20,7 @@ export const HeroSection = () => {
 
       {/* Twinkling Stars */}
       <TwinklingStars
-        count={80}
+        count={100}
         starColor="rgba(255, 255, 255, 0.85)"
         speed="medium"
         size="mixed"
