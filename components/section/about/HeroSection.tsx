@@ -1,6 +1,6 @@
 'use client';
 
-import { PageHeroSection } from '@/components/general/PageHeroSection';
+import { RegularPageHeroSection } from '@/components/general/RegularPageHeroSection';
 
 type HeroSectionProps = {
   immediate?: boolean;
@@ -8,13 +8,18 @@ type HeroSectionProps = {
 
 export const HeroSection = ({ immediate }: HeroSectionProps = {}) => {
   return (
-    <PageHeroSection
+    <RegularPageHeroSection
       immediate={immediate}
-      bannerImage="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1920&auto=format&fit=crop"
+      backgroundImage="/images/bg-hero-3.jpg"
       badge="About Us"
-      title="Where Ideas Take Shape"
+      title={
+        <>
+          Where Creativity Meets
+          <br />
+          Vision
+        </>
+      }
       description="We're a creative design agency specializing in photography, branding, product design, packaging, and visual identity. We help brands express their unique personality through powerful visuals and storytelling."
-      titleFont="heading"
     />
   );
 };
