@@ -211,6 +211,8 @@ const HeaderLink = ({
   setDropdownOpen,
   isTransparent = false,
 }: HeaderLinkProps & { isTransparent?: boolean }) => {
+  const isActive = children ? activePath?.startsWith(basePath) : activePath === href;
+
   return (
     <li className={``}>
       {children ? (
@@ -218,18 +220,21 @@ const HeaderLink = ({
           <GhostBtn
             className={cn(
               'w-fit flex items-center font-medium transition-smooth',
-              isTransparent
-                ? activePath?.startsWith(basePath)
-                  ? 'text-white'
-                  : 'text-white/90 hover:text-white'
-                : activePath?.startsWith(basePath)
-                  ? 'text-primary'
+              isActive
+                ? 'text-primary'
+                : isTransparent
+                  ? 'text-white/90 hover:text-white'
                   : 'text-foreground hover:text-primary'
             )}
             onMouseEnter={() => setDropdownOpen?.(true)}
             onMouseLeave={() => setDropdownOpen?.(false)}>
             <span>{text}</span>
-            <ChevronDown className={cn('ml-1 h-4 w-4', isTransparent && 'text-white')} />
+            <ChevronDown
+              className={cn(
+                'ml-1 h-4 w-4',
+                isActive ? 'text-primary' : isTransparent && 'text-white'
+              )}
+            />
           </GhostBtn>
 
           {dropdownOpen && (
@@ -265,12 +270,10 @@ const HeaderLink = ({
             <p
               className={cn(
                 'transition-smooth',
-                isTransparent
-                  ? activePath === href
-                    ? 'font-semibold text-white'
-                    : 'font-medium text-white/90 hover:text-white'
-                  : activePath === href
-                    ? 'font-semibold text-primary'
+                isActive
+                  ? 'font-semibold text-primary'
+                  : isTransparent
+                    ? 'font-medium text-white/90 hover:text-white'
                     : 'font-medium text-foreground hover:text-primary'
               )}>
               {text}
