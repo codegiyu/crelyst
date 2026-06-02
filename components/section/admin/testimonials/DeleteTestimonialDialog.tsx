@@ -29,7 +29,7 @@ export const DeleteTestimonialDialog = ({
 
     setLoading(true);
     try {
-      const data = await adminCallApiToast(
+      const result = await adminCallApiToast(
         'Deleting testimonial…',
         () =>
           callApi('ADMIN_DELETE_TESTIMONIAL', {
@@ -37,7 +37,7 @@ export const DeleteTestimonialDialog = ({
           }),
         'Testimonial deleted successfully'
       );
-      if (data) {
+      if (result !== undefined) {
         actions.removeTestimonial(testimonial._id);
         onSuccess();
       }

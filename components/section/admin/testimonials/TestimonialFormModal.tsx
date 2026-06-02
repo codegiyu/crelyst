@@ -32,6 +32,7 @@ interface TestimonialFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   testimonial?: ClientTestimonial | null;
+  nextDisplayOrder?: number;
   onSuccess: () => void;
 }
 
@@ -39,6 +40,7 @@ export const TestimonialFormModal = ({
   open,
   onOpenChange,
   testimonial,
+  nextDisplayOrder = 1,
   onSuccess,
 }: TestimonialFormModalProps) => {
   const isEditing = !!testimonial;
@@ -152,8 +154,8 @@ export const TestimonialFormModal = ({
       testimonial: testimonial?.testimonial || '',
       rating: testimonial?.rating ?? 5,
       isFeatured: testimonial?.isFeatured ?? false,
-      isActive: testimonial?.isActive ?? false,
-      displayOrder: testimonial?.displayOrder ?? 0,
+      isActive: testimonial?.isActive ?? true,
+      displayOrder: testimonial?.displayOrder ?? nextDisplayOrder,
     },
     onSubmit,
   });
@@ -202,8 +204,8 @@ export const TestimonialFormModal = ({
           testimonial: values.testimonial,
           rating,
           isFeatured: values.isFeatured,
-          isActive: values.isActive ?? false,
-          displayOrder: values.displayOrder,
+          isActive: values.isActive ?? true,
+          displayOrder: values.displayOrder ?? nextDisplayOrder,
           clientImage: clientImageUrl || '',
           companyLogo: companyLogoUrl || '',
         };
@@ -228,8 +230,8 @@ export const TestimonialFormModal = ({
           testimonial: values.testimonial,
           rating,
           isFeatured: values.isFeatured,
-          isActive: values.isActive ?? false,
-          displayOrder: values.displayOrder,
+          isActive: values.isActive ?? true,
+          displayOrder: values.displayOrder ?? nextDisplayOrder,
         };
 
         const { data, error } = await callApi('ADMIN_CREATE_TESTIMONIAL', {
@@ -314,8 +316,8 @@ export const TestimonialFormModal = ({
           testimonial: testimonial.testimonial || '',
           rating: testimonial.rating ?? 5,
           isFeatured: testimonial.isFeatured ?? false,
-          isActive: testimonial.isActive ?? false,
-          displayOrder: testimonial.displayOrder ?? 0,
+          isActive: testimonial.isActive ?? true,
+          displayOrder: testimonial.displayOrder ?? nextDisplayOrder,
         }
       : {
           clientName: '',
@@ -324,8 +326,8 @@ export const TestimonialFormModal = ({
           testimonial: '',
           rating: 5,
           isFeatured: false,
-          isActive: false,
-          displayOrder: 0,
+          isActive: true,
+          displayOrder: nextDisplayOrder,
         };
 
     setFormValues(newFormValues);
@@ -358,6 +360,7 @@ export const TestimonialFormModal = ({
     testimonial?.displayOrder,
     testimonial?.clientImage,
     testimonial?.companyLogo,
+    nextDisplayOrder,
   ]);
 
   const handleModalCancel = () => {
@@ -446,6 +449,7 @@ export const TestimonialFormModal = ({
                 <button
                   key={value}
                   type="button"
+                  aria-label={`Rate ${value} out of 5 stars`}
                   onClick={() => setRating(value)}
                   onMouseEnter={() => setHoverRating(value)}
                   onMouseLeave={() => setHoverRating(0)}
@@ -505,7 +509,7 @@ export const TestimonialFormModal = ({
             <div>
               <label className="text-sm font-medium text-foreground">Featured</label>
               <p className="text-xs text-muted-foreground">
-                Show this testimonial prominently on the website
+                Mark as a highlighted client story in admin lists
               </p>
             </div>
             <button
@@ -532,7 +536,7 @@ export const TestimonialFormModal = ({
             <div>
               <label className="text-sm font-medium text-foreground">Active</label>
               <p className="text-xs text-muted-foreground">
-                Make this testimonial visible on the website
+                Visible on the public site (homepage testimonials marquee)
               </p>
             </div>
             <button

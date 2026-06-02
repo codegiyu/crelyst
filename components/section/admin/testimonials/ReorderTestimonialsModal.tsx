@@ -226,9 +226,7 @@ const ReorderableTestimonialItem = ({ testimonial, index }: ReorderableTestimoni
         <div className="min-w-0 flex-1">
           <h4 className="font-medium text-foreground truncate">{testimonial.clientName}</h4>
           <p className="text-xs text-muted-foreground truncate">
-            {testimonial.clientRole}
-            {testimonial.clientRole && testimonial.companyName && ' at '}
-            {testimonial.companyName}
+            {[testimonial.clientRole, testimonial.companyName].filter(Boolean).join(' · ')}
           </p>
         </div>
       </div>
