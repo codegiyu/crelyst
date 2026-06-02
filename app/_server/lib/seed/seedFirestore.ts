@@ -117,9 +117,48 @@ const DEFAULT_SITE_SETTINGS = {
   socials: [],
 };
 
+function normalizeTestimonialSeedPayload(
+  testimonial: (typeof TESTIMONIALS_DATA)[number]
+): Record<string, unknown> {
+  const { projectId, ...rest } = testimonial as Record<string, unknown>;
+
+  return {
+    ...rest,
+    isActive: (rest.isActive as boolean | undefined) ?? true,
+    isFeatured: (rest.isFeatured as boolean | undefined) ?? false,
+    displayOrder: (rest.displayOrder as number | undefined) ?? 0,
+    clientRole: (rest.clientRole as string | undefined) ?? '',
+    companyName: (rest.companyName as string | undefined) ?? '',
+    companyLogo: (rest.companyLogo as string | undefined) ?? '',
+    clientImage: (rest.clientImage as string | undefined) ?? '',
+    rating: (rest.rating as number | undefined) ?? 5,
+    ...(projectId != null && projectId !== '' ? { projectId } : {}),
+  };
+}
+
+/** Idempotent upsert of testimonials from {@link TESTIMONIALS_DATA}. */
+export async function seedTestimonials(): Promise<void> {
+  for (const testimonial of TESTIMONIALS_DATA) {
+    const clientName = testimonial.clientName;
+    const companyName = testimonial.companyName;
+    if (!clientName || !companyName) continue;
+
+    const payload = normalizeTestimonialSeedPayload(testimonial);
+    const existing = await getTestimonialByClientAndCompany(clientName, companyName);
+
+    if (existing) {
+      await updateTestimonial(existing.id, payload);
+      logger.info(`Testimonial from "${clientName}" (${companyName}) updated`);
+    } else {
+      await createTestimonial(payload);
+      logger.info(`Testimonial from "${clientName}" (${companyName}) created`);
+    }
+  }
+}
+
 export async function seedFirestore(): Promise<void> {
   try {
-    // // 1. Site settings (always overwrite with latest defaults)
+    await seedTestimonials();
     // await setSiteSettings('settings', DEFAULT_SITE_SETTINGS);
     // logger.info('Site settings seeded');
     // // 2. Brands
