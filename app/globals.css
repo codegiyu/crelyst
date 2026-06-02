@@ -459,9 +459,9 @@
 
   /* Layout widths — shell caps content; prose/focus cap reading measure inside shell */
   --width-layout-shell: 80rem;
-  --width-layout-shell-2xl: 85rem;
-  --width-layout-shell-3xl: 90rem;
-  --width-layout-shell-4xl: 96rem;
+  --width-layout-shell-2xl: 90rem;
+  --width-layout-shell-3xl: 105rem;
+  --width-layout-shell-4xl: 120rem;
   --width-layout-prose: 48rem;
   --width-layout-lead: 42rem;
   --width-layout-focus-wide: 56rem;
