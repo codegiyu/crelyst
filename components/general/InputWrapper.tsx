@@ -1,5 +1,27 @@
+'use client';
+
 import { cn } from '@/lib/utils';
-import { ComponentPropsWithRef, PropsWithChildren, ReactNode } from 'react';
+import {
+  ComponentPropsWithRef,
+  createContext,
+  PropsWithChildren,
+  ReactNode,
+  useContext,
+  useId,
+  useMemo,
+} from 'react';
+
+export type FieldControlContextValue = {
+  controlId: string;
+  errorId: string;
+  hasError: boolean;
+};
+
+const FieldControlContext = createContext<FieldControlContextValue | null>(null);
+
+export function useFieldControl() {
+  return useContext(FieldControlContext);
+}
 
 export type InputWrapperProps = PropsWithChildren<{
   wrapClassName?: string;
@@ -8,7 +30,9 @@ export type InputWrapperProps = PropsWithChildren<{
   labelTextClassName?: string;
   required?: boolean;
   errors?: string[];
-  otherLabelProps?: Omit<ComponentPropsWithRef<'label'>, 'className'>;
+  /** Stable id for the control; auto-generated when omitted */
+  fieldId?: string;
+  otherLabelProps?: Omit<ComponentPropsWithRef<'label'>, 'className' | 'htmlFor'>;
 }>;
 
 export const InputWrapper = ({
@@ -20,26 +44,46 @@ export const InputWrapper = ({
   otherLabelProps,
   required,
   errors = [],
+  fieldId,
 }: InputWrapperProps) => {
+  const autoId = useId();
+  const controlId = fieldId ?? `field-${autoId.replace(/:/g, '')}`;
+  const errorId = `${controlId}-error`;
+  const hasError = errors.length > 0;
+  const firstError = errors[0];
+
+  const contextValue = useMemo(
+    () => ({ controlId, errorId, hasError }),
+    [controlId, errorId, hasError]
+  );
+
   return (
-    <label className={cn(`w-full`, wrapClassName)} {...otherLabelProps}>
-      <div className={`flex flex-col justify-center gap-2`}>
-        {label && (
-          <span
-            className={cn(
-              'text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter',
-              labelTextClassName
-            )}>
-            {label}
-            {required ? ' *' : ''}
-            {subtext && <span className="text-muted-foreground font-normal ml-1">{subtext}</span>}
-          </span>
-        )}
-        <div className="relative w-full">{children}</div>
+    <FieldControlContext.Provider value={contextValue}>
+      <div className={cn('w-full', wrapClassName)}>
+        <div className="flex flex-col justify-center gap-2">
+          {label ? (
+            <label
+              htmlFor={controlId}
+              className={cn(
+                'text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter',
+                labelTextClassName
+              )}
+              {...otherLabelProps}>
+              {label}
+              {required ? ' *' : ''}
+              {subtext ? (
+                <span className="text-muted-foreground font-normal ml-1">{subtext}</span>
+              ) : null}
+            </label>
+          ) : null}
+          <div className="relative w-full">{children}</div>
+        </div>
+        {hasError ? (
+          <p id={errorId} role="alert" className={cn('text-xs md:text-sm text-destructive mt-1')}>
+            {firstError}
+          </p>
+        ) : null}
       </div>
-      {errors.length > 0 && (
-        <p className={cn('text-xs md:text-sm text-red-500 mt-1')}>{errors[0]}</p>
-      )}
-    </label>
+    </FieldControlContext.Provider>
   );
 };

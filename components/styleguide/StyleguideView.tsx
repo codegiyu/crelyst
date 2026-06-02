@@ -48,6 +48,7 @@ import {
 } from '@/lib/fixtures/styleguideMocks';
 import { cn } from '@/lib/utils';
 import { StyleguidePreviewBox, StyleguideSection } from './StyleguideSection';
+import { StyleguideFormsDemo } from './StyleguideFormsDemo';
 
 const buttonVariantKeys = [
   'default',
@@ -288,6 +289,13 @@ export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
                   </div>
                 </StyleguidePreviewBox>
               </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="forms"
+              title="Forms"
+              description="RegularInput, RegularTextarea, RegularSelect, and PublicFormPanel — used on Contact and Work With Us. File input documented after upload phase.">
+              <StyleguideFormsDemo />
             </StyleguideSection>
 
             <StyleguideSection
