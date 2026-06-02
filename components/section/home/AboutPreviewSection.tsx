@@ -3,102 +3,156 @@
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
+import { useCountUp } from '@/lib/hooks/use-count-up';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { Check, ArrowRight } from 'lucide-react';
 
-const ABOUT_PREVIEW_STATS_BG = '/images/bg-section-7.jpg';
+type CountStat = {
+  kind: 'count';
+  target: number;
+  label: string;
+};
+
+type StaticStat = {
+  kind: 'static';
+  value: string;
+  label: string;
+};
+
+type StatItem = CountStat | StaticStat;
+
+const STATS = {
+  left: [
+    { kind: 'count', target: 150, label: 'Projects Completed' },
+    { kind: 'count', target: 5, label: 'Years Excellence' },
+  ],
+  right: [
+    { kind: 'count', target: 50, label: 'Global Clients' },
+    { kind: 'static', value: '24/7', label: 'Active Support' },
+  ],
+} satisfies { left: StatItem[]; right: StatItem[] };
 
 const FEATURES = [
-  'Expert team with 5+ years of experience',
-  'Creative excellence in every design',
+  '5+ years of experience',
+  'Creative excellence in all designs',
   'Brand storytelling that resonates',
   'End-to-end design solutions',
   'Collaborative design process',
   'Award-winning visual identities',
 ];
 
+const countDuration = (target: number) => Math.min(2.8, 1.2 + target / 80);
+
+const CountStatValue = ({
+  target,
+  delay,
+  siteLoading,
+}: {
+  target: number;
+  delay: number;
+  siteLoading: boolean;
+}) => {
+  const { ref, display, isComplete } = useCountUp({
+    end: target,
+    duration: countDuration(target),
+    delay,
+    disabled: siteLoading,
+  });
+
+  return (
+    <span ref={ref}>
+      <motion.span>{display}</motion.span>
+      <motion.span
+        initial={{ opacity: 0, x: -2 }}
+        animate={isComplete ? { opacity: 1, x: 0 } : { opacity: 0, x: -2 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        aria-hidden={!isComplete}>
+        +
+      </motion.span>
+    </span>
+  );
+};
+
+const StatValue = ({
+  stat,
+  delay,
+  siteLoading,
+}: {
+  stat: StatItem;
+  delay: number;
+  siteLoading: boolean;
+}) => {
+  if (stat.kind === 'static') {
+    return <span>{stat.value}</span>;
+  }
+
+  return <CountStatValue target={stat.target} delay={delay} siteLoading={siteLoading} />;
+};
+
+const StatCard = ({
+  stat,
+  delay,
+  siteLoading,
+}: {
+  stat: StatItem;
+  delay: number;
+  siteLoading: boolean;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
+    viewport={{ once: true }}
+    className="rounded-xl border border-white/5 bg-stat-card p-6 md:p-8">
+    <div className="text-3xl font-bold tabular-nums text-primary md:text-4xl">
+      <StatValue stat={stat} delay={delay} siteLoading={siteLoading} />
+    </div>
+    <div className="mt-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground md:text-[11px]">
+      {stat.label}
+    </div>
+  </motion.div>
+);
+
 export const AboutPreviewSection = () => {
   const { siteLoading } = useSiteStore(state => state);
 
   return (
-    <SectionContainer background="muted">
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-        {/* Image/Visual Side */}
+    <SectionContainer background="surface-deep">
+      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        {/* Visual side — staggered stat cards */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
           className="relative order-2 lg:order-1">
-          {/* Main visual container */}
-          <div className="relative">
-            {/* Main card */}
-            <div className="relative overflow-hidden rounded-2xl p-8">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url('${ABOUT_PREVIEW_STATS_BG}')` }}
-                aria-hidden
-              />
-              <div className="relative z-10 grid grid-cols-2 gap-4">
-                {/* Stats cards */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  viewport={{ once: true }}
-                  className="bg-primary/10 rounded-xl p-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-1">150+</div>
-                  <div className="text-sm text-muted-foreground">Projects</div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  viewport={{ once: true }}
-                  className="bg-accent/10 rounded-xl p-6 text-center">
-                  <div className="text-4xl font-bold text-accent mb-1">50+</div>
-                  <div className="text-sm text-muted-foreground">Clients</div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  viewport={{ once: true }}
-                  className="bg-secondary/20 rounded-xl p-6 text-center">
-                  <div className="text-4xl font-bold text-secondary mb-1">5+</div>
-                  <div className="text-sm text-muted-foreground">Years</div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  viewport={{ once: true }}
-                  className="bg-muted rounded-xl p-6 text-center">
-                  <div className="text-4xl font-bold text-foreground mb-1">24/7</div>
-                  <div className="text-sm text-muted-foreground">Support</div>
-                </motion.div>
-              </div>
+          <div className="grid grid-cols-2 gap-4 md:gap-5">
+            <div className="flex flex-col gap-4 md:gap-5">
+              {STATS.left.map((stat, index) => (
+                <StatCard
+                  key={stat.label}
+                  stat={stat}
+                  delay={0.2 + index * 0.1}
+                  siteLoading={siteLoading}
+                />
+              ))}
             </div>
 
-            {/* Decorative elements */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-6 -right-6 w-24 h-24 bg-accent/20 rounded-2xl -z-10"
-            />
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -bottom-6 -left-6 w-20 h-20 bg-primary/20 rounded-full -z-10"
-            />
+            <div className="flex flex-col gap-4 pt-10 md:gap-5 md:pt-14">
+              {STATS.right.map((stat, index) => (
+                <StatCard
+                  key={stat.label}
+                  stat={stat}
+                  delay={0.3 + index * 0.1}
+                  siteLoading={siteLoading}
+                />
+              ))}
+            </div>
           </div>
         </motion.div>
 
-        {/* Content Side */}
+        {/* Content side */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
@@ -117,14 +171,13 @@ export const AboutPreviewSection = () => {
             className="mb-6 gap-4"
           />
 
-          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+          <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
             With a passion for innovation and a commitment to excellence, we partner with businesses
             to create digital solutions that not only meet expectations but exceed them. Our
             collaborative approach ensures your vision comes to life exactly as you imagined.
           </p>
 
-          {/* Features list */}
-          <div className="grid sm:grid-cols-2 gap-3 mb-8">
+          <div className="mb-8 grid gap-3 sm:grid-cols-2">
             {FEATURES.map((feature, index) => (
               <motion.div
                 key={feature}
@@ -133,10 +186,10 @@ export const AboutPreviewSection = () => {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-3 h-3 text-primary" />
+                <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary">
+                  <Check className="size-3 text-primary-foreground stroke-[3]" />
                 </div>
-                <span className="text-base text-foreground">{feature}</span>
+                <span className="text-base text-foreground/90">{feature}</span>
               </motion.div>
             ))}
           </div>
