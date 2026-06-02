@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { unprotectedRoutes, safeAdminRedirectPath } from '@/lib/constants/routing';
-import { Loader2 } from 'lucide-react';
+import { AdminAuthLoading } from '@/components/admin/auth/AdminAuthLoading';
 
 interface AdminAuthWrapperProps {
   children: React.ReactNode;
@@ -74,26 +74,11 @@ export const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
 
   // Show loading spinner while checking auth
   if (isChecking || initLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+    return <AdminAuthLoading />;
   }
 
-  // If on protected route without auth, show loading (redirect is happening)
   if (!user && isProtectedRoute) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Redirecting to login...</p>
-        </div>
-      </div>
-    );
+    return <AdminAuthLoading label="Redirecting to sign in…" />;
   }
 
   return <>{children}</>;

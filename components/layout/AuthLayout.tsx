@@ -9,31 +9,31 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, subtitle = 'Admin Dashboard' }: AuthLayoutProps) {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between bg-background px-4 py-12 sm:px-6 lg:px-8">
-      {/* Logo */}
-      <div className="w-fit flex flex-col items-center mx-auto">
-        <div className="mb-6 flex items-center justify-center">
+    <main className="relative flex min-h-dvh flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-60"
+        aria-hidden
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 50% at 50% -20%, hsl(20 87% 65% / 0.12), transparent 60%)',
+        }}
+      />
+
+      <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-10">
+        <div className="flex w-full flex-col items-center gap-4 text-center">
           <Link
             href="/"
-            className="h-8 text-foreground inline-flex items-center"
+            className="inline-flex items-center text-foreground transition-opacity hover:opacity-90"
             title="Back to site">
-            <i className="h-12 text-foreground">
-              <LogoFull />
-            </i>
+            <LogoFull className="h-10 w-auto sm:h-12" />
           </Link>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
-        <h2 className="text-center text-xl font-semibold tracking-tight text-foreground">
-          {subtitle}
-        </h2>
-      </div>
 
-      {/* Content */}
-      <div className="w-full max-w-md grid gap-8">{children}</div>
+        {children}
 
-      {/* Footer */}
-      <div className="w-full grid gap-8">
         <p className="text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} All rights reserved.
+          © {new Date().getFullYear()} Crelyst. All rights reserved.
         </p>
       </div>
     </main>
