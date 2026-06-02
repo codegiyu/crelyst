@@ -27,7 +27,7 @@ export const ProjectPreviewCard = ({
       className={featured ? 'md:col-span-2 md:row-span-2' : ''}>
       <Link
         href={`/projects/${project.slug}`}
-        className={`group block h-full bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-500 overflow-hidden ${featured ? 'aspect-[16/10] md:aspect-auto' : 'aspect-[4/3]'}`}>
+        className={`group card-interactive block h-full overflow-hidden rounded-2xl border border-border bg-card ${featured ? 'aspect-[16/10] md:aspect-auto' : 'aspect-[4/3]'}`}>
         <div className="relative h-full">
           {/* Image */}
           <div className="absolute inset-0 bg-muted">
@@ -37,7 +37,7 @@ export const ProjectPreviewCard = ({
                 alt={project.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-40"
+                className="card-hover-media object-cover"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
@@ -48,9 +48,8 @@ export const ProjectPreviewCard = ({
             )}
           </div>
 
-          {/* Overlay with creative gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-primary/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
-          <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors duration-500" />
+          <div className="card-overlay-scrim" aria-hidden />
+          <div className="card-overlay-scrim-deepen" aria-hidden />
 
           {/* Content */}
           <div className="absolute inset-0 p-6 flex flex-col justify-end text-white">
@@ -70,7 +69,7 @@ export const ProjectPreviewCard = ({
             </div>
 
             <h3
-              className={`font-bold text-white mb-2 group-hover:text-accent transition-colors ${featured ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
+              className={`mb-2 font-bold text-white transition-colors duration-300 group-hover:text-primary ${featured ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
               {project.title}
             </h3>
 

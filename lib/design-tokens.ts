@@ -102,6 +102,30 @@ export const designShadows = [
   { name: 'Creative', utility: 'shadow-creative', note: 'Stronger orange glow on hover' },
 ] as const;
 
+/** Card hover utilities — `app/globals.css` + styleguide Cards section */
+export const designCardMotion = [
+  {
+    name: 'Card shell lift',
+    utility: 'card-interactive',
+    note: 'Apply on the card link (`group`). Lifts ~4px, primary border, shadow-elegant — 500ms ease-out.',
+  },
+  {
+    name: 'Image Ken Burns (overlay cards)',
+    utility: 'card-hover-media',
+    note: 'Full-bleed preview / What We Create images. Scale 1.06 over 1.2s — avoid tiny fast zooms.',
+  },
+  {
+    name: 'Image Ken Burns (listing)',
+    utility: 'card-hover-media-subtle',
+    note: 'Service & project listing thumbnails. Scale 1.04 over 900ms.',
+  },
+  {
+    name: 'Text-on-image scrim',
+    utility: 'card-overlay-scrim + card-overlay-scrim-deepen',
+    note: 'Neutral bottom gradient; hover deepens scrim only — no primary tint or brightness filters.',
+  },
+] as const;
+
 export const styleguideNav = [
   { id: 'foundations', label: 'Foundations' },
   { id: 'buttons', label: 'Buttons & CTAs' },

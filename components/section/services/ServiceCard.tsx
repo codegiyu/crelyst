@@ -25,16 +25,16 @@ export const ServiceCard = ({ service, index }: ServiceCardProps) => {
       transition={{ duration: 0.5, delay: index * 0.1 }}>
       <Link
         href={`/services/${service.slug}`}
-        className="group block h-full bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300 overflow-hidden">
+        className="group card-interactive block h-full overflow-hidden rounded-xl border border-border bg-card">
         {/* Image */}
-        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {imageSrc ? (
             <Image
               src={imageSrc}
               alt={service.title}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="card-hover-media-subtle object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
