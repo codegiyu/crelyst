@@ -32,7 +32,7 @@ export const GalleryDomeSection = ({ images }: GalleryDomeSectionProps) => {
   return (
     <section
       aria-label="Interactive gallery"
-      className="relative h-dvh min-h-screen w-full snap-start overflow-hidden bg-[#0a0a0a]">
+      className="relative h-dvh min-h-screen w-full snap-start snap-normal overflow-hidden bg-[#0a0a0a]">
       {galleryItems.length > 0 ? (
         <DomeGallery
           className="h-full w-full"
