@@ -33,7 +33,7 @@ export const ServicesPreviewSection = ({ services }: { services: ClientService[]
         </motion.div>
       ) : (
         <>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="layout-grid-cards">
             {displayServices.map((service, index) => (
               <ServicePreviewCard key={service.slug} service={service} index={index} />
             ))}

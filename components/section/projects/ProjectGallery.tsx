@@ -44,7 +44,7 @@ export const ProjectGallery = ({ project }: ProjectGalleryProps) => {
 
   return (
     <>
-      <SectionContainer background="muted" customContainer>
+      <SectionContainer background="muted">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}

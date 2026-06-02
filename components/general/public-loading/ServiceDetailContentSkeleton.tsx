@@ -6,14 +6,14 @@ export function ServiceDetailContentSkeleton() {
   return (
     <LoadingRegion label="Loading service details">
       <SectionContainer>
-        <div className="mx-auto grid max-w-3xl gap-3">
+        <div className="content-prose-center mx-auto grid gap-3">
           <Skeleton className="mx-auto h-4 w-full" />
           <Skeleton className="mx-auto h-4 w-full" />
           <Skeleton className="mx-auto h-4 w-5/6" />
         </div>
       </SectionContainer>
 
-      <SectionContainer customContainer>
+      <SectionContainer>
         <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
           <Skeleton className="min-h-[280px] rounded-2xl md:min-h-[320px]" />
           <Skeleton className="min-h-[280px] rounded-2xl md:min-h-[320px]" />
@@ -38,7 +38,7 @@ export function ServiceDetailContentSkeleton() {
 
       <SectionContainer>
         <Skeleton className="mx-auto mb-12 h-9 w-40" />
-        <div className="relative mx-auto max-w-3xl grid gap-8">
+        <div className="relative content-prose-center mx-auto grid gap-8">
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i} className="flex gap-6">
               <Skeleton className="h-10 w-10 flex-none rounded-full" />

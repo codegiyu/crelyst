@@ -5,7 +5,7 @@ import { LoadingRegion } from './LoadingRegion';
 export function ProjectDetailContentSkeleton() {
   return (
     <LoadingRegion label="Loading project details">
-      <SectionContainer customContainer>
+      <SectionContainer>
         <Skeleton className="aspect-video w-full rounded-2xl" />
       </SectionContainer>
 
@@ -42,7 +42,7 @@ export function ProjectDetailContentSkeleton() {
         </div>
       </SectionContainer>
 
-      <SectionContainer background="muted" customContainer>
+      <SectionContainer background="muted">
         <Skeleton className="mb-8 h-9 w-48" />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {Array.from({ length: 6 }, (_, i) => (

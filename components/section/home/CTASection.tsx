@@ -137,7 +137,7 @@ export const CTASection = ({
       />
 
       <SectionContainer className="relative z-40 py-0 md:py-0 lg:py-0">
-        <div className="max-w-4xl mx-auto md:mx-0 text-center md:text-left">
+        <div className="content-focus-wide mx-auto text-center md:mx-0 md:text-left">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}

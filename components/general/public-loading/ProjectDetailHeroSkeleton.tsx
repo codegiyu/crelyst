@@ -13,7 +13,7 @@ export function ProjectDetailHeroSkeleton() {
         )}>
         <div className="absolute inset-0 pattern-overlay pointer-events-none" />
         <SectionContainer className="relative z-10 w-full">
-          <div className="max-w-3xl text-center">
+          <div className="content-prose-center text-center">
             <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
               <Skeleton className="h-7 w-28 rounded-full" />
               <Skeleton className="h-7 w-24 rounded-full" />
@@ -26,7 +26,7 @@ export function ProjectDetailHeroSkeleton() {
         </SectionContainer>
       </div>
 
-      <div className="regular-container mx-auto mt-12 max-w-7xl px-4 sm:px-6 md:mt-16">
+      <div className="regular-container mt-12 md:mt-16">
         <Skeleton className="aspect-video w-full rounded-xl" />
       </div>
     </header>

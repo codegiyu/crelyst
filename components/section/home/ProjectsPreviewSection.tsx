@@ -42,7 +42,7 @@ export const ProjectsPreviewSection = ({ projects }: { projects: ClientProject[]
         </motion.div>
       ) : (
         <>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="layout-grid-cards">
             {featuredProject && (
               <ProjectPreviewCard project={featuredProject} index={0} featured={true} />
             )}
