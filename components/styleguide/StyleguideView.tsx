@@ -25,6 +25,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import {
   designColors,
   designRadii,
+  designCardMotion,
   designShadows,
   designSpacing,
   designTypeScale,
@@ -358,14 +359,32 @@ export const StyleguideView = () => {
             <StyleguideSection
               id="cards"
               title="Cards"
-              description="Listing cards, homepage overlay previews, and What We Create service cards (Figma Landing Page — Desktop).">
+              description="Listing cards, homepage overlay previews, and What We Create service cards. Hover uses shared utilities in globals.css — lift on the shell, slow image scale, neutral scrims (no primary wash or brightness crush).">
               <div className="space-y-10">
+                <StyleguidePreviewBox label="Card hover utilities">
+                  <ul className="space-y-3 text-sm text-muted-foreground max-w-3xl">
+                    {designCardMotion.map(item => (
+                      <li key={item.utility}>
+                        <code className="text-xs text-primary font-mono">{item.utility}</code>
+                        <span className="text-foreground/90"> — {item.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-xs text-muted-foreground max-w-3xl">
+                    Parent link must include <code className="text-primary">group</code>. Overlay
+                    cards pair <code className="text-primary">card-overlay-scrim</code> with{' '}
+                    <code className="text-primary">card-overlay-scrim-deepen</code> on hover — never
+                    <code className="text-primary"> brightness-*</code>, primary tints, or scrim
+                    opacity jumps that hide the artwork.
+                  </p>
+                </StyleguidePreviewBox>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
                     What We Create — Figma landing cards
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
-                    Image card with bottom gradient, orange eyebrow, and white title. Wide +
+                    Image card with bottom gradient, orange eyebrow, and white title. Hover: card
+                    lift, 1.06 image scale (1.2s), scrim deepen, slight content nudge — wide +
                     standard pair as on Crelyst Landing Page (Desktop).
                   </p>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] md:gap-5 max-w-5xl">
@@ -400,6 +419,10 @@ export const StyleguideView = () => {
                   <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
                     Homepage preview cards
                   </h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
+                    Full-bleed project tiles: neutral bottom scrim, title shifts to primary on
+                    hover. Image stays visible — no orange overlay or heavy dimming.
+                  </p>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <ProjectPreviewCard
                       project={styleguidePreviewProjects[0]!}

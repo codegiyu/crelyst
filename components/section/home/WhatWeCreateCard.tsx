@@ -43,7 +43,7 @@ export function WhatWeCreateCard({
       )}>
       <Link
         href={`/services/${service.slug}`}
-        className="group relative block h-full min-h-[inherit] overflow-hidden rounded-lg border border-white/10">
+        className="group card-interactive relative block h-full min-h-[inherit] overflow-hidden rounded-lg border border-white/10 hover:border-primary/40">
         <div className="absolute inset-0 bg-muted">
           {imageUrl ? (
             <Image
@@ -55,7 +55,7 @@ export function WhatWeCreateCard({
                   ? '(max-width: 768px) 100vw, 65vw'
                   : '(max-width: 768px) 100vw, 35vw'
               }
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              className="card-hover-media object-cover"
             />
           ) : (
             <div
@@ -65,16 +65,14 @@ export function WhatWeCreateCard({
           )}
         </div>
 
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent"
-          aria-hidden
-        />
+        <div className="card-overlay-scrim" aria-hidden />
+        <div className="card-overlay-scrim-deepen" aria-hidden />
 
-        <div className="absolute inset-0 z-10 flex flex-col justify-end p-6 md:p-8">
+        <div className="absolute inset-0 z-10 flex flex-col justify-end p-6 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1 md:p-8">
           <p
             className={cn(
               sectionCaptionClassName,
-              'mb-2 text-primary md:mb-3'
+              'mb-2 text-primary transition-colors duration-300 group-hover:text-primary-light md:mb-3'
             )}>
             {eyebrow}
           </p>
