@@ -15,7 +15,16 @@ import type {
   FormSubmissionFormType,
   IFormSubmissionsListRes,
 } from '@/lib/constants/endpoints';
-import { Mail, CheckCheck, Download, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  Mail,
+  CheckCheck,
+  Download,
+  RefreshCw,
+  Trash2,
+  AlertTriangle,
+  ChevronDown,
+} from 'lucide-react';
+import { FormSubmissionAttachmentsList } from './FormSubmissionAttachmentsList';
 import { cn } from '@/lib/utils';
 
 const POLL_MS = 600_000; // 600 seconds = 10 minutes
@@ -65,6 +74,8 @@ function downloadSubmissionsCsv(rows: ClientFormSubmission[], formType: FormSubm
           'message',
           'sourceIp',
           'isRead',
+          'attachmentCount',
+          'attachmentUrls',
         ] as const)
       : ([
           '_id',
@@ -77,11 +88,17 @@ function downloadSubmissionsCsv(rows: ClientFormSubmission[], formType: FormSubm
           'message',
           'sourceIp',
           'isRead',
+          'attachmentCount',
+          'attachmentUrls',
         ] as const);
 
   const lines = [baseHeaders.join(',')];
   for (const r of rows) {
-    const rec = r as unknown as Record<string, unknown>;
+    const rec = {
+      ...r,
+      attachmentCount: r.attachments?.length ?? 0,
+      attachmentUrls: (r.attachments ?? []).map(a => a.publicUrl).join(' | '),
+    } as unknown as Record<string, unknown>;
     lines.push(
       baseHeaders
         .map(h => {
@@ -109,6 +126,7 @@ export interface FormSubmissionsInboxClientProps {
   formType: FormSubmissionFormType;
   title: string;
   description: string;
+  loadFailed?: boolean;
 }
 
 export function FormSubmissionsInboxClient({
@@ -116,6 +134,7 @@ export function FormSubmissionsInboxClient({
   formType,
   title,
   description,
+  loadFailed = false,
 }: FormSubmissionsInboxClientProps) {
   const router = useRouter();
   const pageLimit = initial.pagination.limit;
@@ -129,6 +148,8 @@ export function FormSubmissionsInboxClient({
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<ClientFormSubmission | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState(loadFailed);
 
   const submissionsRef = useRef(submissions);
   submissionsRef.current = submissions;
@@ -139,7 +160,8 @@ export function FormSubmissionsInboxClient({
     setNextCursor(initial.nextCursor);
     setHasMore(initial.hasMore);
     setTotal(initial.pagination.total);
-  }, [initial]);
+    if (!loadFailed) setFetchError(false);
+  }, [initial, loadFailed]);
 
   const pollNewSubmissions = useCallback(async () => {
     const { data, error } = await callApi('ADMIN_LIST_FORM_SUBMISSIONS', {
@@ -171,7 +193,17 @@ export function FormSubmissionsInboxClient({
     const q = search.trim().toLowerCase();
     if (!q) return submissions;
     return submissions.filter(s => {
-      const hay = [s.name, s.email, s.message, s.company, s.projectType, s.portfolio]
+      const hay = [
+        s.name,
+        s.email,
+        s.message,
+        s.company,
+        s.projectType,
+        s.portfolio,
+        s.budget,
+        s.experience,
+        ...(s.attachments?.map(a => a.fileName) ?? []),
+      ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -200,6 +232,14 @@ export function FormSubmissionsInboxClient({
       );
       setUnreadCount(c => Math.max(0, c - 1));
       dispatchInboxChanged();
+    }
+  };
+
+  const toggleExpanded = (submission: ClientFormSubmission) => {
+    const nextId = expandedId === submission._id ? null : submission._id;
+    setExpandedId(nextId);
+    if (nextId && !submission.isRead) {
+      void markOneRead(submission);
     }
   };
 
@@ -334,10 +374,20 @@ export function FormSubmissionsInboxClient({
           ) : null}
         </div>
       }>
+      {fetchError ? (
+        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div className="space-y-2">
+            <p>Could not load submissions. Check your connection and try again.</p>
+            <RegularBtn text="Retry" size="sm" variant="outline" onClick={() => router.refresh()} />
+          </div>
+        </div>
+      ) : null}
+
       {!listEmpty && (
         <div className="max-w-md">
           <Input
-            placeholder="Search name, email, message…"
+            placeholder="Search name, email, message, attachments…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             aria-label="Filter submissions"
@@ -475,8 +525,55 @@ export function FormSubmissionsInboxClient({
                     </div>
                     <div>
                       <span className="text-muted-foreground">Message</span>
-                      <p className="mt-1 whitespace-pre-wrap text-foreground">{sub.message}</p>
+                      <p
+                        className={cn(
+                          'mt-1 whitespace-pre-wrap text-foreground',
+                          expandedId !== sub._id && 'line-clamp-4'
+                        )}>
+                        {sub.message}
+                      </p>
                     </div>
+
+                    {expandedId === sub._id ? (
+                      <div className="space-y-4 border-t border-border pt-4">
+                        <div className="grid gap-2 sm:grid-cols-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Submitted</span>
+                            <p>{formatSubmittedAt(sub.createdAt)}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Source IP</span>
+                            <p className="font-mono text-xs">{sub.sourceIp ?? '—'}</p>
+                          </div>
+                          {formType === 'quote-request' && sub.budget ? (
+                            <div>
+                              <span className="text-muted-foreground">Budget</span>
+                              <p>{sub.budget}</p>
+                            </div>
+                          ) : null}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-sm">Attachments</span>
+                          <div className="mt-2">
+                            <FormSubmissionAttachmentsList attachments={sub.attachments} />
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <RegularBtn
+                      text={expandedId === sub._id ? 'Hide details' : 'View full details'}
+                      size="sm"
+                      variant="ghost"
+                      LeftIcon={ChevronDown}
+                      leftIconProps={{
+                        className: cn(
+                          'size-4 transition-transform',
+                          expandedId === sub._id && 'rotate-180'
+                        ),
+                      }}
+                      onClick={() => toggleExpanded(sub)}
+                    />
                   </CardContent>
                 </Card>
               </li>

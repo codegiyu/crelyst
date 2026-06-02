@@ -1,5 +1,5 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { FormSubmissionsReadOnlyPageClient } from '@/components/section/admin/inbox/FormSubmissionsReadOnlyPageClient';
+import { FormSubmissionsInboxClient } from '@/components/section/admin/inbox/FormSubmissionsInboxClient';
 import { fetchAdminJsonOrNull } from '@/app/_server/lib/api/fetchAdminJson';
 import type { IFormSubmissionsListRes } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
@@ -27,7 +27,7 @@ export default async function WorkWithUsPage() {
 
   return (
     <DashboardLayout>
-      <FormSubmissionsReadOnlyPageClient
+      <FormSubmissionsInboxClient
         initial={res ?? EMPTY_SUBMISSIONS}
         formType="work-with-us"
         title="Work with us"
