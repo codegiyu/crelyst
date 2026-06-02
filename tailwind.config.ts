@@ -68,6 +68,8 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        'surface-deep': 'hsl(var(--surface-deep))',
+        'stat-card': 'hsl(var(--stat-card))',
       },
       transitionTimingFunction: {
         smooth: 'var(--transition-smooth)',

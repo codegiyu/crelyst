@@ -15,6 +15,13 @@ export const designColors = [
   { name: 'Muted foreground', cssVar: '--muted-foreground', hex: '#C9C4BC', hsl: '30 10% 75%' },
   { name: 'Border', cssVar: '--border', hex: '#45403A', hsl: '30 8% 25%' },
   { name: 'Card', cssVar: '--card', hex: '#1C1C22', hsl: '240 8% 12%' },
+  {
+    name: 'Surface deep (section)',
+    cssVar: '--surface-deep',
+    hex: '#111113',
+    hsl: '240 5% 7%',
+  },
+  { name: 'Stat card', cssVar: '--stat-card', hex: '#161618', hsl: '240 4% 9%' },
   { name: 'Destructive', cssVar: '--destructive', hex: '#D92D20', hsl: '0 70% 50%' },
 ] as const;
 

@@ -5,7 +5,7 @@ export interface SectionContainerProps {
   children: ReactNode;
   className?: string;
   containerClassName?: string;
-  background?: 'default' | 'muted' | 'primary';
+  background?: 'default' | 'muted' | 'primary' | 'surface-deep';
   customContainer?: boolean;
   fullWidth?: boolean;
 }
@@ -14,6 +14,7 @@ const backgroundClasses = {
   default: '',
   muted: 'bg-muted/30',
   primary: 'bg-primary text-primary-foreground',
+  'surface-deep': 'bg-surface-deep',
 };
 
 /**
