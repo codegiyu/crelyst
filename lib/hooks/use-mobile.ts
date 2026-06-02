@@ -26,3 +26,16 @@ export function useIsMobile(width?: number) {
     getServerSnapshot
   );
 }
+
+function getMediaQuerySnapshot(query: string) {
+  return () => window.matchMedia(query).matches;
+}
+
+/** Subscribes to any CSS media query (e.g. `(min-width: 1024px)`). */
+export function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    onChange => subscribe(query, onChange),
+    getMediaQuerySnapshot(query),
+    () => false
+  );
+}
