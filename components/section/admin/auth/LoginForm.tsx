@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { LogIn } from 'lucide-react';
 import { z } from 'zod';
 import { safeAdminRedirectPath } from '@/lib/constants/routing';
-import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useAuthStore, useInitAuthStore } from '@/lib/store/useAuthStore';
 import { useForm } from '@/lib/hooks/use-form';
 import { RegularInput } from '@/components/atoms/RegularInput';
 import { PasswordInput } from '@/components/atoms/PasswordInput';
@@ -49,6 +49,7 @@ export const LoginForm = () => {
       const result = await login(values.email, values.password);
 
       if (result.success) {
+        useInitAuthStore.setState({ pauseNavigatingAwayFromAuth: false });
         router.replace(safeAdminRedirectPath(searchParams.get('redirectTo')));
         resetForm();
         return true;

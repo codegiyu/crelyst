@@ -12,12 +12,15 @@ const SESSION_URL = '/api/admin/auth/session';
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setUser = useInitAuthStore(state => state.actions.setUser);
   const clearSession = useInitAuthStore(state => state.actions.clearSession);
+  const setAuthStatus = useInitAuthStore(state => state.actions.setAuthStatus);
 
   useEffect(() => {
     if (!auth) {
-      useInitAuthStore.setState({ initLoading: false });
+      setAuthStatus('ready');
       return;
     }
+
+    setAuthStatus('hydrating');
 
     const unsubscribeToken = onIdTokenChanged(auth, async user => {
       if (!user) return;
@@ -36,18 +39,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
           const data = await res.json();
           const admin = data?.data?.admin ?? data?.admin ?? null;
-          setUser(admin, { initLoading: false });
+          setUser(admin);
           if (admin) {
             await syncAdminSessionCookie(idToken);
           }
         } else {
           await clearAdminSessionCookie();
           clearSession();
-          useInitAuthStore.setState({ initLoading: false });
         }
       } catch {
         clearSession();
-        useInitAuthStore.setState({ initLoading: false });
+      } finally {
+        setAuthStatus('ready');
       }
     });
 

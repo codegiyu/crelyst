@@ -2,6 +2,7 @@ import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type { ApiErrorResponse, ApiSuccessResponse, ResponseMessage } from '../types/http';
 import { getDataFromRequest, getQueryParam } from '../utils/general';
 import { type AllEndpoints, ENDPOINTS } from '../constants/endpoints';
+import { buildAdminLoginUrl } from '@/lib/auth/adminRoutePaths';
 import { getRouter } from '../utils/navigation';
 import { useInitAuthStore } from '../store/useAuthStore';
 
@@ -116,17 +117,8 @@ export const callApi = async <T extends keyof AllEndpoints>(
         }
 
         const redirectQueryValue = getQueryParam('redirectTo');
-        const loginRoute = '/admin/auth/login'; // Update this to match your auth route
-
-        switch (true) {
-          case Boolean(redirectQueryValue):
-            redirectPath = `${loginRoute}?redirectTo=${redirectQueryValue}`;
-            break;
-
-          default:
-            redirectPath = `${loginRoute}`;
-            break;
-        }
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : undefined;
+        redirectPath = buildAdminLoginUrl(redirectQueryValue || currentPath);
       }
       if (error.response.status === 429) {
         // Rate limit exceeded - could be handled by a modal/store
