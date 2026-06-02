@@ -16,7 +16,7 @@ export const ContactPageView = ({
   return (
     <>
       <ContactHeroSection />
-      <div className="grid lg:grid-cols-5 gap-0">
+      <div className="grid lg:grid-cols-5 gap-8 lg:gap-10 items-start">
         <div className="lg:col-span-3">
           <ContactFormSection />
         </div>
