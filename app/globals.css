@@ -455,6 +455,17 @@
   --breakpoint-1400: 1400px;
   --breakpoint-2xl: 1536px;
   --breakpoint-3xl: 1700px;
+  --breakpoint-4xl: 1920px;
+
+  /* Layout widths — shell caps content; prose/focus cap reading measure inside shell */
+  --width-layout-shell: 80rem;
+  --width-layout-shell-2xl: 85rem;
+  --width-layout-shell-3xl: 90rem;
+  --width-layout-shell-4xl: 96rem;
+  --width-layout-prose: 48rem;
+  --width-layout-lead: 42rem;
+  --width-layout-focus-wide: 56rem;
+  --width-layout-focus: 64rem;
 
   /* Hex color palette - uses CSS custom properties defined in :root/.light for theme support */
   --color-dark: #020202;
@@ -491,11 +502,119 @@
     @apply min-h-screen min-w-0 w-full overflow-x-clip bg-background text-foreground font-sans text-[1rem] leading-[1.5] tracking-normal break-words text-wrap text-start;
     overscroll-behavior-x: none;
   }
+  /* Page shell — centered max-width + monotonic gutters (scales through 2500px+ viewports) */
+  .regular-container,
   .container-custom {
-    @apply max-w-7xl mx-auto px-4;
+    width: 100%;
+    max-width: var(--width-layout-shell);
+    margin-inline: auto;
+    padding-inline: 1rem;
   }
-  .regular-container {
-    @apply w-full max-w-7xl 2xl:max-w-[1300px] 3xl:max-w-[1500px] mx-auto px-4 sm:px-8 md:px-12 lg:px-8 xl:px-10 2xl:px-16 3xl:px-20;
+
+  @media (min-width: 640px) {
+    .regular-container,
+    .container-custom {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .regular-container,
+    .container-custom {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .regular-container,
+    .container-custom {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .regular-container,
+    .container-custom {
+      padding-inline: 3rem;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .regular-container,
+    .container-custom {
+      max-width: var(--width-layout-shell-2xl);
+      padding-inline: 3.5rem;
+    }
+  }
+
+  @media (min-width: 1700px) {
+    .regular-container,
+    .container-custom {
+      max-width: var(--width-layout-shell-3xl);
+      padding-inline: 4rem;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .regular-container,
+    .container-custom {
+      max-width: var(--width-layout-shell-4xl);
+      padding-inline: clamp(4rem, 4vw, 6rem);
+    }
+  }
+
+  /* Reading measure — use inside regular-container */
+  .content-prose {
+    max-width: var(--width-layout-prose);
+  }
+
+  .content-lead {
+    max-width: var(--width-layout-lead);
+  }
+
+  .content-focus-wide {
+    max-width: var(--width-layout-focus-wide);
+  }
+
+  .content-focus {
+    max-width: var(--width-layout-focus);
+  }
+
+  .content-prose-center {
+    max-width: var(--width-layout-prose);
+    margin-inline: auto;
+  }
+
+  .content-lead-center {
+    max-width: var(--width-layout-lead);
+    margin-inline: auto;
+  }
+
+  .content-focus-center {
+    max-width: var(--width-layout-focus);
+    margin-inline: auto;
+  }
+
+  .content-focus-wide-center {
+    max-width: var(--width-layout-focus-wide);
+    margin-inline: auto;
+  }
+
+  /* Card / portfolio grids — wider gaps on ultrawide */
+  .layout-grid-cards {
+    @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  @media (min-width: 1700px) {
+    .layout-grid-cards {
+      gap: 2rem;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .layout-grid-cards {
+      gap: 2.5rem;
+    }
   }
   .section-padding {
     @apply py-16 md:py-24 lg:py-[6.5rem];

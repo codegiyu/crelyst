@@ -6,7 +6,7 @@ export interface SectionContainerProps {
   className?: string;
   containerClassName?: string;
   background?: 'default' | 'muted' | 'primary' | 'surface-deep';
-  customContainer?: boolean;
+  /** Skip inner regular-container (edge-to-edge sections, e.g. galleries). */
   fullWidth?: boolean;
 }
 
@@ -25,18 +25,11 @@ export const SectionContainer = ({
   className,
   containerClassName,
   background = 'default',
-  customContainer = false,
   fullWidth = false,
 }: SectionContainerProps) => {
   return (
     <section className={cn('w-full section-padding', backgroundClasses[background], className)}>
-      <div
-        className={cn(
-          !fullWidth && (customContainer ? 'container-custom' : 'regular-container'),
-          containerClassName
-        )}>
-        {children}
-      </div>
+      <div className={cn(!fullWidth && 'regular-container', containerClassName)}>{children}</div>
     </section>
   );
 };

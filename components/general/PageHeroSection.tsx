@@ -64,7 +64,7 @@ export const PageHeroSection = ({
         {/* Background Pattern */}
         {!bannerImage && <div className="absolute inset-0 pattern-overlay pointer-events-none" />}
 
-        <div className="relative z-10 regular-container w-full">
+        <div className="relative z-10 w-full">
           <div className="text-center">
             {/* Badge */}
             {badge && (
@@ -108,7 +108,7 @@ export const PageHeroSection = ({
               animate={reveal ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
               className={cn(
-                'text-lg md:text-xl max-w-2xl mx-auto',
+                'content-lead-center text-lg md:text-xl',
                 bannerImage ? 'text-white/90' : 'text-muted-foreground',
                 additionalContent && 'mb-8'
               )}>

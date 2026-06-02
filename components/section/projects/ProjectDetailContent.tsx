@@ -53,7 +53,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
     <>
       {/* Featured Image - Full Width */}
       {project.featuredImage && (
-        <SectionContainer customContainer>
+        <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
@@ -73,7 +73,7 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
 
       {/* Video - Full Width */}
       {project.videoUrl && (
-        <SectionContainer customContainer>
+        <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}

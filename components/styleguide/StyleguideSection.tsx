@@ -22,7 +22,9 @@ export const StyleguideSection = ({
       className={cn('scroll-mt-24 border-b border-border pb-16 mb-16 last:mb-0', className)}>
       <header className="mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground font-heading">{title}</h2>
-        {description ? <p className="mt-2 text-muted-foreground max-w-3xl">{description}</p> : null}
+        {description ? (
+          <p className="content-prose mt-2 text-muted-foreground">{description}</p>
+        ) : null}
       </header>
       {children}
     </section>

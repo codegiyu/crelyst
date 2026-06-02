@@ -15,7 +15,7 @@ import Image from 'next/image';
 
 const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) => {
   return (
-    <div className="group p-8 md:p-12 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300 relative max-w-4xl mx-auto">
+    <div className="group content-focus-wide-center relative p-8 md:p-12 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300">
       {/* Quote icon */}
       <div className="absolute top-6 right-6 text-primary/10 group-hover:text-primary/20 transition-colors">
         <Quote className="w-12 h-12 md:w-16 md:h-16" />
@@ -36,7 +36,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) =>
       )}
 
       {/* Testimonial text */}
-      <p className="text-foreground mb-8 leading-relaxed relative z-10 text-lg md:text-xl text-center max-w-3xl mx-auto">
+      <p className="content-prose-center text-foreground mb-8 leading-relaxed relative z-10 text-lg md:text-xl text-center">
         &ldquo;{testimonial.testimonial}&rdquo;
       </p>
 

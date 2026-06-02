@@ -19,7 +19,7 @@ export const ServicesGridSection = ({ services }: { services: ClientService[] })
           <p className="text-muted-foreground text-lg">No services available at the moment.</p>
         </motion.div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="layout-grid-cards sm:grid-cols-2">
           {services
             .filter(s => s.isActive)
             .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))

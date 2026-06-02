@@ -82,12 +82,40 @@ export const designTypeScale = [
 
 export const designSpacing = [
   { name: 'Section padding', utility: 'section-padding', note: 'py-16 md:py-24 lg:py-[6.5rem]' },
+] as const;
+
+/** Page shell + reading measure — see `app/globals.css` @theme width tokens */
+export const designLayout = [
   {
-    name: 'Container (regular)',
+    name: 'Shell (page gutter)',
     utility: 'regular-container',
-    note: 'max-w-7xl → 3xl:max-w-[1500px]',
+    note: '1280px → 1360 (2xl) → 1440 (3xl) → 1536px (4xl) cap; monotonic padding through ultrawide',
   },
-  { name: 'Container (custom)', utility: 'container-custom', note: 'max-w-7xl mx-auto px-4' },
+  {
+    name: 'Prose',
+    utility: 'content-prose / content-prose-center',
+    note: '48rem — section blurbs, case study body',
+  },
+  {
+    name: 'Lead',
+    utility: 'content-lead / content-lead-center',
+    note: '42rem — hero descriptions, short intros',
+  },
+  {
+    name: 'Focus',
+    utility: 'content-focus / content-focus-center',
+    note: '64rem — centered hero blocks',
+  },
+  {
+    name: 'Focus wide',
+    utility: 'content-focus-wide / content-focus-wide-center',
+    note: '56rem — hero subcopy, testimonial quotes',
+  },
+  {
+    name: 'Card grid',
+    utility: 'layout-grid-cards',
+    note: '2/3-col portfolio grid; gap scales at 3xl/4xl',
+  },
 ] as const;
 
 export const designRadii = [

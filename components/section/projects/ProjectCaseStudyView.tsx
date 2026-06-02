@@ -28,7 +28,7 @@ function DynamicHeading({
   return (
     <h2
       className={cn(
-        'text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-heading',
+        'text-3xl md:text-5xl font-bold leading-tight mb-8 content-prose font-heading',
         className
       )}>
       {heading?.headingTextStart ?? defaultStart}
@@ -142,7 +142,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
 
           {about && about.paragraphs.length > 0 && (
             <Section>
-              <div className="max-w-3xl mb-16">
+              <div className="content-prose mb-16">
                 <p className="text-primary text-sm tracking-[0.3em] uppercase mb-4">
                   About the Client
                 </p>
@@ -150,7 +150,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                   heading={about.heading}
                   defaultStart="Who we "
                   defaultSpecial="Worked With"
-                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-heading"
+                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 content-prose font-heading"
                 />
                 <ParagraphBlock paragraphs={about.paragraphs} />
               </div>
@@ -158,7 +158,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
           )}
 
           <Section>
-            <div className="max-w-3xl">
+            <div className="content-prose">
               <p className="text-primary text-sm tracking-[0.3em] uppercase mb-4">
                 Project Overview
               </p>
@@ -169,7 +169,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                   heading={cs.summary.heading}
                   defaultStart="Project "
                   defaultSpecial="Overview"
-                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 max-w-3xl font-heading"
+                  className="text-3xl md:text-5xl font-bold leading-tight mb-8 content-prose font-heading"
                 />
               )}
               <ParagraphBlock paragraphs={cs.summary.paragraphs} />
@@ -187,7 +187,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
               defaultStart="Identifying the "
               defaultSpecial="Brand Gap"
             />
-            <ParagraphBlock paragraphs={cs.challenge.paragraphs} className="max-w-3xl" />
+            <ParagraphBlock paragraphs={cs.challenge.paragraphs} className="content-prose" />
           </Section>
         </SectionContainer>
       </section>
@@ -201,7 +201,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
               defaultStart="Strategic "
               defaultSpecial="Direction"
             />
-            <ParagraphBlock paragraphs={cs.strategy.paragraphs} className="max-w-3xl" />
+            <ParagraphBlock paragraphs={cs.strategy.paragraphs} className="content-prose" />
           </Section>
         </SectionContainer>
       </section>
@@ -246,7 +246,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
               heading={vi.heading}
               defaultStart="Identity "
               defaultSpecial="System"
-              className="text-3xl md:text-5xl font-bold leading-tight mb-16 max-w-3xl font-heading"
+              className="text-3xl md:text-5xl font-bold leading-tight mb-16 content-prose font-heading"
             />
           </Section>
 
@@ -309,14 +309,14 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
 
       {apps && apps.images.length > 0 && (
         <section className="py-16 md:py-24 bg-muted/40">
-          <SectionContainer customContainer className="mb-16">
+          <SectionContainer className="mb-16">
             <Section>
               <p className="text-primary text-sm tracking-[0.3em] uppercase mb-4">Applications</p>
               <DynamicHeading
                 heading={apps.heading}
                 defaultStart="Brand in "
                 defaultSpecial="Context"
-                className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl font-heading"
+                className="text-3xl md:text-5xl font-bold leading-tight content-prose font-heading"
               />
             </Section>
           </SectionContainer>
@@ -349,7 +349,7 @@ export function ProjectCaseStudyView({ project, adjacent }: ProjectCaseStudyView
                 heading={cs.results.heading}
                 defaultStart="Measurable "
                 defaultSpecial="Impact"
-                className="text-3xl md:text-5xl font-bold leading-tight mb-16 max-w-3xl font-heading"
+                className="text-3xl md:text-5xl font-bold leading-tight mb-16 content-prose font-heading"
               />
             </Section>
 

@@ -33,14 +33,14 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
           whileInView={anim()}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="mx-auto max-w-3xl text-center text-lg leading-relaxed text-muted-foreground md:text-xl">
+          className="content-prose-center text-center text-lg leading-relaxed text-muted-foreground md:text-xl">
           {service.description}
         </motion.p>
       </SectionContainer>
 
       {/* ───── Gallery ───── */}
       {service.gallery && service.gallery.length > 0 && (
-        <SectionContainer customContainer>
+        <SectionContainer>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={anim()}
@@ -159,7 +159,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
         <SectionContainer>
           <SectionHeading caption="Process" title="Our Process" spacing="tight" className="mb-12" />
 
-          <div className="relative mx-auto max-w-3xl grid gap-0">
+          <div className="relative content-prose-center mx-auto grid gap-0">
             {service.process
               .sort((a, b) => (a.order || 0) - (b.order || 0))
               .map((step, i) => (
@@ -199,7 +199,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             className="mb-12"
           />
 
-          <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
+          <div className="content-prose-center mx-auto grid gap-4 sm:grid-cols-2">
             {service.benefits.map((benefit, i) => (
               <motion.div
                 key={i}
@@ -304,7 +304,7 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
             whileInView={anim()}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="mx-auto max-w-3xl">
+            className="content-prose-center mx-auto">
             <Accordion type="single" collapsible className="w-full">
               {service.faq
                 .sort((a, b) => (a.order || 0) - (b.order || 0))

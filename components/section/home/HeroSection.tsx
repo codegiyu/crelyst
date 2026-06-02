@@ -70,7 +70,7 @@ export const HeroSection = () => {
       </div> */}
 
       <SectionContainer className="relative z-10 py-20 md:py-28">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="content-focus-center text-center">
           {/* Badge */}
           {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -123,7 +123,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-base md:text-lg lg:text-xl text-foreground/90 max-w-4xl mx-auto mb-10 leading-relaxed">
+            className="content-focus-wide-center text-base md:text-lg lg:text-xl text-foreground/90 mb-10 leading-relaxed">
             We&apos;re a full-service design and branding agency specializing in photography, brand
             design, product design, packaging, and visual identity. We help brands express their
             unique personality through powerful visuals and storytelling.

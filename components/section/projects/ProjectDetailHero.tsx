@@ -40,7 +40,7 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 font-heading">
               {project.title}
             </h1>
-            <p className="text-muted-foreground text-lg md:text-xl font-light max-w-2xl mb-10">
+            <p className="content-lead text-muted-foreground text-lg md:text-xl font-light mb-10">
               {project.description}
             </p>
             <div className="w-20 h-0.5 bg-primary" />
@@ -51,13 +51,13 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={siteLoading ? {} : { opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
-          className="regular-container mx-auto px-4 sm:px-6 mt-12 md:mt-16 max-w-7xl">
+          className="regular-container mt-12 md:mt-16">
           <div className="relative aspect-video overflow-hidden rounded-xl border border-border shadow-elegant">
             <Image
               src={heroSrc!}
               alt={`${project.title} hero`}
               fill
-              sizes="(max-width: 1280px) 100vw, 1280px"
+              sizes="(max-width: 1920px) 100vw, 1536px"
               className="object-cover"
               priority
             />
@@ -88,7 +88,7 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
           <div className="absolute inset-0 pattern-overlay pointer-events-none" />
         )}
 
-        <div className="relative z-10 regular-container w-full">
+        <div className="relative z-10 w-full">
           <div className="text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -141,7 +141,7 @@ export const ProjectDetailHero = ({ project }: ProjectDetailHeroProps) => {
               animate={siteLoading ? {} : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className={cn(
-                'text-lg md:text-xl max-w-2xl mx-auto mb-8',
+                'content-lead-center text-lg md:text-xl mb-8',
                 project.bannerImage ? 'text-white/90' : 'text-muted-foreground'
               )}>
               {project.shortDescription || project.description}

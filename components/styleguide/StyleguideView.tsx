@@ -26,6 +26,7 @@ import {
   designColors,
   designRadii,
   designCardMotion,
+  designLayout,
   designShadows,
   designSpacing,
   designTypeScale,
@@ -423,7 +424,7 @@ export const StyleguideView = () => {
                     Full-bleed project tiles: neutral bottom scrim, title shifts to primary on
                     hover. Image stays visible — no orange overlay or heavy dimming.
                   </p>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="layout-grid-cards">
                     <ProjectPreviewCard
                       project={styleguidePreviewProjects[0]!}
                       index={0}
@@ -459,15 +460,47 @@ export const StyleguideView = () => {
 
             <StyleguideSection
               id="layout"
-              title="Layout utilities"
-              description="SectionContainer and container widths.">
-              <StyleguidePreviewBox label="SectionContainer + regular-container">
-                <SectionContainer className="bg-muted/30 rounded-lg border border-dashed border-border">
-                  <p className="text-center text-muted-foreground text-sm py-8">
-                    Content inside SectionContainer uses regular-container padding and max-width.
-                  </p>
-                </SectionContainer>
-              </StyleguidePreviewBox>
+              title="Layout"
+              description="Three tiers: shell (regular-container), focus/lead (heroes), prose (reading). Shell caps at 1536px on 4xl+ viewports with generous side margins on ultrawide monitors.">
+              <div className="space-y-8">
+                <StyleguidePreviewBox label="Layout tokens">
+                  <ul className="space-y-3 text-sm text-muted-foreground max-w-3xl">
+                    {designLayout.map(item => (
+                      <li key={item.utility}>
+                        <code className="text-xs text-primary font-mono">{item.utility}</code>
+                        <span className="text-foreground/90"> — {item.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Shell (regular-container)">
+                  <div className="regular-container rounded-lg border border-dashed border-primary/40 bg-primary/5 py-6">
+                    <p className="text-center text-sm text-muted-foreground">
+                      Outer box = shell max-width + gutters. On 2500px+ displays, content stays
+                      centered with intentional whitespace.
+                    </p>
+                  </div>
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Reading measure">
+                  <div className="regular-container space-y-4 rounded-lg border border-border bg-muted/20 py-6">
+                    <p className="content-focus-center text-center font-heading text-xl font-bold">
+                      content-focus-center — hero block
+                    </p>
+                    <p className="content-prose-center text-muted-foreground">
+                      content-prose-center — section intros and long copy (~65–75 characters per
+                      line). Use inside the shell, not instead of it.
+                    </p>
+                  </div>
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="SectionContainer">
+                  <SectionContainer className="!py-8 bg-muted/30 rounded-lg border border-dashed border-border">
+                    <p className="text-center text-muted-foreground text-sm">
+                      section-padding + regular-container (default). Use fullWidth for edge-to-edge
+                      galleries only.
+                    </p>
+                  </SectionContainer>
+                </StyleguidePreviewBox>
+              </div>
             </StyleguideSection>
           </div>
         </div>

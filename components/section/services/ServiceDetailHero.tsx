@@ -37,7 +37,7 @@ export const ServiceDetailHero = ({ service }: ServiceDetailHeroProps) => {
           <div className="absolute inset-0 pattern-overlay pointer-events-none" />
         )}
 
-        <div className="relative z-10 regular-container w-full">
+        <div className="relative z-10 w-full">
           {/* Back Link */}
           {/* <motion.div
             initial={{ opacity: 0, x: -20 }}

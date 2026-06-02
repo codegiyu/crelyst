@@ -19,7 +19,7 @@ export const ProjectsGridSection = ({ projects }: { projects: ClientProject[] })
           <p className="text-muted-foreground text-lg">No projects available at the moment.</p>
         </motion.div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="layout-grid-cards sm:grid-cols-2">
           {projects
             .sort((a, b) => {
               // Featured projects first
