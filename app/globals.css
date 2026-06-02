@@ -272,8 +272,8 @@
   --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
   /* Deep section surfaces (About preview, etc.) */
-  --surface-deep: 240 5% 7%;
-  --stat-card: 240 4% 9%;
+  --surface-deep: 240 4% 9%;
+  --stat-card: 240 5% 7%;
 
   /* Hex color palette - Dark theme */
   --color-dark: #020202;

@@ -104,7 +104,7 @@ const StatCard = ({
     whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
     transition={{ duration: 0.5, delay }}
     viewport={{ once: true }}
-    className="rounded-xl border border-white/5 bg-stat-card p-6 md:p-8">
+    className="rounded-xl border border-white/3 bg-stat-card p-6 md:p-8">
     <div className="text-3xl font-bold tabular-nums text-primary md:text-4xl">
       <StatValue stat={stat} delay={delay} siteLoading={siteLoading} />
     </div>
