@@ -197,6 +197,11 @@ export interface AllEndpoints {
   >;
 
   // Public lead forms
+  PRESIGN_FORM_SUBMISSION_ATTACHMENTS: EndpointDefinition<
+    IPresignFormSubmissionAttachmentsPayload,
+    IPresignFormSubmissionAttachmentsRes,
+    undefined
+  >;
   SUBMIT_QUOTE_REQUEST: EndpointDefinition<IQuoteRequestPayload, { ok: boolean }, undefined>;
   SUBMIT_WORK_WITH_US: EndpointDefinition<IWorkWithUsPayload, { ok: boolean }, undefined>;
 
@@ -455,6 +460,11 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
     method: 'PATCH',
   },
 
+  PRESIGN_FORM_SUBMISSION_ATTACHMENTS: {
+    path: '/public/form-submissions/presign',
+    method: 'POST',
+    isNotAuthenticated: true,
+  },
   SUBMIT_QUOTE_REQUEST: {
     path: '/public/quote-request',
     method: 'POST',
@@ -522,6 +532,14 @@ export type ITeamMembersListRes = GetListRes<ClientTeamMember, 'teamMembers'>;
 
 export type FormSubmissionFormType = 'quote-request' | 'work-with-us';
 
+export type ClientFormSubmissionAttachment = {
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  key: string;
+  publicUrl: string;
+};
+
 export interface ClientFormSubmission {
   _id: string;
   id?: string;
@@ -535,6 +553,8 @@ export interface ClientFormSubmission {
   budget?: string;
   portfolio?: string;
   experience?: string;
+  uploadSessionId?: string;
+  attachments?: ClientFormSubmissionAttachment[];
   sourceIp?: string | null;
   createdAt: string;
   updatedAt?: string;
@@ -904,7 +924,33 @@ export interface ISiteSettingsUpdatePayload {
   }>;
 }
 
-export interface IQuoteRequestPayload {
+export type FormSubmissionAttachmentsPayload = {
+  uploadSessionId?: string;
+  attachments?: ClientFormSubmissionAttachment[];
+};
+
+export interface IPresignFormSubmissionAttachmentsPayload {
+  formType: FormSubmissionFormType;
+  uploadSessionId: string;
+  files: Array<{
+    fileName: string;
+    fileSize: number;
+    contentType: string;
+  }>;
+}
+
+export interface IPresignFormSubmissionAttachmentsRes {
+  uploadSessionId: string;
+  uploads: Array<{
+    uploadUrl: string;
+    key: string;
+    publicUrl: string;
+    fileName: string;
+    storedFileName: string;
+  }>;
+}
+
+export interface IQuoteRequestPayload extends FormSubmissionAttachmentsPayload {
   name: string;
   company: string;
   email: string;
@@ -913,7 +959,7 @@ export interface IQuoteRequestPayload {
   message: string;
 }
 
-export interface IWorkWithUsPayload {
+export interface IWorkWithUsPayload extends FormSubmissionAttachmentsPayload {
   name: string;
   email: string;
   portfolio: string;

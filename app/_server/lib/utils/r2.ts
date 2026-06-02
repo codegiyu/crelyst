@@ -1,4 +1,9 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ENVIRONMENT } from '../config/environment';
 import { AppError } from './appError';
@@ -165,6 +170,21 @@ export const generatePresignedUrl = async ({
     publicUrl,
   };
 };
+
+/** Returns true when the object exists in the configured bucket. */
+export async function objectExistsInR2(key: string): Promise<boolean> {
+  try {
+    await r2Client.send(
+      new HeadObjectCommand({
+        Bucket: ENVIRONMENT.R2.BUCKET_NAME,
+        Key: key,
+      })
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Delete a file from R2
