@@ -17,9 +17,7 @@ export default async function AboutPage() {
       '/api/site-settings/contactInfo'
     ),
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
-    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>(
-      '/api/site-settings/appDetails'
-    ),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
   ]);
 
   const footerSettings = {
