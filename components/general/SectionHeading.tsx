@@ -61,13 +61,24 @@ export const SectionHeading = ({
 
   const inner = (
     <>
-      <p
-        className={cn(
-          sectionCaptionClassName,
-          whiteText ? 'text-primary-foreground' : 'text-primary'
-        )}>
-        {caption}
-      </p>
+      <div className={cn('flex items-center gap-3', isStart ? 'justify-start' : 'justify-center')}>
+        {isStart ? (
+          <span
+            aria-hidden
+            className={cn(
+              'block h-1 w-[50px] rounded-full',
+              whiteText ? 'bg-primary-foreground' : 'bg-primary'
+            )}
+          />
+        ) : null}
+        <p
+          className={cn(
+            sectionCaptionClassName,
+            whiteText ? 'text-primary-foreground' : 'text-primary'
+          )}>
+          {caption}
+        </p>
+      </div>
       <h2
         className={cn(
           variant === 'compact' ? sectionTitleCompactClassName : sectionTitleClassName,
