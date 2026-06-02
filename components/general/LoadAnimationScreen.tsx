@@ -27,6 +27,8 @@ export const LoadAnimationScreen = () => {
   } = useSiteStore(state => state);
   const [pageLoaded, setPageLoaded] = useState(false);
   const isInternalRoute = pathname?.startsWith('/internal') ?? false;
+  const isAdminRoute = pathname?.startsWith('/admin') ?? false;
+  const skipSplash = isInternalRoute || isAdminRoute;
   const [animationPhase, setAnimationPhase] = useState<'logo' | 'logofull' | 'fadeout'>('logo');
   const [particles] = useState<Particle[]>(() =>
     Array.from({ length: 12 }, (_, i) => ({
@@ -40,7 +42,7 @@ export const LoadAnimationScreen = () => {
   );
 
   useEffect(() => {
-    if (isInternalRoute) {
+    if (skipSplash) {
       setSiteLoading(false);
       return;
     }
@@ -69,9 +71,9 @@ export const LoadAnimationScreen = () => {
     return () => {
       window.removeEventListener('load', handleLoad);
     };
-  }, [isInternalRoute]);
+  }, [skipSplash]);
 
-  if (isInternalRoute) {
+  if (skipSplash) {
     return null;
   }
 

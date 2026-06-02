@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AdminLoginPage() {
   return (
-    <AuthLayout subtitle="Sign in to your account">
+    <AuthLayout subtitle="Secure access to site management">
       <LoginForm />
     </AuthLayout>
   );
