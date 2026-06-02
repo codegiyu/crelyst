@@ -27,6 +27,8 @@ export const Footer = ({ initialSettings }: { initialSettings?: PublicFooterSett
     initialSettings?.appDetails?.description ||
     'Your site description here. Update this with your actual content.';
 
+  const adminLink = NAV_LINKS.find(item => item.href === '/admin');
+
   return (
     <footer className="bg-[#050505] text-zinc-100 pt-16 md:pt-16 lg:pt-20 2xl:pt-28">
       <div className="regular-container">
@@ -53,9 +55,11 @@ export const Footer = ({ initialSettings }: { initialSettings?: PublicFooterSett
           <div className="h-fit grid gap-4">
             <h3 className="text-lg font-semibold text-accent">Quick Links</h3>
             <ul className="grid gap-3">
-              {NAV_LINKS.filter(item => !item.showInHeaderOnly).map((item, idx) => (
-                <FooterLink key={idx} {...item} />
-              ))}
+              {NAV_LINKS.filter(item => !item.showInHeaderOnly && item.href !== '/admin').map(
+                (item, idx) => (
+                  <FooterLink key={idx} {...item} />
+                )
+              )}
             </ul>
           </div>
 
@@ -81,14 +85,29 @@ export const Footer = ({ initialSettings }: { initialSettings?: PublicFooterSett
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-white/[0.08] py-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-x-3 gap-y-2 text-zinc-500 text-[0.9375rem] text-center">
-          <p>
-            &copy; {currentYear} {appName}. All rights reserved.
-          </p>
-          <span className="hidden sm:inline text-zinc-600" aria-hidden>
-            |
-          </span>
-          <p>
+        <div className="border-t border-white/[0.08] py-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-[0.9375rem] text-zinc-500">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:justify-start">
+            <p className="text-center sm:text-left">
+              &copy; {currentYear} {appName}. All rights reserved.
+            </p>
+            {adminLink ? (
+              <>
+                <span className="hidden sm:inline text-zinc-600" aria-hidden>
+                  |
+                </span>
+                <GhostBtn
+                  size="none"
+                  className="w-fit py-0"
+                  wrapClassName="w-fit"
+                  linkProps={{ href: adminLink.href || '#' }}>
+                  <span className="text-zinc-500 transition-smooth hover:text-zinc-300">
+                    {adminLink.text}
+                  </span>
+                </GhostBtn>
+              </>
+            ) : null}
+          </div>
+          <p className="text-center sm:text-right">
             Built by{' '}
             <a
               href="https://portfolio-codegiyu.vercel.app"
