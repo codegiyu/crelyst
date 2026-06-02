@@ -58,13 +58,13 @@ export const ContactInfoSection = ({
   ];
 
   return (
-    <SectionContainer className="bg-background lg:py-16">
+    <SectionContainer className="bg-background lg:pb-16">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-elegant h-full">
+        className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-none h-full">
         <SectionHeading
           caption="Reach Out"
           title="Contact Information"
@@ -72,6 +72,7 @@ export const ContactInfoSection = ({
           variant="compact"
           align="start"
           spacing="tight"
+          className="mb-16"
         />
 
         <div className="mt-8 grid gap-4">

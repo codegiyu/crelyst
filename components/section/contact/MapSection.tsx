@@ -7,8 +7,7 @@ import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { isGoogleMapsEmbedUrl } from '@/lib/utils/googleMapsEmbed';
 
-const CONTACT_MAP_FALLBACK_IMAGE_SRC =
-  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&auto=format&fit=crop';
+const CONTACT_MAP_FALLBACK_IMAGE_SRC = '/images/bg-hero-about.jpg';
 
 function MapImageFallback() {
   return (
@@ -40,7 +39,7 @@ export const MapSection = ({
         whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
         viewport={{ once: true }}
-        className="relative w-full h-[360px] md:h-[440px] rounded-2xl border border-border overflow-hidden shadow-elegant bg-muted">
+        className="relative w-full h-[360px] md:h-[440px] rounded-2xl border border-white/3 overflow-hidden shadow-card bg-white/3">
         {showMap ? (
           <iframe
             src={rawEmbed}

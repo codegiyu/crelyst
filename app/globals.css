@@ -203,6 +203,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-border: hsl(var(--border));
 }
 
 :root {
@@ -257,8 +258,8 @@
   --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 30 8% 25%;
-  --input: 30 8% 25%;
+  --border: 0 0% 100% / 0.05;
+  --input: 0 0% 100% / 0.05;
   --ring: 20 87% 65%;
 
   --radius: 0.75rem;
@@ -416,8 +417,8 @@
   --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 30 8% 25%;
-  --input: 30 8% 25%;
+  --border: 0 0% 100% / 0.05;
+  --input: 0 0% 100% / 0.05;
   --ring: 20 87% 65%;
 
   --radius: 0.75rem;

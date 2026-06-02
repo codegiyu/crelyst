@@ -17,7 +17,7 @@ import { Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { callApi } from '@/lib/services/callApi';
 
-const FORM_SIDE_IMAGE = '/images/bg-section-8.jpg';
+const FORM_SIDE_IMAGE = '/images/bg-hero-gallery.jpg';
 
 const workWithUsSchema = z.object({
   name: z.string().min(1, 'Full name is required'),
@@ -226,8 +226,8 @@ export const WorkWithUsFormSection = () => {
           whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           viewport={{ once: true }}
-          className="hidden lg:block relative w-full sticky top-28">
-          <div className="relative aspect-[4/5] max-h-[min(720px,75vh)] w-full overflow-hidden rounded-2xl border border-border shadow-elegant">
+          className="hidden lg:block w-full sticky top-28">
+          <div className="relative aspect-[4/5] max-h-[min(720px,75vh)] w-full overflow-hidden rounded-2xl border border-border shadow-none">
             <Image
               src={FORM_SIDE_IMAGE}
               alt="Creative professionals collaborating at Crelyst"

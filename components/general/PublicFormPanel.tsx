@@ -36,7 +36,7 @@ export function PublicFormPanel({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-border bg-card p-6 sm:p-8 md:p-10 shadow-elegant',
+        'rounded-2xl border border-border bg-card p-6 sm:p-8 md:p-10 shadow-none',
         className
       )}>
       <SectionHeading
@@ -46,7 +46,7 @@ export function PublicFormPanel({
         variant="compact"
         align={headingAlign}
         spacing="tight"
-        className={headingAlign === 'center' ? 'max-md:text-center' : undefined}
+        className={cn('mb-16', headingAlign === 'center' ? 'max-md:text-center' : undefined)}
       />
 
       {submitted ? (
