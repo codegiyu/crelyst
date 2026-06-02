@@ -1,6 +1,7 @@
 'use client';
 
 import { HeroSection } from './HeroSection';
+import { AboutStatsSection } from './AboutStatsSection';
 import { StorySection } from './StorySection';
 import { ValuesSection } from './ValuesSection';
 import { GallerySection } from './GallerySection';
@@ -17,6 +18,7 @@ export const AboutPageView = ({ teamMembers, projects, services }: AboutPageView
   return (
     <>
       <HeroSection />
+      <AboutStatsSection />
       <StorySection />
       <ValuesSection />
       <GallerySection projects={projects} services={services} />
