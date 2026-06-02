@@ -30,6 +30,10 @@ export type DomeGalleryProps = {
   imageBorderRadius?: string;
   openedImageBorderRadius?: string;
   grayscale?: boolean;
+  /** Landscape = wide arc (desktop); portrait = tall dome with stronger side curvature (mobile). */
+  layout?: 'landscape' | 'portrait';
+  /** Vertical segment density; defaults to `segments`. Lower values widen vertical arc on portrait layouts. */
+  segmentsY?: number;
 };
 
 type ItemDef = {
@@ -151,7 +155,12 @@ export function DomeGallery({
   imageBorderRadius = '30px',
   openedImageBorderRadius = '30px',
   grayscale = false,
+  layout = 'landscape',
+  segmentsY,
 }: DomeGalleryProps) {
+  const effectiveSegmentsY = segmentsY ?? segments;
+  const isPortraitLayout = layout === 'portrait';
+  const overlayColorVar = `var(--overlay-blur-color, ${overlayBlurColor})`;
   const rootRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const sphereRef = useRef<HTMLDivElement>(null);
@@ -226,9 +235,12 @@ export function DomeGallery({
           basis = aspect >= 1.3 ? w : minDim;
       }
       let radius = basis * fit;
-      const heightGuard = h * 1.35;
+      const heightGuard = h * (isPortraitLayout ? 1.5 : 1.35);
       radius = Math.min(radius, heightGuard);
       radius = clamp(radius, minRadius, maxRadius);
+      if (isPortraitLayout) {
+        radius = Math.max(radius, Math.round(h * 0.42));
+      }
       lockedRadiusRef.current = Math.round(radius);
 
       const viewerPad = Math.max(8, Math.round(minDim * padFactor));
@@ -280,6 +292,8 @@ export function DomeGallery({
     openedImageBorderRadius,
     openedImageWidth,
     openedImageHeight,
+    layout,
+    isPortraitLayout,
   ]);
 
   useEffect(() => {
@@ -769,6 +783,35 @@ export function DomeGallery({
         width: 100% !important;
       }
     }
+
+    .sphere-root[data-layout="portrait"] .stage {
+      perspective: calc(var(--radius) * 2.35);
+      perspective-origin: 50% 38%;
+    }
+
+    .dome-side-fade {
+      display: none;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: min(22vw, 96px);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .sphere-root[data-layout="portrait"] .dome-side-fade {
+      display: block;
+    }
+
+    .dome-side-fade--left {
+      left: 0;
+      background: linear-gradient(to right, var(--overlay-blur-color, #0a0a0a) 0%, transparent 100%);
+    }
+
+    .dome-side-fade--right {
+      right: 0;
+      background: linear-gradient(to left, var(--overlay-blur-color, #0a0a0a) 0%, transparent 100%);
+    }
     
     // body.dg-scroll-lock {
     //   position: fixed !important;
@@ -805,10 +848,11 @@ export function DomeGallery({
       <style dangerouslySetInnerHTML={{ __html: cssStyles }} />
       <div
         ref={rootRef}
+        data-layout={layout}
         className={cn('sphere-root relative h-full w-full', className)}
         style={{
           ['--segments-x' as string]: segments,
-          ['--segments-y' as string]: segments,
+          ['--segments-y' as string]: effectiveSegmentsY,
           ['--overlay-blur-color' as string]: overlayBlurColor,
           ['--tile-radius' as string]: imageBorderRadius,
           ['--enlarge-radius' as string]: openedImageBorderRadius,
@@ -889,18 +933,27 @@ export function DomeGallery({
           <div
             className="absolute inset-0 m-auto z-[3] pointer-events-none"
             style={{
-              backgroundImage: `radial-gradient(rgba(235, 235, 235, 0) 65%, var(--overlay-blur-color, ${overlayBlurColor}) 100%)`,
+              backgroundImage: isPortraitLayout
+                ? `radial-gradient(ellipse 50% 82% at 50% 38%, rgba(235, 235, 235, 0) 48%, ${overlayColorVar} 100%)`
+                : `radial-gradient(rgba(235, 235, 235, 0) 65%, ${overlayColorVar} 100%)`,
             }}
           />
 
           <div
             className="absolute inset-0 m-auto z-[3] pointer-events-none"
             style={{
-              WebkitMaskImage: `radial-gradient(rgba(235, 235, 235, 0) 70%, var(--overlay-blur-color, ${overlayBlurColor}) 90%)`,
-              maskImage: `radial-gradient(rgba(235, 235, 235, 0) 70%, var(--overlay-blur-color, ${overlayBlurColor}) 90%)`,
+              WebkitMaskImage: isPortraitLayout
+                ? `radial-gradient(ellipse 54% 86% at 50% 40%, rgba(235, 235, 235, 0) 52%, ${overlayColorVar} 96%)`
+                : `radial-gradient(rgba(235, 235, 235, 0) 70%, ${overlayColorVar} 90%)`,
+              maskImage: isPortraitLayout
+                ? `radial-gradient(ellipse 54% 86% at 50% 40%, rgba(235, 235, 235, 0) 52%, ${overlayColorVar} 96%)`
+                : `radial-gradient(rgba(235, 235, 235, 0) 70%, ${overlayColorVar} 90%)`,
               backdropFilter: 'blur(3px)',
             }}
           />
+
+          <div className="dome-side-fade dome-side-fade--left" aria-hidden />
+          <div className="dome-side-fade dome-side-fade--right" aria-hidden />
 
           <div
             className="absolute left-0 right-0 top-0 h-[120px] z-[5] pointer-events-none rotate-180"
