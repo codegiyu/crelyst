@@ -41,7 +41,7 @@ export default function Error({
             <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
               <button
                 onClick={reset}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-light shadow-elegant hover:shadow-creative transition-all duration-300 font-medium">
                 Try Again
               </button>
               <Btns404Page />
