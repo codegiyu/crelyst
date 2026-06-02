@@ -33,5 +33,5 @@ export const deleteTestimonial: RouteHandler = async ({ request, user }) => {
 
   revalidateAboutAndHome();
 
-  return sendResponse(200, null, 'Testimonial deleted successfully');
+  return sendResponse(200, { success: true }, 'Testimonial deleted successfully');
 };

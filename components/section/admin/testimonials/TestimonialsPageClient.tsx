@@ -49,6 +49,9 @@ export const TestimonialsPageClient = ({
   const [deleteTestimonial, setDeleteTestimonial] = useState<ClientTestimonial | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
 
+  const nextDisplayOrder =
+    testimonials.reduce((max, t) => Math.max(max, t.displayOrder ?? 0), 0) + 1;
+
   const handleCreate = () => {
     setEditingTestimonial(null);
     setIsFormOpen(true);
@@ -144,7 +147,7 @@ export const TestimonialsPageClient = ({
           {[...testimonials]
             .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
             .map(testimonial => (
-              <TestimonialCard
+              <AdminTestimonialCard
                 key={testimonial._id}
                 testimonial={testimonial}
                 onEdit={() => handleEdit(testimonial)}
@@ -161,6 +164,7 @@ export const TestimonialsPageClient = ({
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         testimonial={editingTestimonial}
+        nextDisplayOrder={nextDisplayOrder}
         onSuccess={handleFormSuccess}
       />
 
@@ -186,7 +190,7 @@ export const TestimonialsPageClient = ({
   );
 };
 
-interface TestimonialCardProps {
+interface AdminTestimonialCardProps {
   testimonial: ClientTestimonial;
   onEdit: () => void;
   onDelete: () => void;
@@ -194,13 +198,21 @@ interface TestimonialCardProps {
   onToggleActive: () => void;
 }
 
-const TestimonialCard = ({
+function buildAdminSubtitle(testimonial: ClientTestimonial): string | null {
+  const parts = [testimonial.clientRole, testimonial.companyName].filter(Boolean);
+
+  return parts.length > 0 ? parts.join(' · ') : null;
+}
+
+const AdminTestimonialCard = ({
   testimonial,
   onEdit,
   onDelete,
   onToggleFeatured,
   onToggleActive,
-}: TestimonialCardProps) => {
+}: AdminTestimonialCardProps) => {
+  const subtitle = buildAdminSubtitle(testimonial);
+
   return (
     <div className="group relative rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Header with client info */}
@@ -227,13 +239,9 @@ const TestimonialCard = ({
             )}
             <div className="min-w-0">
               <h3 className="font-semibold text-foreground truncate">{testimonial.clientName}</h3>
-              {(testimonial.clientRole || testimonial.companyName) && (
-                <p className="text-sm text-muted-foreground truncate">
-                  {testimonial.clientRole}
-                  {testimonial.clientRole && testimonial.companyName && ' at '}
-                  {testimonial.companyName}
-                </p>
-              )}
+              {subtitle ? (
+                <p className="text-sm text-muted-foreground truncate">{subtitle}</p>
+              ) : null}
             </div>
           </div>
           <DropdownMenu>
