@@ -7,10 +7,6 @@ import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { isGoogleMapsEmbedUrl } from '@/lib/utils/googleMapsEmbed';
 
-/**
- * Shown when no valid Google Maps embed URL is configured.
- * Use a path under `public/` (e.g. `/images/contact-map-fallback.jpg`) or any URL allowed in `next.config` `images.remotePatterns`.
- */
 const CONTACT_MAP_FALLBACK_IMAGE_SRC =
   'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&auto=format&fit=crop';
 
@@ -38,13 +34,13 @@ export const MapSection = ({
   const showMap = rawEmbed.length > 0 && isGoogleMapsEmbedUrl(rawEmbed);
 
   return (
-    <SectionContainer className="py-0 md:py-0 lg:py-0">
+    <SectionContainer className="bg-background pb-16 md:pb-20">
       <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={siteLoading ? {} : { opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
         viewport={{ once: true }}
-        className="relative w-full h-[400px] md:h-[500px] rounded-none overflow-hidden bg-muted">
+        className="relative w-full h-[360px] md:h-[440px] rounded-2xl border border-border overflow-hidden shadow-elegant bg-muted">
         {showMap ? (
           <iframe
             src={rawEmbed}

@@ -9,6 +9,7 @@ import { SocialBtn } from '@/components/layout/Footer';
 import { getSocialIcon, formatSocialLabel } from '@/lib/utils/socials';
 import { formatOfficeHours } from '@/lib/utils/contactInfo';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
+import { cn } from '@/lib/utils';
 
 export const ContactInfoSection = ({
   contactInfo: contactInfoProp,
@@ -57,12 +58,13 @@ export const ContactInfoSection = ({
   ];
 
   return (
-    <SectionContainer className="bg-secondary text-secondary-foreground h-full">
+    <SectionContainer className="bg-background lg:py-16">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        viewport={{ once: true }}>
+        viewport={{ once: true }}
+        className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-elegant h-full">
         <SectionHeading
           caption="Reach Out"
           title="Contact Information"
@@ -70,33 +72,34 @@ export const ContactInfoSection = ({
           variant="compact"
           align="start"
           spacing="tight"
-          className="[&_p:first-child]:text-accent [&_h2]:text-accent [&_p:last-of-type]:text-secondary-foreground/80"
         />
 
-        <div className="grid gap-6">
+        <div className="mt-8 grid gap-4">
           {contactItems.map((item, index) => (
             <motion.div
               key={item.title}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               whileInView={siteLoading ? {} : { opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.08 }}
               viewport={{ once: true }}
-              className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-secondary-foreground/10 flex items-center justify-center flex-shrink-0">
-                <item.Icon className="w-5 h-5 text-accent" />
+              className={cn(
+                'flex items-start gap-4 rounded-xl border border-border/80 bg-muted/20 p-4 transition-colors hover:border-primary/30'
+              )}>
+              <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <item.Icon className="w-5 h-5 text-primary" aria-hidden />
               </div>
-              <div>
-                <h3 className="font-semibold text-secondary-foreground mb-1">{item.title}</h3>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
                 <div className="grid gap-0.5">
                   {item.details.length === 0 ? (
-                    <p className="text-secondary-foreground/50 italic text-sm">Not available</p>
+                    <p className="text-muted-foreground italic text-sm">Not available</p>
                   ) : (
                     item.details.map((detail, i) => (
-                      <p key={i} className="text-secondary-foreground/70">
+                      <p key={i} className="text-sm text-muted-foreground">
                         {item.isLink ? (
                           <a
                             href={`${item.linkPrefix}${detail.replace(/\s/g, '')}`}
-                            className="hover:text-accent transition-colors">
+                            className="hover:text-primary transition-colors break-all">
                             {detail}
                           </a>
                         ) : (
@@ -111,19 +114,16 @@ export const ContactInfoSection = ({
           ))}
         </div>
 
-        {/* Social Links */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
           viewport={{ once: true }}
-          className="mt-10 pt-8 border-t border-secondary-foreground/10">
-          <h3 className="font-semibold text-secondary-foreground mb-4">Follow Us</h3>
-          <div className="flex items-center gap-3">
+          className="mt-8 pt-6 border-t border-border">
+          <h3 className="font-semibold text-foreground mb-4">Follow Us</h3>
+          <div className="flex items-center gap-3 flex-wrap">
             {socials.length === 0 ? (
-              <p className="text-secondary-foreground/50 italic text-sm">
-                No social links available
-              </p>
+              <p className="text-muted-foreground italic text-sm">No social links available</p>
             ) : (
               socials.map((social, idx) => <SocialBtn key={idx} {...social} />)
             )}
