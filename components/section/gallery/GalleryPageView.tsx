@@ -18,14 +18,16 @@ export const GalleryPageView = ({ images }: GalleryPageViewProps) => {
         <GalleryHeroSection />
       </div>
       <GalleryDomeSection images={images} />
-      <PublicContactCTASection
-        caption="Start a project"
-        title="See something you love?"
-        description="Tell us about your brand, product, or campaign — we'll help you bring it to life with the same craft on display here."
-        buttonLabel="Start Your Project"
-        contactHref="/contact"
-        motionDelay={0.2}
-      />
+      <div className="snap-start scroll-mt-4">
+        <PublicContactCTASection
+          caption="Start a project"
+          title="See something you love?"
+          description="Tell us about your brand, product, or campaign — we'll help you bring it to life with the same craft on display here."
+          buttonLabel="Start Your Project"
+          contactHref="/contact"
+          motionDelay={0.2}
+        />
+      </div>
     </>
   );
 };

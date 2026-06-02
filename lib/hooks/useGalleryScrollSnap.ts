@@ -2,10 +2,12 @@
 
 import { useEffect } from 'react';
 
-const SNAP_CLASSES = ['snap-y', 'snap-mandatory'] as const;
+/** Proximity snapping: settles near hero/dome/CTA when you slow down, but does not trap scroll like mandatory. */
+const SNAP_CLASSES = ['snap-y', 'snap-proximity'] as const;
 
 /**
- * Enables viewport scroll-snap on the gallery route (hero + dome section).
+ * Enables viewport scroll-snap on the gallery route.
+ * Uses proximity (not mandatory) so users can scroll past the dome to the CTA and footer.
  * Skipped when the user prefers reduced motion.
  */
 export function useGalleryScrollSnap() {
