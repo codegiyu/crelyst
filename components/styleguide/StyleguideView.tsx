@@ -63,6 +63,28 @@ export type StyleguideViewProps = {
   sampleTestimonial: ClientTestimonial;
 };
 
+type StyleguideNavItemProps = {
+  id: string;
+  label: string;
+  isActive: boolean;
+};
+
+const StyleguideNavItem = ({ id, label, isActive }: StyleguideNavItemProps) => (
+  <li>
+    <a
+      href={`#${id}`}
+      aria-current={isActive ? 'location' : undefined}
+      className={cn(
+        'block rounded-md border-l-2 py-2 pl-3 pr-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        isActive
+          ? 'border-primary bg-primary/10 font-medium text-primary'
+          : 'border-transparent text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground'
+      )}>
+      {label}
+    </a>
+  </li>
+);
+
 export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
   const setSiteLoading = useSiteStore(s => s.actions.setSiteLoading);
   const activeSectionId = useStyleguideScrollspy(
@@ -96,25 +118,14 @@ export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
             aria-label="Styleguide sections"
             className="hidden lg:block sticky top-24 self-start w-52 shrink-0">
             <ul className="space-y-1 text-sm">
-              {styleguideNav.map(item => {
-                const isActive = activeSectionId === item.id;
-
-                return (
-                  <li key={item.id}>
-                    <a
-                      href={`#${item.id}`}
-                      aria-current={isActive ? 'location' : undefined}
-                      className={cn(
-                        'block rounded-md border-l-2 py-2 pl-3 pr-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                        isActive
-                          ? 'border-primary bg-primary/10 font-medium text-primary'
-                          : 'border-transparent text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground'
-                      )}>
-                      {item.label}
-                    </a>
-                  </li>
-                );
-              })}
+              {styleguideNav.map(item => (
+                <StyleguideNavItem
+                  key={item.id}
+                  id={item.id}
+                  label={item.label}
+                  isActive={activeSectionId === item.id}
+                />
+              ))}
             </ul>
           </nav>
 

@@ -20,6 +20,51 @@ interface ServiceDetailContentProps {
   service: ClientService;
 }
 
+type PackagePricingCardProps = {
+  pkg: NonNullable<ClientService['packagePricing']>[number]['packages'][number];
+  packageIndex: number;
+  delay: number;
+  anim: (delay?: number) => {} | { opacity: 1; y: 0 };
+};
+
+const PackagePricingCard = ({ pkg, packageIndex, delay, anim }: PackagePricingCardProps) => {
+  const isMiddle = packageIndex === 1;
+  const priceLabel =
+    pkg.priceRange.length === 1
+      ? `${(pkg.priceRange[0] / 1000).toLocaleString()}k`
+      : `${(pkg.priceRange[0] / 1000).toLocaleString()}k – ${(pkg.priceRange[1] / 1000).toLocaleString()}k`;
+
+  return (
+    <motion.div
+      key={pkg.id}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={anim()}
+      transition={{ duration: 0.5, delay }}
+      viewport={{ once: true }}
+      className={`relative overflow-hidden rounded-2xl border p-6 md:p-8 ${
+        isMiddle ? 'border-primary bg-primary/5' : 'border-border bg-card'
+      }`}>
+      {isMiddle && (
+        <span className="absolute right-4 top-4 rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase text-primary-foreground">
+          Popular
+        </span>
+      )}
+      <p className="mb-1 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        {pkg.id}
+      </p>
+      <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">&#8358;{priceLabel}</p>
+      <ul className="grid gap-2.5">
+        {pkg.benefits.map((b, bi) => (
+          <li key={bi} className="flex items-start gap-2 text-sm text-muted-foreground">
+            <Check className="mt-0.5 h-4 w-4 flex-none text-primary" />
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  );
+};
+
 export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => {
   const { siteLoading } = useSiteStore(state => state);
   const anim = (delay = 0) => (siteLoading ? {} : ({ opacity: 1, y: 0 } as const));
@@ -241,47 +286,15 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
                 </motion.h3>
 
                 <div className="grid gap-6 md:grid-cols-3">
-                  {category.packages.map((pkg, pi) => {
-                    const isMiddle = pi === 1;
-                    const priceLabel =
-                      pkg.priceRange.length === 1
-                        ? `${(pkg.priceRange[0] / 1000).toLocaleString()}k`
-                        : `${(pkg.priceRange[0] / 1000).toLocaleString()}k – ${(pkg.priceRange[1] / 1000).toLocaleString()}k`;
-
-                    return (
-                      <motion.div
-                        key={pkg.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={anim()}
-                        transition={{ duration: 0.5, delay: pi * 0.1 }}
-                        viewport={{ once: true }}
-                        className={`relative overflow-hidden rounded-2xl border p-6 md:p-8 ${
-                          isMiddle ? 'border-primary bg-primary/5' : 'border-border bg-card'
-                        }`}>
-                        {isMiddle && (
-                          <span className="absolute right-4 top-4 rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase text-primary-foreground">
-                            Popular
-                          </span>
-                        )}
-                        <p className="mb-1 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                          {pkg.id}
-                        </p>
-                        <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">
-                          &#8358;{priceLabel}
-                        </p>
-                        <ul className="grid gap-2.5">
-                          {pkg.benefits.map((b, bi) => (
-                            <li
-                              key={bi}
-                              className="flex items-start gap-2 text-sm text-muted-foreground">
-                              <Check className="mt-0.5 h-4 w-4 flex-none text-primary" />
-                              <span>{b}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </motion.div>
-                    );
-                  })}
+                  {category.packages.map((pkg, pi) => (
+                    <PackagePricingCard
+                      key={pkg.id}
+                      pkg={pkg}
+                      packageIndex={pi}
+                      delay={pi * 0.1}
+                      anim={anim}
+                    />
+                  ))}
                 </div>
               </div>
             ))}
