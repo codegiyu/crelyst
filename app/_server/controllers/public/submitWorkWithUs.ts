@@ -9,14 +9,19 @@ import {
   assertPublicFormRateLimit,
   getClientIpForRateLimit,
 } from '../../lib/utils/publicFormRateLimit';
+import { formAttachmentsPayloadSchema } from '../../lib/validation/formAttachments';
+import { verifyFormAttachmentsForSubmit } from '../../lib/utils/verifyFormAttachments';
+import { attachmentFieldsForEmail } from '../../lib/utils/formSubmissionNotify';
 
-const workWithUsSchema = z.object({
-  name: z.string().min(1, 'Full name is required'),
-  email: z.email('Please enter a valid email address'),
-  portfolio: z.url('Please enter a valid portfolio URL'),
-  experience: z.string().min(1, 'Please select your experience level'),
-  message: z.string().min(10, 'Please tell us more about yourself (at least 10 characters)'),
-});
+const workWithUsSchema = z
+  .object({
+    name: z.string().min(1, 'Full name is required'),
+    email: z.email('Please enter a valid email address'),
+    portfolio: z.url('Please enter a valid portfolio URL'),
+    experience: z.string().min(1, 'Please select your experience level'),
+    message: z.string().min(10, 'Please tell us more about yourself (at least 10 characters)'),
+  })
+  .merge(formAttachmentsPayloadSchema);
 
 export const submitWorkWithUs: RouteHandler = async ({ body, request }) => {
   const ip = getClientIpForRateLimit(request);
@@ -24,9 +29,20 @@ export const submitWorkWithUs: RouteHandler = async ({ body, request }) => {
 
   const payload = validateBody(workWithUsSchema, body ?? {});
 
+  const attachments = await verifyFormAttachmentsForSubmit(
+    payload.uploadSessionId,
+    payload.attachments
+  );
+
   await createFormSubmission({
     formType: 'work-with-us',
-    ...payload,
+    name: payload.name,
+    email: payload.email,
+    portfolio: payload.portfolio,
+    experience: payload.experience,
+    message: payload.message,
+    uploadSessionId: payload.uploadSessionId,
+    attachments,
     sourceIp: ip === 'unknown' ? null : ip,
   });
 
@@ -43,6 +59,7 @@ export const submitWorkWithUs: RouteHandler = async ({ body, request }) => {
       Portfolio: payload.portfolio,
       Experience: payload.experience,
       Message: payload.message,
+      ...attachmentFieldsForEmail(attachments),
     },
   }).catch(err => logger.error('Work-with-us notification email failed', { err }));
 

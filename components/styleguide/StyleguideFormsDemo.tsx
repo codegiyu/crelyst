@@ -5,7 +5,21 @@ import { RegularInput } from '@/components/atoms/RegularInput';
 import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularSelect } from '@/components/atoms/RegularSelect';
 import { PublicFormPanel } from '@/components/general/PublicFormPanel';
+import { RegularFileInput } from '@/components/atoms/RegularFileInput';
+import { usePublicFormAttachments } from '@/lib/hooks/use-public-form-attachments';
 import { StyleguidePreviewBox } from './StyleguideSection';
+
+function StyleguideFileInputDemo() {
+  const attachment = usePublicFormAttachments('quote-request');
+  return (
+    <RegularFileInput
+      files={attachment.files}
+      onFilesSelected={attachment.addFiles}
+      onRemoveFile={attachment.removeFile}
+      errors={attachment.fieldError ? [attachment.fieldError] : []}
+    />
+  );
+}
 
 export function StyleguideFormsDemo() {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -64,6 +78,10 @@ export function StyleguideFormsDemo() {
           errors={['Please select a budget range']}
           options={[{ value: '50k-100k', text: '₦50,000 - ₦100,000' }]}
         />
+      </StyleguidePreviewBox>
+
+      <StyleguidePreviewBox label="File input (optional attachments)">
+        <StyleguideFileInputDemo />
       </StyleguidePreviewBox>
 
       <StyleguidePreviewBox label="Public form panel — success state">

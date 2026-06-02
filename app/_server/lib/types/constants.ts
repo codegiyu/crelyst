@@ -611,6 +611,7 @@ export const UPLOAD_INTENTS = [
   'banner-image',
   'image',
   'other',
+  'attachment',
 ] as const;
 export type UploadIntent = (typeof UPLOAD_INTENTS)[number];
 
@@ -622,6 +623,7 @@ export const ENTITY_TYPES = [
   'testimonial',
   'brand',
   'team-member',
+  'form-submission',
 ] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
@@ -633,6 +635,7 @@ export const UPLOAD_ENTITY_TYPES: EntityType[] = [
   'project',
   'testimonial',
   'brand',
+  'form-submission',
 ];
 
 /** Upload intents allowed for client (non-admin) users. */
