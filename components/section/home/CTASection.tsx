@@ -12,6 +12,68 @@ import { GhostBtn } from '@/components/atoms/GhostBtn';
 import type { ClientProject, ClientService, ClientSiteSettings } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 
+type CTAMarqueeColumnProps = {
+  marqueeIndex: number;
+  images: string[];
+};
+
+const CTAMarqueeColumn = ({ marqueeIndex, images }: CTAMarqueeColumnProps) => {
+  const marqueeImages = images.filter((_, index) => index % 3 === marqueeIndex);
+  const sourceImages = marqueeImages.length > 0 ? marqueeImages : images;
+  const duplicatedImages = [...sourceImages, ...sourceImages, ...sourceImages, ...sourceImages];
+  const isReverse = marqueeIndex % 2 === 1;
+  const baseSpeedPerImage = 25;
+  const calculatedDuration = Math.max(sourceImages.length * baseSpeedPerImage, 20);
+
+  return (
+    <div
+      className="flex-1 h-full overflow-hidden"
+      style={{
+        transform: 'rotate(15deg)',
+        transformOrigin: 'center center',
+      }}>
+      <motion.div
+        animate={{
+          y: isReverse ? ['0%', '-50%'] : ['-50%', '0%'],
+        }}
+        transition={{
+          duration: calculatedDuration,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+        className="flex flex-col gap-1 sm:gap-1 md:gap-1">
+        {duplicatedImages.map((image, index) => (
+          <div
+            key={`marquee-${marqueeIndex}-img-${index}`}
+            className="relative shrink-0 w-full aspect-[3/4] rounded-none overflow-hidden opacity-80 hover:opacity-90 transition-opacity">
+            <Image
+              src={image}
+              alt={`Marquee ${marqueeIndex} image ${index}`}
+              fill
+              sizes="25vw"
+              className="object-cover"
+            />
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+const CTAMarquees = ({ images }: { images: string[] }) => (
+  <div className="absolute inset-0 z-0 flex items-center justify-end overflow-hidden overflow-x-clip pointer-events-none">
+    <div className="flex h-[150%] w-[75%] min-w-[75%] translate-x-0 items-center justify-end gap-1 sm:gap-1 sm:translate-x-[4%] md:translate-x-[10%] md:gap-5">
+      {[0, 1, 2].map(marqueeIndex => (
+        <CTAMarqueeColumn
+          key={`marquee-${marqueeIndex}`}
+          marqueeIndex={marqueeIndex}
+          images={images}
+        />
+      ))}
+    </div>
+  </div>
+);
+
 export const CTASection = ({
   contactInfo,
   projects,
@@ -28,14 +90,6 @@ export const CTASection = ({
     [projects, services]
   );
 
-  const getMarqueeImages = (marqueeIndex: number) => {
-    if (images.length === 0) return [];
-    // Distribute images across three marquees
-    const filtered = images.filter((_, index) => index % 3 === marqueeIndex);
-    // If a marquee has no images, use all images to ensure visibility
-    return filtered.length > 0 ? filtered : images;
-  };
-
   const phoneNumber = contactInfo?.tel?.[0] || '';
   const phoneLink = phoneNumber
     ? `tel:${phoneNumber.replaceAll(' ', '').replaceAll('-', '').replaceAll('(', '').replaceAll(')', '')}`
@@ -44,64 +98,7 @@ export const CTASection = ({
   return (
     <section className="relative isolate overflow-x-clip py-24 md:py-32 overflow-hidden">
       {/* Three Vertical Marquees — clip + gentler X nudge on small viewports to avoid subpixel horizontal overflow */}
-      {images.length > 0 && (
-        <div className="absolute inset-0 z-0 flex items-center justify-end overflow-hidden overflow-x-clip pointer-events-none">
-          <div className="flex h-[150%] w-[75%] min-w-[75%] translate-x-0 items-center justify-end gap-1 sm:gap-1 sm:translate-x-[4%] md:translate-x-[10%] md:gap-5">
-            {[0, 1, 2].map(marqueeIndex => {
-              const marqueeImages = getMarqueeImages(marqueeIndex);
-              // Duplicate images for seamless infinite scroll (need at least 2 copies)
-              const duplicatedImages = [
-                ...marqueeImages,
-                ...marqueeImages,
-                ...marqueeImages,
-                ...marqueeImages,
-              ];
-              const isReverse = marqueeIndex % 2 === 1; // Alternate directions (middle one reverses)
-
-              // Calculate duration based on number of images to maintain constant visual speed
-              // Base speed: 5 seconds per image (adjust this to change overall speed)
-              // Since we animate through 50% (one full set), duration = original images * base speed
-              const baseSpeedPerImage = 25; // seconds per image
-              const calculatedDuration = Math.max(marqueeImages.length * baseSpeedPerImage, 20); // Minimum 20 seconds
-
-              return (
-                <div
-                  key={`marquee-${marqueeIndex}`}
-                  className="flex-1 h-full overflow-hidden"
-                  style={{
-                    transform: 'rotate(15deg)',
-                    transformOrigin: 'center center',
-                  }}>
-                  <motion.div
-                    animate={{
-                      y: isReverse ? ['0%', '-50%'] : ['-50%', '0%'],
-                    }}
-                    transition={{
-                      duration: calculatedDuration,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
-                    className="flex flex-col gap-1 sm:gap-1 md:gap-1">
-                    {duplicatedImages.map((image, index) => (
-                      <div
-                        key={`marquee-${marqueeIndex}-img-${index}`}
-                        className="relative shrink-0 w-full aspect-[3/4] rounded-none overflow-hidden opacity-80 hover:opacity-90 transition-opacity">
-                        <Image
-                          src={image}
-                          alt={`Marquee ${marqueeIndex} image ${index}`}
-                          fill
-                          sizes="25vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                  </motion.div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {images.length > 0 && <CTAMarquees images={images} />}
 
       {/* Background with gradient fade to right - darker primary mix for calmer harmony */}
       <div

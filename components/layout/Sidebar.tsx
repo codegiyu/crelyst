@@ -117,83 +117,90 @@ export const SidebarLinkGroup = ({
       : 'hover:bg-primary/15 hover:text-accent-foreground';
   };
 
+  type SidebarLinkItemProps = {
+    link: ISidebarLink;
+  };
+
+  const SidebarLinkItem = ({ link }: SidebarLinkItemProps) => {
+    const { Icon, LucideIcon, page, path, action, inboxBadgeKey } = link;
+    const href = path ? `${path.prefix}${path.suffix}` : `/${page.toLowerCase()}`;
+    const badgeCount =
+      inboxBadgeKey === 'quoteRequest'
+        ? unreadCounts.quoteRequest
+        : inboxBadgeKey === 'workWithUs'
+          ? unreadCounts.workWithUs
+          : 0;
+    const tooltipLabel =
+      isCollapsed && badgeCount > 0 && inboxBadgeKey ? `${page} (${badgeCount} unread)` : page;
+
+    const buttonContent = action ? (
+      <GhostBtn className={`${getNavClassName()} justify-start p-2`} onClick={action}>
+        {Icon ? (
+          <i className="text-base">
+            <Icon />
+          </i>
+        ) : (
+          <LucideIcon className="h-4 w-4" />
+        )}
+        {!isCollapsed && <span>{page}</span>}
+      </GhostBtn>
+    ) : (
+      <GhostBtn
+        className={`${getNavClassName(href)} justify-start ${isCollapsed ? 'w-fit' : 'w-full'} p-0`}
+        wrapClassName={`${isCollapsed ? 'w-fit' : 'w-full'}`}>
+        <NavLink
+          href={href}
+          className={cn(
+            'w-full flex items-center gap-2 p-2',
+            !isCollapsed && badgeCount > 0 && inboxBadgeKey && 'pr-9'
+          )}>
+          {Icon ? (
+            <i className="text-base">
+              <Icon />
+            </i>
+          ) : (
+            <LucideIcon className="h-4 w-4" />
+          )}
+          {!isCollapsed && <span>{page}</span>}
+        </NavLink>
+      </GhostBtn>
+    );
+
+    const menuButton = (
+      <SidebarMenuButton asChild variant="none">
+        {buttonContent}
+      </SidebarMenuButton>
+    );
+
+    return (
+      <SidebarMenuItem key={page}>
+        {isCollapsed ? (
+          <Tooltip delayDuration={150}>
+            <TooltipTrigger asChild>{menuButton}</TooltipTrigger>
+            <TooltipContent side="right" className="text-xs font-medium">
+              {tooltipLabel}
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          menuButton
+        )}
+        {badgeCount > 0 && inboxBadgeKey ? (
+          <SidebarMenuBadge className="bg-primary text-primary-foreground">
+            {badgeCount > 99 ? '99+' : badgeCount}
+          </SidebarMenuBadge>
+        ) : null}
+      </SidebarMenuItem>
+    );
+  };
+
   return (
     <SidebarGroup>
       {groupName && <SidebarGroupLabel>{groupName}</SidebarGroupLabel>}
       <SidebarGroupContent>
         <SidebarMenu>
-          {links.map(({ Icon, LucideIcon, page, path, action, inboxBadgeKey }) => {
-            const href = path ? `${path.prefix}${path.suffix}` : `/${page.toLowerCase()}`;
-            const badgeCount =
-              inboxBadgeKey === 'quoteRequest'
-                ? unreadCounts.quoteRequest
-                : inboxBadgeKey === 'workWithUs'
-                  ? unreadCounts.workWithUs
-                  : 0;
-            const tooltipLabel =
-              isCollapsed && badgeCount > 0 && inboxBadgeKey
-                ? `${page} (${badgeCount} unread)`
-                : page;
-
-            const buttonContent = action ? (
-              <GhostBtn className={`${getNavClassName()} justify-start p-2`} onClick={action}>
-                {Icon ? (
-                  <i className="text-base">
-                    <Icon />
-                  </i>
-                ) : (
-                  <LucideIcon className="h-4 w-4" />
-                )}
-                {!isCollapsed && <span>{page}</span>}
-              </GhostBtn>
-            ) : (
-              <GhostBtn
-                className={`${getNavClassName(href)} justify-start ${isCollapsed ? 'w-fit' : 'w-full'} p-0`}
-                wrapClassName={`${isCollapsed ? 'w-fit' : 'w-full'}`}>
-                <NavLink
-                  href={href}
-                  className={cn(
-                    'w-full flex items-center gap-2 p-2',
-                    !isCollapsed && badgeCount > 0 && inboxBadgeKey && 'pr-9'
-                  )}>
-                  {Icon ? (
-                    <i className="text-base">
-                      <Icon />
-                    </i>
-                  ) : (
-                    <LucideIcon className="h-4 w-4" />
-                  )}
-                  {!isCollapsed && <span>{page}</span>}
-                </NavLink>
-              </GhostBtn>
-            );
-
-            const menuButton = (
-              <SidebarMenuButton asChild variant="none">
-                {buttonContent}
-              </SidebarMenuButton>
-            );
-
-            return (
-              <SidebarMenuItem key={page}>
-                {isCollapsed ? (
-                  <Tooltip delayDuration={150}>
-                    <TooltipTrigger asChild>{menuButton}</TooltipTrigger>
-                    <TooltipContent side="right" className="text-xs font-medium">
-                      {tooltipLabel}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  menuButton
-                )}
-                {badgeCount > 0 && inboxBadgeKey ? (
-                  <SidebarMenuBadge className="bg-primary text-primary-foreground">
-                    {badgeCount > 99 ? '99+' : badgeCount}
-                  </SidebarMenuBadge>
-                ) : null}
-              </SidebarMenuItem>
-            );
-          })}
+          {links.map(link => (
+            <SidebarLinkItem key={link.page} link={link} />
+          ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

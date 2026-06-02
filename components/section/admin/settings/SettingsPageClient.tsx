@@ -114,6 +114,52 @@ const tabConfig: {
   },
 ];
 
+type SettingsTabNavItemProps = {
+  tab: (typeof tabConfig)[number];
+  isActive: boolean;
+  onClick: () => void;
+};
+
+const SettingsTabNavItem = ({ tab, isActive, onClick }: SettingsTabNavItemProps) => {
+  const Icon = tab.icon;
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200',
+        'hover:bg-muted/50 group',
+        isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
+      )}>
+      <div
+        className={cn(
+          'p-1.5 rounded-md transition-colors',
+          isActive ? 'bg-primary-foreground/20' : 'bg-muted group-hover:bg-muted-foreground/10'
+        )}>
+        <Icon
+          className={cn('size-4', isActive ? 'text-primary-foreground' : 'text-muted-foreground')}
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p
+          className={cn(
+            'text-sm font-medium truncate',
+            isActive ? 'text-primary-foreground' : 'text-foreground'
+          )}>
+          {tab.label}
+        </p>
+        <p
+          className={cn(
+            'text-xs truncate hidden sm:block lg:hidden xl:block',
+            isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
+          )}>
+          {tab.description}
+        </p>
+      </div>
+    </button>
+  );
+};
+
 export const SettingsPageClient = ({
   initialSettings,
 }: {
@@ -224,52 +270,14 @@ export const SettingsPageClient = ({
               <h3 className="font-semibold text-sm text-foreground">Configuration</h3>
             </div>
             <div className="p-2">
-              {tabConfig.map(tab => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200',
-                      'hover:bg-muted/50 group',
-                      isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
-                    )}>
-                    <div
-                      className={cn(
-                        'p-1.5 rounded-md transition-colors',
-                        isActive
-                          ? 'bg-primary-foreground/20'
-                          : 'bg-muted group-hover:bg-muted-foreground/10'
-                      )}>
-                      <Icon
-                        className={cn(
-                          'size-4',
-                          isActive ? 'text-primary-foreground' : 'text-muted-foreground'
-                        )}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={cn(
-                          'text-sm font-medium truncate',
-                          isActive ? 'text-primary-foreground' : 'text-foreground'
-                        )}>
-                        {tab.label}
-                      </p>
-                      <p
-                        className={cn(
-                          'text-xs truncate hidden sm:block lg:hidden xl:block',
-                          isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                        )}>
-                        {tab.description}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
+              {tabConfig.map(tab => (
+                <SettingsTabNavItem
+                  key={tab.id}
+                  tab={tab}
+                  isActive={activeTab === tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                />
+              ))}
             </div>
           </div>
         </nav>

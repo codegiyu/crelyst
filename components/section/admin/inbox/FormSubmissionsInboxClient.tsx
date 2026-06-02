@@ -18,7 +18,7 @@ import type {
 import { Mail, CheckCheck, Download, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const POLL_MS = 45_000;
+const POLL_MS = 600_000; // 600 seconds = 10 minutes
 
 function submissionApiPath(id: string, formType: FormSubmissionFormType): `/${string}` {
   return `/${id}?formType=${encodeURIComponent(formType)}` as `/${string}`;
