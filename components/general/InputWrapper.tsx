@@ -65,7 +65,7 @@ export const InputWrapper = ({
             <label
               htmlFor={controlId}
               className={cn(
-                'text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter',
+                'text-[0.75rem] md:text-[0.875rem] lg:text-[1rem] leading-[1.2] font-medium text-foreground font-inter',
                 labelTextClassName
               )}
               {...otherLabelProps}>

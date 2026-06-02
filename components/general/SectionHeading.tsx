@@ -89,8 +89,9 @@ export const SectionHeading = ({
       {text ? (
         <p
           className={cn(
-            'content-prose text-sm md:text-xl leading-relaxed',
+            'content-prose leading-relaxed',
             whiteText ? 'text-primary-foreground/90' : 'text-muted-foreground',
+            variant === 'compact' ? 'text-sm md:text-base' : 'text-sm md:text-xl',
             !isStart && 'mx-auto px-2'
           )}>
           {text}

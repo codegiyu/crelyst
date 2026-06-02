@@ -37,13 +37,13 @@ export function PublicContactCTASection({
   const reveal = shouldRevealMotion(siteLoading, immediate);
 
   return (
-    <SectionContainer className="py-0 md:py-0 lg:py-0">
+    <SectionContainer className="py-16 md:py-16 lg:py-16">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={reveal ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: motionDelay }}
         viewport={{ once: true }}
-        className="relative flex min-h-[400px] md:min-h-[500px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-border">
+        className="relative flex min-h-[400px] md:min-h-[500px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-border ">
         <div
           className="absolute inset-0 bg-cover bg-bottom-right"
           style={{ backgroundImage: `url('${backgroundImageSrc}')` }}
@@ -56,7 +56,7 @@ export function PublicContactCTASection({
             caption={caption}
             title={title}
             text={typeof description === 'string' ? description : undefined}
-            variant="compact"
+            // variant="compact"
             spacing="none"
             className="mb-6 [&_p:last-of-type]:mx-auto [&_p:last-of-type]:max-w-lg"
           />

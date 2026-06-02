@@ -113,7 +113,7 @@ export const ContactFormSection = () => {
           successMessage="Thank you for reaching out. We'll review your project details and respond with a tailored proposal soon."
           successActionLabel="Submit another request"
           onSuccessAction={handleReset}>
-          <form onSubmit={handleSubmit} className="grid gap-6" noValidate aria-busy={isBusy}>
+          <form onSubmit={handleSubmit} className="grid gap-8" noValidate aria-busy={isBusy}>
             {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
               <div
                 className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-sm"

@@ -13,7 +13,7 @@ export const designColors = [
   { name: 'Accent', cssVar: '--accent', hex: '#E8E4DF', hsl: '30 15% 88%' },
   { name: 'Muted', cssVar: '--muted', hex: '#38342F', hsl: '30 8% 20%' },
   { name: 'Muted foreground', cssVar: '--muted-foreground', hex: '#C9C4BC', hsl: '30 10% 75%' },
-  { name: 'Border', cssVar: '--border', hex: '#45403A', hsl: '30 8% 25%' },
+  { name: 'Border', cssVar: '--border', hex: 'white @ 5%', hsl: '0 0% 100% / 0.05' },
   { name: 'Card', cssVar: '--card', hex: '#1C1C22', hsl: '240 8% 12%' },
   {
     name: 'Surface deep (section)',
