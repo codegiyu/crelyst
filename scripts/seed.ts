@@ -10,9 +10,9 @@ import { resolve } from 'path';
 
 dotenv.config({ path: resolve(process.cwd(), '.env') });
 
-const { seedFirestore } = await import('../app/_server/lib/seed/seedFirestore');
-
 async function seed(): Promise<void> {
+  const { seedFirestore } = await import('../app/_server/lib/seed/seedFirestore');
+
   console.log('Seeding Firestore...\n');
   try {
     await seedFirestore();
