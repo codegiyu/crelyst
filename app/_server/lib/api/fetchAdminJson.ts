@@ -1,4 +1,7 @@
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
+import { buildAdminLoginUrl } from '@/lib/auth/adminRoutePaths';
 import {
   serverFetchJson,
   ServerFetchError,
@@ -20,7 +23,9 @@ export async function fetchAdminJson<T>(
     });
   } catch (e) {
     if (e instanceof ServerFetchError && (e.status === 401 || e.status === 403)) {
-      redirect('/admin/auth/login');
+      const headersList = await headers();
+      const pathname = headersList.get('x-pathname');
+      redirect(buildAdminLoginUrl(pathname));
     }
     throw e;
   }
@@ -33,7 +38,8 @@ export async function fetchAdminJsonOrNull<T>(
 ): Promise<T | null> {
   try {
     return await fetchAdminJson<T>(path, options);
-  } catch {
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
     return null;
   }
 }

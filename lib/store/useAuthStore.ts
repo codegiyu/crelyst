@@ -4,15 +4,16 @@ import type { SelectorFn } from '../types/general';
 import { useShallow } from 'zustand/react/shallow';
 import type { Permission } from '@/app/_server/lib/types/constants';
 import type { ClientAdmin } from '../constants/endpoints';
-import { auth } from '@/lib/firebase/config';
 import { signInAdmin, signOutUser } from '@/lib/firebase/auth';
 import { getRouter } from '../utils/navigation';
 import { clearAdminSessionCookie, syncAdminSessionCookie } from '@/lib/auth/adminSessionCookie';
 
 const SESSION_URL = '/api/admin/auth/session';
 
+export type AuthStatus = 'idle' | 'hydrating' | 'ready';
+
 export interface AuthStore {
-  initLoading: boolean;
+  authStatus: AuthStatus;
   loginLoading: boolean;
   pauseNavigatingAwayFromAuth: boolean;
   user: ClientAdmin | null;
@@ -22,12 +23,11 @@ export interface AuthStore {
       user: ClientAdmin | null,
       options?: {
         permissions?: Permission[];
-        initLoading?: boolean;
         pauseNavigatingAwayFromAuth?: boolean;
       }
     ) => void;
+    setAuthStatus: (status: AuthStatus) => void;
     setPermissions: (permissions: Permission[]) => void;
-    initSession: () => Promise<void>;
     clearSession: () => void;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => Promise<void>;
@@ -35,7 +35,7 @@ export interface AuthStore {
 }
 
 const initialData: Omit<AuthStore, 'actions'> = {
-  initLoading: false,
+  authStatus: 'hydrating',
   loginLoading: false,
   pauseNavigatingAwayFromAuth: false,
   user: null,
@@ -59,43 +59,21 @@ export const useInitAuthStore = create<AuthStore>()((set, get) => ({
     setUser: (user, options) => {
       const pauseNavigatingAwayFromAuth = options?.pauseNavigatingAwayFromAuth ?? false;
       const permissions = options?.permissions ?? [];
-      const initLoading = options?.initLoading ?? false;
 
       set({
         user,
         ...(permissions.length > 0 ? { permissions } : {}),
-        initLoading,
         pauseNavigatingAwayFromAuth,
       });
+    },
+    setAuthStatus: status => {
+      set({ authStatus: status });
     },
     setPermissions: permissions => {
       set({ permissions });
     },
-    initSession: async () => {
-      set({ initLoading: true });
-      const { setUser } = get().actions;
-
-      try {
-        const currentUser = auth?.currentUser;
-        if (!currentUser) {
-          setUser(null);
-          return;
-        }
-        const idToken = await currentUser.getIdToken();
-        const admin = await fetchSessionWithToken(idToken);
-        if (admin) {
-          await syncAdminSessionCookie(idToken);
-        }
-        setUser(admin);
-      } catch (error) {
-        console.error('Failed to initialize session:', error);
-        setUser(null, {});
-      } finally {
-        set({ initLoading: false });
-      }
-    },
     clearSession: () => {
-      set({ ...initialData, initLoading: false });
+      set({ ...initialData, authStatus: 'ready' });
     },
     login: async (email: string, password: string) => {
       set({ loginLoading: true });

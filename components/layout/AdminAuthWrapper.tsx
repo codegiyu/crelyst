@@ -1,10 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { unprotectedRoutes, safeAdminRedirectPath } from '@/lib/constants/routing';
+import { buildAdminLoginUrl } from '@/lib/auth/adminRoutePaths';
 import { AdminAuthLoading } from '@/components/admin/auth/AdminAuthLoading';
 
 interface AdminAuthWrapperProps {
@@ -17,63 +17,36 @@ export const AdminAuthWrapper = ({ children }: AdminAuthWrapperProps) => {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '';
 
-  const {
-    user,
-    initLoading,
-    pauseNavigatingAwayFromAuth,
-    actions: { initSession },
-  } = useAuthStore(state => state);
+  const authStatus = useAuthStore(state => state.authStatus);
+  const user = useAuthStore(state => state.user);
+  const pauseNavigatingAwayFromAuth = useAuthStore(state => state.pauseNavigatingAwayFromAuth);
 
-  const [isChecking, setIsChecking] = useState(true);
-  const sessionInitializedRef = useRef(false);
   const isProtectedRoute = !unprotectedRoutes.has(pathname);
+  const isAuthRoute = pathname.includes('/admin/auth/');
 
   useEffect(() => {
-    sessionInitializedRef.current = false;
-  }, [pathname]);
+    if (authStatus !== 'ready') return;
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      // Skip auth check on unprotected routes
-      if (unprotectedRoutes.has(pathname)) {
-        setIsChecking(false);
-        return;
-      }
-
-      // Initialize session only once to prevent duplicate API calls
-      if (!sessionInitializedRef.current && !user && !initLoading) {
-        sessionInitializedRef.current = true;
-        await initSession();
-      }
-
-      setIsChecking(false);
-    };
-
-    checkAuth();
-  }, [pathname, user, initLoading]);
-
-  // Handle redirects after auth check
-  useEffect(() => {
-    if (isChecking || initLoading) return;
-
-    const isProtectedRoute = !unprotectedRoutes.has(pathname);
-    const isAuthRoute = pathname.includes('/admin/auth/');
-
-    // If not authenticated and trying to access protected route
     if (!user && isProtectedRoute) {
-      router.replace(`/admin/auth/login?redirectTo=${encodeURIComponent(pathname)}`);
+      router.replace(buildAdminLoginUrl(pathname));
       return;
     }
 
-    // If authenticated and on auth route, redirect to dashboard or redirectTo
     if (user && isAuthRoute && !pauseNavigatingAwayFromAuth) {
       router.replace(safeAdminRedirectPath(redirectTo));
-      return;
     }
-  }, [user, isChecking, initLoading, pathname, router, pauseNavigatingAwayFromAuth, redirectTo]);
+  }, [
+    authStatus,
+    user,
+    isProtectedRoute,
+    isAuthRoute,
+    pathname,
+    router,
+    pauseNavigatingAwayFromAuth,
+    redirectTo,
+  ]);
 
-  // Show loading spinner while checking auth
-  if (isChecking || initLoading) {
+  if (authStatus !== 'ready') {
     return <AdminAuthLoading />;
   }
 
