@@ -872,4 +872,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  body.dg-scroll-lock {
+    overflow: hidden !important;
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
 }
