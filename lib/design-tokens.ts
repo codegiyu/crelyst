@@ -157,6 +157,7 @@ export const designCardMotion = [
 export const styleguideNav = [
   { id: 'foundations', label: 'Foundations' },
   { id: 'buttons', label: 'Buttons & CTAs' },
+  { id: 'forms', label: 'Forms' },
   { id: 'headings', label: 'Section headings' },
   { id: 'page-heroes', label: 'Page heroes' },
   { id: 'detail-heroes', label: 'Detail heroes' },
