@@ -57,7 +57,7 @@ export const RegularPageHeroSection = ({
             initial={{ opacity: 0, y: 24 }}
             animate={reveal ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.55, delay: 0.16 }}
-            className="content-focus-wide text-base leading-relaxed text-white/85 md:text-lg lg:text-xl">
+            className="content-focus-wide text-base leading-relaxed text-white/80 md:text-lg lg:text-xl">
             {description}
           </motion.p>
         </div>
