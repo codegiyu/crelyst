@@ -1,5 +1,5 @@
 import type { WhatWeCreateCardLayout } from '@/components/section/home/WhatWeCreateCard';
-import type { ClientProject, ClientService } from '@/lib/constants/endpoints';
+import type { ClientProject, ClientService, ClientTestimonial } from '@/lib/constants/endpoints';
 
 const IMG = 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&h=800&fit=crop';
 const BANNER = 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=1920&h=1080&fit=crop';
@@ -129,6 +129,24 @@ export type StyleguideWhatWeCreateEntry = {
   service: ClientService;
   eyebrow: string;
   layout: WhatWeCreateCardLayout;
+};
+
+/** Shown on the styleguide when Firestore has no active testimonials yet. */
+export const styleguideFallbackTestimonial: ClientTestimonial = {
+  _id: 'styleguide-testimonial-fallback',
+  clientName: 'Priya Natarajan',
+  clientRole: 'Head of Brand',
+  companyName: 'Lumen Studio',
+  clientImage: 'https://randomuser.me/api/portraits/women/65.jpg',
+  companyLogo: 'https://via.placeholder.com/80x80/2a2a2a/e8e8e8?text=LS',
+  testimonial:
+    'Exceptional attention to detail and a deep understanding of brand storytelling. The deliverables exceeded expectations and our team could not be happier.',
+  rating: 4,
+  isFeatured: true,
+  isActive: true,
+  displayOrder: 0,
+  createdAt: '2023-03-15T11:00:00.000Z',
+  updatedAt: now,
 };
 
 export const styleguideWhatWeCreateCards: StyleguideWhatWeCreateEntry[] = [

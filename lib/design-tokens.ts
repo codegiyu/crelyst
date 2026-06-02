@@ -161,6 +161,7 @@ export const styleguideNav = [
   { id: 'page-heroes', label: 'Page heroes' },
   { id: 'detail-heroes', label: 'Detail heroes' },
   { id: 'cards', label: 'Cards' },
+  { id: 'testimonials', label: 'Testimonials' },
   { id: 'homepage', label: 'Homepage (frozen)' },
   { id: 'layout', label: 'Layout' },
 ] as const;

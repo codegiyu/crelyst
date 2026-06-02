@@ -6,84 +6,11 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
-import { Star, Quote } from 'lucide-react';
+import { TestimonialCard } from '@/components/general/TestimonialCard';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Image from 'next/image';
-
-const TestimonialCard = ({ testimonial }: { testimonial: ClientTestimonial }) => {
-  return (
-    <div className="group content-focus-wide-center relative p-8 md:p-12 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-elegant transition-all duration-300">
-      {/* Quote icon */}
-      <div className="absolute top-6 right-6 text-primary/10 group-hover:text-primary/20 transition-colors">
-        <Quote className="w-12 h-12 md:w-16 md:h-16" />
-      </div>
-
-      {/* Rating */}
-      {testimonial.rating && (
-        <div className="flex items-center gap-1 mb-6 justify-center">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={`w-5 h-5 md:w-6 md:h-6 ${
-                i < testimonial.rating! ? 'text-yellow-500 fill-yellow-500' : 'text-muted'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Testimonial text */}
-      <p className="content-prose-center text-foreground mb-8 leading-relaxed relative z-10 text-lg md:text-xl text-center">
-        &ldquo;{testimonial.testimonial}&rdquo;
-      </p>
-
-      {/* Author */}
-      <div className="flex items-center justify-center gap-4 md:gap-6">
-        {testimonial.clientImage ? (
-          <Image
-            src={testimonial.clientImage}
-            alt={testimonial.clientName}
-            width={64}
-            height={64}
-            sizes="64px"
-            className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover shrink-0"
-          />
-        ) : (
-          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <span className="text-xl md:text-2xl font-bold text-primary">
-              {testimonial.clientName.charAt(0)}
-            </span>
-          </div>
-        )}
-
-        <div className="text-center md:text-left">
-          <div className="font-semibold text-foreground text-base md:text-lg">
-            {testimonial.clientName}
-          </div>
-          <div className="text-sm md:text-base text-muted-foreground">
-            {testimonial.clientRole}
-            {testimonial.companyName && ` at ${testimonial.companyName}`}
-          </div>
-        </div>
-
-        {testimonial.companyLogo && (
-          <div className="relative h-10 w-24 md:h-12 md:w-32 shrink-0 ml-auto hidden md:block">
-            <Image
-              src={testimonial.companyLogo}
-              alt={testimonial.companyName || 'Company'}
-              fill
-              sizes="128px"
-              className="object-contain"
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export const TestimonialsSection = ({ testimonials }: { testimonials: ClientTestimonial[] }) => {
   const { siteLoading } = useSiteStore(state => state);
@@ -150,7 +77,7 @@ export const TestimonialsSection = ({ testimonials }: { testimonials: ClientTest
           spaceBetween={30}
           className="!pb-12">
           {displayTestimonials.map(testimonial => (
-            <SwiperSlide key={testimonial._id}>
+            <SwiperSlide key={testimonial._id} className="!flex !justify-center">
               <TestimonialCard testimonial={testimonial} />
             </SwiperSlide>
           ))}

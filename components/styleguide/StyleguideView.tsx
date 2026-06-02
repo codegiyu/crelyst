@@ -19,6 +19,8 @@ import { ProjectPreviewCard } from '@/components/section/home/ProjectPreviewCard
 import { WhatWeCreateCard } from '@/components/section/home/WhatWeCreateCard';
 import { ProjectCard } from '@/components/section/projects/ProjectCard';
 import { ServiceCard } from '@/components/section/services/ServiceCard';
+import { TestimonialCard } from '@/components/general/TestimonialCard';
+import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import { ProjectDetailHero } from '@/components/section/projects/ProjectDetailHero';
 import { ServiceDetailHero } from '@/components/section/services/ServiceDetailHero';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -57,7 +59,11 @@ const buttonVariantKeys = [
   'accent',
 ] as const;
 
-export const StyleguideView = () => {
+export type StyleguideViewProps = {
+  sampleTestimonial: ClientTestimonial;
+};
+
+export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
   const setSiteLoading = useSiteStore(s => s.actions.setSiteLoading);
   const activeSectionId = useStyleguideScrollspy(
     styleguideSectionIds,
@@ -433,6 +439,35 @@ export const StyleguideView = () => {
                     <ProjectPreviewCard project={styleguidePreviewProjects[1]!} index={1} />
                   </div>
                 </div>
+              </div>
+            </StyleguideSection>
+
+            <StyleguideSection
+              id="testimonials"
+              title="Testimonial / feedback card"
+              description="Compact client feedback card (~26rem): italic time ago + stars, quote body, client row with logo. Live Firestore sample when available.">
+              <div className="space-y-8">
+                <StyleguidePreviewBox label="TestimonialCard (live data)">
+                  <div className="flex justify-center">
+                    <TestimonialCard testimonial={sampleTestimonial} static />
+                  </div>
+                  <p className="mt-4 text-center text-xs text-muted-foreground">
+                    Source:{' '}
+                    {sampleTestimonial._id.startsWith('styleguide-')
+                      ? 'fixture fallback (no active testimonials in Firestore)'
+                      : `Firestore — ${sampleTestimonial.clientName}`}
+                  </p>
+                </StyleguidePreviewBox>
+                <StyleguidePreviewBox label="Interaction (hover / focus context)">
+                  <p className="mb-4 text-sm text-muted-foreground max-w-2xl">
+                    Homepage carousel uses the same card with hover lift and{' '}
+                    <code className="text-primary">shadow-elegant</code>. Motion respects{' '}
+                    <code className="text-primary">prefers-reduced-motion</code>.
+                  </p>
+                  <div className="flex justify-center">
+                    <TestimonialCard testimonial={sampleTestimonial} />
+                  </div>
+                </StyleguidePreviewBox>
               </div>
             </StyleguideSection>
 
