@@ -11,6 +11,7 @@ import {
   sectionCaptionClassName,
   sectionTitleClassName,
 } from '@/components/general/SectionHeading';
+import { RegularPageHeroSection } from '@/components/general/RegularPageHeroSection';
 import { PageHeroSection } from '@/components/general/PageHeroSection';
 import { SectionContainer } from '@/components/general/SectionContainer';
 import { HeroSection } from '@/components/section/home/HeroSection';
@@ -318,9 +319,13 @@ export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
                   />
                 </StyleguidePreviewBox>
                 <StyleguidePreviewBox label="Primitives">
-                  <p className={cn(sectionCaptionClassName, 'text-primary mb-4')}>
-                    Section caption
-                  </p>
+                  <div className={cn('flex items-center gap-3', 'justify-start')}>
+                    <span
+                      aria-hidden
+                      className={cn('block h-1 w-[50px] rounded-full', 'bg-primary')}
+                    />
+                    <p className={cn(sectionCaptionClassName, 'text-primary')}>Section caption</p>
+                  </div>
                   <p className={cn(sectionTitleClassName, 'text-foreground')}>Section title</p>
                 </StyleguidePreviewBox>
               </div>
@@ -329,20 +334,27 @@ export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
             <StyleguideSection
               id="page-heroes"
               title="Page heroes (listing / marketing)"
-              description="PageHeroSection for About, Services index, etc.">
+              description="Regular page hero template for About/contact/listing pages (excluding homepage and dynamic detail heroes).">
               <div className="space-y-8">
-                <StyleguidePreviewBox label="With banner image" className="p-0 overflow-hidden">
-                  <PageHeroSection
+                <StyleguidePreviewBox
+                  label="Regular page hero template"
+                  className="p-0 overflow-hidden">
+                  <RegularPageHeroSection
                     immediate
-                    bannerImage="https://images.unsplash.com/photo-1558655146-364adaf1fcc9?q=80&w=1920&auto=format&fit=crop"
-                    badge="What We Offer"
-                    title="Our Creative Services"
-                    description="From photography to packaging, we offer a full range of design and branding services."
-                    titleFont="heading"
+                    backgroundImage="/images/bg-hero-2.jpg"
+                    badge="Crafting Legacies"
+                    title={
+                      <>
+                        Where Creativity Meets
+                        <br />
+                        Vision
+                      </>
+                    }
+                    description="We are a full-service design and branding agency specializing in photography, brand design, product design, packaging, and visual identity."
                   />
                 </StyleguidePreviewBox>
                 <StyleguidePreviewBox
-                  label="Gradient + pattern (no banner)"
+                  label="Legacy PageHeroSection (gradient + pattern)"
                   className="p-0 overflow-hidden">
                   <PageHeroSection
                     immediate
