@@ -14,7 +14,7 @@ export const HeroSection = () => {
   const { siteLoading } = useSiteStore(state => state);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section className="relative min-h-[800px] lg:min-h-screen flex items-center overflow-hidden">
       {/* Dark Background */}
       <div className="absolute inset-0 w-full h-full bg-background" />
 
@@ -69,7 +69,7 @@ export const HeroSection = () => {
         />
       </div> */}
 
-      <SectionContainer className="relative z-10 py-20 md:py-28">
+      <SectionContainer className="relative z-10 py-20 md:py-28 mt-16">
         <div className="content-focus-center text-center">
           {/* Badge */}
           {/* <motion.div

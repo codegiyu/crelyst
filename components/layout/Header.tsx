@@ -1,6 +1,7 @@
 'use client';
 
 import { ComponentProps, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { LogoFull } from '../icons';
 import { RegularBtn } from '../atoms/RegularBtn';
@@ -56,14 +57,14 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
         isTransparent
           ? 'bg-transparent shadow-none border-transparent'
           : 'bg-card shadow-soft border-b border-border',
+        isMenuOpen && 'bg-card/95 backdrop-blur-sm',
         className
       )}
       {...props}>
       <div className="regular-container">
         <div
           className={cn(
-            'flex items-center justify-between gap-4',
-            isTransparent ? 'h-28' : 'h-20'
+            'flex items-center justify-between gap-4 py-6'
           )}>
           {/* Logo */}
           <div className="flex items-center justify-start">
@@ -71,7 +72,11 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
               linkProps={{ href: '/' }}
               size="none"
               className={isTransparent ? 'text-white hover:text-white/80' : ''}>
-              <i className={cn('text-[1.25rem] lg:text-[2rem]', isTransparent && 'text-white')}>
+              <i
+                className={cn(
+                  'text-[1.75rem] md:text-[2rem] lg:text-[2.5rem]',
+                  isTransparent && 'text-white'
+                )}>
                 <LogoFull />
               </i>
             </GhostBtn>
@@ -105,7 +110,7 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
               className={cn('lg:hidden', isTransparent && 'text-white hover:text-white/80')}
               wrapClassName="lg:hidden"
               iconClass={cn(
-                'size-10',
+                'size-8',
                 isMenuOpen ? 'text-destructive' : '',
                 isTransparent && !isMenuOpen && 'text-white'
               )}
@@ -116,39 +121,46 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
             />
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={cn(
-            'lg:hidden h-auto grid transition-all duration-500 ease-out animate-fade-in overflow-hidden',
-            isMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-            isTransparent && 'bg-card/95 backdrop-blur-sm'
-          )}>
-          <nav className="overflow-hidden" aria-label="Mobile navigation">
-            <div className="pb-4">
-              <ul className="list-none grid px-0 pb-6 gap-2">
-                {NAV_LINKS.filter(s => !s.showInFooterOnly).map((item, idx) => (
-                  <MobileHeaderLink
-                    key={idx}
-                    {...item}
-                    afterClick={() => setIsMenuOpen(false)}
-                    activePath={pathname}
-                  />
-                ))}
-              </ul>
-
-              <RegularBtn
-                className="w-full"
-                wrapClassName="w-full"
-                linkProps={{ href: HEADER_CTA.href }}
-                text={HEADER_CTA.text}
-                size="full"
-                onClick={() => setIsMenuOpen(false)}
-              />
-            </div>
-          </nav>
-        </div>
       </div>
+
+      <AnimatePresence>
+        {isMenuOpen ? (
+          <motion.div
+            key="mobile-nav"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            className={cn(
+              'lg:hidden overflow-hidden border-b border-border bg-card shadow-soft',
+              isTransparent && 'bg-card/95 backdrop-blur-sm'
+            )}>
+            <nav className="regular-container" aria-label="Mobile navigation">
+              <div className="py-4">
+                <ul className="list-none grid gap-2 px-0 pb-6">
+                  {NAV_LINKS.filter(s => !s.showInFooterOnly).map((item, idx) => (
+                    <MobileHeaderLink
+                      key={idx}
+                      {...item}
+                      afterClick={() => setIsMenuOpen(false)}
+                      activePath={pathname}
+                    />
+                  ))}
+                </ul>
+
+                <RegularBtn
+                  className="w-full"
+                  wrapClassName="w-full"
+                  linkProps={{ href: HEADER_CTA.href }}
+                  text={HEADER_CTA.text}
+                  size="full"
+                  onClick={() => setIsMenuOpen(false)}
+                />
+              </div>
+            </nav>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </header>
   );
 };
