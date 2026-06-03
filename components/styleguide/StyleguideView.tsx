@@ -491,8 +491,8 @@ export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
                 </StyleguidePreviewBox>
                 <StyleguidePreviewBox label="Interaction (hover / focus context)">
                   <p className="mb-4 text-sm text-muted-foreground max-w-2xl">
-                    Homepage carousel uses the same card with hover lift and{' '}
-                    <code className="text-primary">shadow-elegant</code>. Motion respects{' '}
+                    Homepage slider uses the same card (static in the slider; hover lift in
+                    previews). Manual prev/next only — no autoplay. Motion respects{' '}
                     <code className="text-primary">prefers-reduced-motion</code>.
                   </p>
                   <div className="flex justify-center">
