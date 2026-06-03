@@ -491,9 +491,8 @@ export const StyleguideView = ({ sampleTestimonial }: StyleguideViewProps) => {
                 </StyleguidePreviewBox>
                 <StyleguidePreviewBox label="Interaction (hover / focus context)">
                   <p className="mb-4 text-sm text-muted-foreground max-w-2xl">
-                    Homepage slider uses the same card (static in the slider; hover lift in
-                    previews). Manual prev/next only — no autoplay. Motion respects{' '}
-                    <code className="text-primary">prefers-reduced-motion</code>.
+                    Homepage slider uses the same card (static in the slider). One slide at a time,
+                    looped, with pagination and manual prev/next — no autoplay.
                   </p>
                   <div className="flex justify-center">
                     <TestimonialCard testimonial={sampleTestimonial} />

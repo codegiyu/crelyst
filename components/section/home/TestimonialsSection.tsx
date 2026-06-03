@@ -12,14 +12,13 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import {
   filterActiveTestimonials,
-  shouldShowTestimonialNav,
+  getTestimonialSwiperLoopAdditionalSlides,
   sortTestimonialsForDisplay,
 } from '@/lib/utils/testimonialDisplay';
 import { cn } from '@/lib/utils';
 
 export const TestimonialsSection = ({ testimonials }: { testimonials: ClientTestimonial[] }) => {
   const active = sortTestimonialsForDisplay(filterActiveTestimonials(testimonials));
-  const showNav = shouldShowTestimonialNav(active.length);
 
   if (active.length === 0) {
     return null;
@@ -41,35 +40,29 @@ export const TestimonialsSection = ({ testimonials }: { testimonials: ClientTest
       </div>
 
       <div className="flex w-full flex-col-reverse">
-        <TestimonialSwiperControls showNav={showNav} className="mt-2" />
+        <TestimonialSwiperControls showNav className="mt-4" />
 
         <Swiper
           modules={[Navigation, Pagination, A11y, Keyboard]}
+          loop={active.length > 1}
+          loopAdditionalSlides={getTestimonialSwiperLoopAdditionalSlides(active.length)}
           slidesPerView={1}
           spaceBetween={24}
           speed={450}
-          keyboard={{ enabled: showNav }}
+          keyboard={{ enabled: true }}
           a11y={{
             prevSlideMessage: 'Previous testimonial',
             nextSlideMessage: 'Next testimonial',
             paginationBulletMessage: 'Go to testimonial {{index}}',
           }}
-          pagination={
-            showNav
-              ? {
-                  clickable: true,
-                  dynamicBullets: active.length > 5,
-                }
-              : false
-          }
-          navigation={
-            showNav
-              ? {
-                  prevEl: `.${TESTIMONIAL_SWIPER_PREV_CLASS}`,
-                  nextEl: `.${TESTIMONIAL_SWIPER_NEXT_CLASS}`,
-                }
-              : false
-          }
+          pagination={{
+            type: 'bullets',
+            clickable: true,
+          }}
+          navigation={{
+            prevEl: `.${TESTIMONIAL_SWIPER_PREV_CLASS}`,
+            nextEl: `.${TESTIMONIAL_SWIPER_NEXT_CLASS}`,
+          }}
           className="testimonial-swiper__track w-full pb-12">
           {active.map(testimonial => (
             <SwiperSlide key={testimonial._id} className="!h-auto">

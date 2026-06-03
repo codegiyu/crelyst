@@ -889,6 +889,10 @@
   position: relative;
   bottom: auto;
   margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.375rem;
 }
 
 .testimonial-swiper .swiper-pagination-bullet {

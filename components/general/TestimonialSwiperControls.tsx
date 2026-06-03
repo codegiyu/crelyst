@@ -8,11 +8,14 @@ export const TESTIMONIAL_SWIPER_PREV_CLASS = 'testimonial-swiper-prev';
 export const TESTIMONIAL_SWIPER_NEXT_CLASS = 'testimonial-swiper-next';
 
 type TestimonialSwiperControlsProps = {
-  showNav: boolean;
+  showNav?: boolean;
   className?: string;
 };
 
-export function TestimonialSwiperControls({ showNav, className }: TestimonialSwiperControlsProps) {
+export function TestimonialSwiperControls({
+  showNav = true,
+  className,
+}: TestimonialSwiperControlsProps) {
   if (!showNav) return null;
 
   return (
