@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import {
   filterActiveTestimonials,
+  getTestimonialSwiperLoopAdditionalSlides,
   shouldShowTestimonialNav,
   sortTestimonialsForDisplay,
 } from './testimonialDisplay';
@@ -44,5 +45,12 @@ describe('shouldShowTestimonialNav', () => {
   it('returns true for two or more items', () => {
     expect(shouldShowTestimonialNav(2)).toBe(true);
     expect(shouldShowTestimonialNav(5)).toBe(true);
+  });
+});
+
+describe('getTestimonialSwiperLoopAdditionalSlides', () => {
+  it('returns at least two for loop duplication', () => {
+    expect(getTestimonialSwiperLoopAdditionalSlides(1)).toBe(2);
+    expect(getTestimonialSwiperLoopAdditionalSlides(5)).toBe(5);
   });
 });

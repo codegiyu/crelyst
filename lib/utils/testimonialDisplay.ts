@@ -16,3 +16,7 @@ export function filterActiveTestimonials(testimonials: ClientTestimonial[]): Cli
 export function shouldShowTestimonialNav(count: number): boolean {
   return count > 1;
 }
+
+export function getTestimonialSwiperLoopAdditionalSlides(slideCount: number): number {
+  return Math.max(slideCount, 2);
+}
