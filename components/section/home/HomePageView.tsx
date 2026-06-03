@@ -38,7 +38,7 @@ export const HomePageView = ({
       <AboutPreviewSection />
       <ProjectsPreviewSection projects={projects} />
       <TestimonialsSection testimonials={testimonials} />
-      <CTASection contactInfo={contactInfo} projects={projects} services={services} />
+      <CTASection contactInfo={contactInfo} />
     </>
   );
 };
