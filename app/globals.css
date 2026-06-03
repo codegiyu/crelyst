@@ -883,3 +883,24 @@
     overscroll-behavior: contain;
   }
 }
+
+/* Homepage testimonial slider — design-system pagination */
+.testimonial-swiper .swiper-pagination {
+  position: relative;
+  bottom: auto;
+  margin-top: 1.25rem;
+}
+
+.testimonial-swiper .swiper-pagination-bullet {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: hsl(var(--muted-foreground));
+  opacity: 0.35;
+  transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.testimonial-swiper .swiper-pagination-bullet-active {
+  background: hsl(var(--primary));
+  opacity: 1;
+  transform: scale(1.15);
+}
