@@ -62,10 +62,7 @@ export const Header = ({ className, transparentOnLoad = false, ...props }: Heade
       )}
       {...props}>
       <div className="regular-container">
-        <div
-          className={cn(
-            'flex items-center justify-between gap-4 py-6'
-          )}>
+        <div className={cn('flex items-center justify-between gap-4 py-6')}>
           {/* Logo */}
           <div className="flex items-center justify-start">
             <GhostBtn

@@ -68,8 +68,9 @@ export const CTASection = ({
             viewport={{ once: true }}
             className="flex flex-col sm:flex-row items-center md:items-start justify-center md:justify-start gap-4">
             <RegularBtn
+              variant="secondary"
               linkProps={{ href: '/contact' }}
-              className="px-8 py-6 text-lg bg-white text-primary hover:bg-white/90 group"
+              className="px-8 py-4 text-lg group"
               RightIcon={ArrowRight}
               rightIconProps={{
                 className: 'size-5 group-hover:translate-x-1 transition-transform',
