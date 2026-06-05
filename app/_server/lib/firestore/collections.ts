@@ -7,6 +7,7 @@ import { adminDb } from '@/lib/firebase/admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import type { DocumentSnapshot, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { logger } from '../utils/logger';
+import { omitUndefinedFields } from '../utils/omitUndefinedFields';
 
 const COLLECTIONS = {
   brands: 'brands',
@@ -500,7 +501,7 @@ export type FormSubmissionFormType = 'quote-request' | 'work-with-us';
 export async function createFormSubmission(data: Record<string, unknown>) {
   const now = Timestamp.now();
   const docRef = getCollection('formSubmissions').doc();
-  await docRef.set({ ...data, isRead: false, createdAt: now });
+  await docRef.set(omitUndefinedFields({ ...data, isRead: false, createdAt: now }));
   const snap = await docRef.get();
   return { id: snap.id, ...snap.data() };
 }
