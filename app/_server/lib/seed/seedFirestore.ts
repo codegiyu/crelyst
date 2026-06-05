@@ -158,7 +158,7 @@ export async function seedTestimonials(): Promise<void> {
 
 export async function seedFirestore(): Promise<void> {
   try {
-    await seedTestimonials();
+    // await seedTestimonials();
     // await setSiteSettings('settings', DEFAULT_SITE_SETTINGS);
     // logger.info('Site settings seeded');
     // // 2. Brands
