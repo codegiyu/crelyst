@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { FormErrors as FormErrorsType } from '@/lib/types/general';
 import { formatInputNumber } from '@/lib/utils/general';
+import { syncFormValuesFromDom } from '@/lib/utils/syncFormValuesFromDom';
 import {
   type ChangeEvent,
   type Dispatch,
@@ -106,12 +107,26 @@ export const useForm = <TSchema extends ZodType<any>>({
     return result.success;
   };
 
-  const validateField = (name: keyof FormValues) => {
-    const result = formSchema.safeParse(formValues);
+  const validateFieldWithValues = (values: FormValues, name: keyof FormValues) => {
+    const result = formSchema.safeParse(values);
     const error = result.success ? [] : (z.flattenError(result.error).fieldErrors[name] ?? []);
 
     setFormErrors(prev => ({ ...prev, root: undefined, [name]: error }));
     setIsValid(result.success);
+  };
+
+  const validateField = (name: keyof FormValues) => {
+    validateFieldWithValues(formValues, name);
+  };
+
+  const setFieldErrorsFromParse = (fieldErrors: Record<string, string[] | undefined>) => {
+    const errors: FormErrors = {};
+
+    for (const key in defaultFormValues) {
+      errors[key] = fieldErrors[key] ?? [];
+    }
+
+    setFormErrors(errors);
   };
 
   const onChange = (
@@ -132,6 +147,10 @@ export const useForm = <TSchema extends ZodType<any>>({
 
       if (inputChangeWatch[name]) {
         updated = inputChangeWatch[name](updated);
+      }
+
+      if (!validateOnChange) {
+        queueMicrotask(() => validateFieldWithValues(updated, name));
       }
 
       return updated;
@@ -183,18 +202,31 @@ export const useForm = <TSchema extends ZodType<any>>({
   const handleSubmit = async (e?: FormEvent) => {
     e?.preventDefault();
 
-    const formValid = formSchema.safeParse(formValues);
+    const form = e?.currentTarget instanceof HTMLFormElement ? e.currentTarget : undefined;
+    const fieldNames = Object.keys(defaultFormValues) as (keyof FormValues)[];
+    const syncedValues = syncFormValuesFromDom(form, formValues, fieldNames);
+
+    if (syncedValues !== formValues) {
+      setFormValues(syncedValues);
+    }
+
+    const formValid = formSchema.safeParse(syncedValues);
 
     if (!formValid.success) {
+      setFieldErrorsFromParse(z.flattenError(formValid.error).fieldErrors);
       setErrorsVisible(true);
+      setIsValid(false);
       return;
     }
 
     setLoading(true);
-    const wasSubmittedSuccessfully = await onSubmit(formValues);
+    const wasSubmittedSuccessfully = await onSubmit(formValid.data);
     setLoading(false);
     setSubmitted(wasSubmittedSuccessfully);
-    setErrorsVisible(true);
+
+    if (wasSubmittedSuccessfully) {
+      setErrorsVisible(true);
+    }
   };
 
   const resetForm = () => {

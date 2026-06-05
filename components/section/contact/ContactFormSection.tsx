@@ -127,6 +127,7 @@ export const ContactFormSection = () => {
                 label="Full Name"
                 name="name"
                 placeholder="John Doe"
+                autoComplete="name"
                 required
                 disabled={isBusy}
                 value={formValues.name}
@@ -137,6 +138,7 @@ export const ContactFormSection = () => {
                 label="Company Name"
                 name="company"
                 placeholder="Your Company"
+                autoComplete="organization"
                 required
                 disabled={isBusy}
                 value={formValues.company}
@@ -150,6 +152,7 @@ export const ContactFormSection = () => {
               name="email"
               type="email"
               placeholder="john@example.com"
+              autoComplete="email"
               required
               disabled={isBusy}
               value={formValues.email}
