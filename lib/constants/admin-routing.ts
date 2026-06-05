@@ -1,4 +1,4 @@
-/** Admin route guards only — safe for Edge middleware (no client/store imports). */
+/** Admin route guards only — safe for proxy (no client/store imports). */
 
 export const unprotectedRoutes = new Set([
   '/admin/auth/login',
