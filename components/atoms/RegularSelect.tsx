@@ -144,7 +144,11 @@ function RegularSelectControl({
             </SelectLabel>
           )}
           {options.map(({ text, altText, value, disabled = false }, idx) => (
-            <SelectItem key={idx} value={value} disabled={disabled} className="overflow-hidden">
+            <SelectItem
+              key={idx}
+              value={value}
+              disabled={disabled}
+              className="overflow-hidden data-[highlighted]:bg-primary/10 data-[highlighted]:text-foreground">
               <div className="flex w-full items-center gap-3 overflow-hidden">
                 <span className={cn('text-foreground truncate', valueClassName)}>
                   {altText || text}
