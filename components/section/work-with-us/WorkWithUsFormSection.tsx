@@ -132,6 +132,7 @@ export const WorkWithUsFormSection = () => {
                   label="Full Name"
                   name="name"
                   placeholder="Jane Smith"
+                  autoComplete="name"
                   required
                   disabled={isBusy}
                   value={formValues.name}
@@ -143,6 +144,7 @@ export const WorkWithUsFormSection = () => {
                   name="email"
                   type="email"
                   placeholder="jane@example.com"
+                  autoComplete="email"
                   required
                   disabled={isBusy}
                   value={formValues.email}
@@ -156,6 +158,7 @@ export const WorkWithUsFormSection = () => {
                 name="portfolio"
                 type="url"
                 placeholder="https://yourportfolio.com"
+                autoComplete="url"
                 required
                 disabled={isBusy}
                 value={formValues.portfolio}
