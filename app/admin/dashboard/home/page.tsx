@@ -35,6 +35,13 @@ export default async function DashboardHomePage() {
           testimonials: testimonialsRes.testimonials,
           brands: brandsRes.brands,
           teamMembers: teamRes.teamMembers,
+          totals: {
+            services: servicesRes.pagination.total,
+            projects: projectsRes.pagination.total,
+            testimonials: testimonialsRes.pagination.total,
+            brands: brandsRes.pagination.total,
+            teamMembers: teamRes.pagination.total,
+          },
         }}
       />
     </DashboardLayout>
