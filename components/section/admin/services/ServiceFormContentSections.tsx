@@ -14,6 +14,7 @@ import type { ClientService } from '@/lib/constants/endpoints';
 import type {
   IServiceExpertise,
   IServicePackagePricing,
+  IServicePricingFooter,
   IServiceWhatMakesUsUnique,
 } from '@/app/_server/lib/types/constants';
 import { Plus, X } from 'lucide-react';
@@ -28,6 +29,7 @@ export type ServiceContentFormState = {
   process: NonNullable<ClientService['process']>;
   benefits: string[];
   packagePricing: IServicePackagePricing[];
+  pricingFooter: IServicePricingFooter | null;
   faq: NonNullable<ClientService['faq']>;
   tags: string[];
   imageUrl: string;
@@ -102,6 +104,9 @@ export function getInitialServiceContentState(
     packagePricing: service?.packagePricing
       ? JSON.parse(JSON.stringify(service.packagePricing))
       : [],
+    pricingFooter: service?.pricingFooter
+      ? JSON.parse(JSON.stringify(service.pricingFooter))
+      : null,
     faq: service?.faq ? [...service.faq] : [],
     tags: service?.tags ? [...service.tags] : [],
     imageUrl: service?.image ?? '',
@@ -511,6 +516,17 @@ export function ServiceFormContentSections({
                   placeholder="e.g. branding"
                   errors={categoryHasError(ci) ? ['Category id is required'] : []}
                 />
+                <RegularInput
+                  label="Category title (optional)"
+                  name="_"
+                  value={category.title ?? ''}
+                  onChange={e => {
+                    const packagePricing = [...state.packagePricing];
+                    packagePricing[ci] = { ...packagePricing[ci], title: e.target.value };
+                    onChange({ packagePricing });
+                  }}
+                  placeholder="Scope of Packaging Design & Pricing"
+                />
                 {category.packages.map((pkg, pi) => (
                   <div key={pi} className="grid gap-3 rounded-md border border-border/60 p-3">
                     <RegularInput
@@ -528,6 +544,33 @@ export function ServiceFormContentSections({
                       errors={
                         packageFieldErrors(ci, pi, 'packageId') ? ['Package id is required'] : []
                       }
+                    />
+                    <RegularInput
+                      label="Package title (optional)"
+                      name="_"
+                      value={pkg.title ?? ''}
+                      onChange={e => {
+                        const packagePricing = [...state.packagePricing];
+                        const packages = [...packagePricing[ci].packages];
+                        packages[pi] = { ...packages[pi], title: e.target.value };
+                        packagePricing[ci] = { ...packagePricing[ci], packages };
+                        onChange({ packagePricing });
+                      }}
+                      placeholder="Label Design"
+                    />
+                    <RegularTextarea
+                      label="Package summary (optional)"
+                      name="_"
+                      rows={2}
+                      value={pkg.summary ?? ''}
+                      onChange={e => {
+                        const packagePricing = [...state.packagePricing];
+                        const packages = [...packagePricing[ci].packages];
+                        packages[pi] = { ...packages[pi], summary: e.target.value };
+                        packagePricing[ci] = { ...packagePricing[ci], packages };
+                        onChange({ packagePricing });
+                      }}
+                      placeholder="For bottles, jars, pouches, cans, and containers."
                     />
                     <RegularInput
                       label="Price range (comma-separated Naira amounts)"
@@ -562,6 +605,23 @@ export function ServiceFormContentSections({
                         onChange({ packagePricing });
                       }}
                     />
+                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        checked={pkg.isFeatured === true}
+                        onChange={e => {
+                          const packagePricing = [...state.packagePricing];
+                          const packages = [...packagePricing[ci].packages];
+                          packages[pi] = {
+                            ...packages[pi],
+                            isFeatured: e.target.checked ? true : undefined,
+                          };
+                          packagePricing[ci] = { ...packagePricing[ci], packages };
+                          onChange({ packagePricing });
+                        }}
+                      />
+                      Mark as featured (Popular badge)
+                    </label>
                   </div>
                 ))}
                 <Button
@@ -583,6 +643,84 @@ export function ServiceFormContentSections({
                 </Button>
               </div>
             ))}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Pricing footer (optional)</span>
+              {!state.pricingFooter ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    onChange({
+                      pricingFooter: {
+                        title: '',
+                        description: '',
+                        ctaLabel: 'Get in touch',
+                        ctaHref: '/contact',
+                      },
+                    })
+                  }>
+                  <Plus className="mr-1 size-4" /> Add footer
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onChange({ pricingFooter: null })}>
+                  Remove
+                </Button>
+              )}
+            </div>
+            {state.pricingFooter ? (
+              <div className="grid gap-4 rounded-lg border border-border p-4">
+                <RegularInput
+                  label="Footer title"
+                  name="_"
+                  value={state.pricingFooter.title}
+                  onChange={e =>
+                    onChange({
+                      pricingFooter: { ...state.pricingFooter!, title: e.target.value },
+                    })
+                  }
+                />
+                <RegularTextarea
+                  label="Footer description"
+                  name="_"
+                  rows={3}
+                  value={state.pricingFooter.description}
+                  onChange={e =>
+                    onChange({
+                      pricingFooter: { ...state.pricingFooter!, description: e.target.value },
+                    })
+                  }
+                />
+                <RegularInput
+                  label="CTA label"
+                  name="_"
+                  value={state.pricingFooter.ctaLabel ?? ''}
+                  onChange={e =>
+                    onChange({
+                      pricingFooter: { ...state.pricingFooter!, ctaLabel: e.target.value },
+                    })
+                  }
+                />
+                <RegularInput
+                  label="CTA href"
+                  name="_"
+                  value={state.pricingFooter.ctaHref ?? ''}
+                  onChange={e =>
+                    onChange({
+                      pricingFooter: { ...state.pricingFooter!, ctaHref: e.target.value },
+                    })
+                  }
+                  placeholder="/contact"
+                />
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-2">

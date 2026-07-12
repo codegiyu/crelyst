@@ -111,13 +111,24 @@ export interface IServiceMenu {
 
 export interface IServicePackage {
   id: string;
+  title?: string;
+  summary?: string;
   priceRange: number[];
   benefits: string[];
+  isFeatured?: boolean;
 }
 
 export interface IServicePackagePricing {
   id: string;
+  title?: string;
   packages: IServicePackage[];
+}
+
+export interface IServicePricingFooter {
+  title: string;
+  description: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
 export interface IService {
@@ -138,6 +149,7 @@ export interface IService {
   whatMakesUsUnique?: IServiceWhatMakesUsUnique;
   menu?: IServiceMenu;
   packagePricing?: IServicePackagePricing[];
+  pricingFooter?: IServicePricingFooter;
   process?: Array<{
     title: string;
     description: string;

@@ -30,13 +30,24 @@ export const serviceProcessStepSchema = z.object({
 
 export const servicePackageSchema = z.object({
   id: z.string().min(1),
+  title: z.string().optional(),
+  summary: z.string().optional(),
   priceRange: z.array(z.number()).min(1),
   benefits: z.array(z.string()),
+  isFeatured: z.boolean().optional(),
 });
 
 export const servicePackagePricingSchema = z.object({
   id: z.string().min(1),
+  title: z.string().optional(),
   packages: z.array(servicePackageSchema),
+});
+
+export const servicePricingFooterSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  ctaLabel: z.string().optional(),
+  ctaHref: z.string().optional(),
 });
 
 export const serviceFaqSchema = z.object({
@@ -60,6 +71,7 @@ export const serviceExtendedContentSchema = z.object({
   process: z.array(serviceProcessStepSchema).optional(),
   benefits: z.array(z.string()).optional(),
   packagePricing: z.array(servicePackagePricingSchema).optional(),
+  pricingFooter: servicePricingFooterSchema.optional(),
   faq: z.array(serviceFaqSchema).optional(),
   tags: z.array(z.string()).optional(),
 });

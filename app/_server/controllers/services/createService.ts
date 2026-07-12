@@ -20,6 +20,7 @@ const EXTENDED_FIELD_KEYS = [
   'process',
   'benefits',
   'packagePricing',
+  'pricingFooter',
   'faq',
   'tags',
 ] as const;

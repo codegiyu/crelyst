@@ -30,6 +30,7 @@ const UPDATABLE_FIELDS = [
   'process',
   'benefits',
   'packagePricing',
+  'pricingFooter',
   'faq',
   'tags',
 ] as const;

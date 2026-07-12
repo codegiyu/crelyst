@@ -99,7 +99,7 @@ export function buildServiceJsonLd(service: ClientService, origin?: string): Jso
 
         return compact({
           '@type': 'Offer',
-          name: pkg.id || category.id,
+          name: pkg.title?.trim() || pkg.id || category.id,
           priceCurrency: 'NGN',
           price: min,
           ...(max != null && max !== min ? { highPrice: max } : {}),
