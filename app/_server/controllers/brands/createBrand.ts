@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { getBrandByName, createBrand as createBrandRepo } from '../../lib/firestore/collections';
+import {
+  getBrandByName,
+  createBrand as createBrandRepo,
+  getNextDisplayOrder,
+} from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 import { validateBody } from '../../lib/api/validateBody';
 import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
@@ -32,7 +36,7 @@ export const createBrand: RouteHandler = async ({ body, user }) => {
     logo: payload.logo ?? '',
     websiteUrl: payload.websiteUrl ?? '',
     isActive: payload.isActive ?? true,
-    displayOrder: payload.displayOrder ?? 0,
+    displayOrder: payload.displayOrder ?? (await getNextDisplayOrder('brands')),
   });
 
   if (!brand) {

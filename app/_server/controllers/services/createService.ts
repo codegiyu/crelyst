@@ -3,6 +3,7 @@ import { sendResponse } from '../../lib/utils/appResponse';
 import {
   getServiceBySlug,
   createService as createServiceRepo,
+  getNextDisplayOrder,
 } from '../../lib/firestore/collections';
 import { slugify } from '../../lib/utils/slugify';
 import type { RouteHandler } from '../../lib/api/routeHandler';
@@ -51,7 +52,7 @@ export const createService: RouteHandler = async ({ body, user }) => {
     bannerImage: payload.bannerImage ?? '',
     features: payload.features ?? [],
     isActive: payload.isActive ?? true,
-    displayOrder: payload.displayOrder ?? 0,
+    displayOrder: payload.displayOrder ?? (await getNextDisplayOrder('services')),
     seo: payload.seo ?? {},
     ...extendedFields,
   });
