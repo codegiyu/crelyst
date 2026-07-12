@@ -1166,7 +1166,6 @@ export const TESTIMONIALS_DATA = [
     rating: 5,
     isFeatured: true,
     displayOrder: 1,
-    projectId: null,
   },
   {
     clientName: 'Sophie Chen',
@@ -1179,7 +1178,6 @@ export const TESTIMONIALS_DATA = [
     rating: 5,
     isFeatured: true,
     displayOrder: 2,
-    projectId: null,
   },
   {
     clientName: 'Marcus Thompson',
@@ -1192,7 +1190,6 @@ export const TESTIMONIALS_DATA = [
     rating: 5,
     isFeatured: true,
     displayOrder: 3,
-    projectId: null,
   },
   {
     clientName: 'Isabella Martinez',
@@ -1205,7 +1202,6 @@ export const TESTIMONIALS_DATA = [
     rating: 5,
     isFeatured: true,
     displayOrder: 4,
-    projectId: null,
   },
   {
     clientName: 'James Wilson',
@@ -1218,7 +1214,6 @@ export const TESTIMONIALS_DATA = [
     rating: 5,
     isFeatured: false,
     displayOrder: 5,
-    projectId: null,
   },
   {
     clientName: 'Olivia Brown',
@@ -1231,7 +1226,6 @@ export const TESTIMONIALS_DATA = [
     rating: 5,
     isFeatured: false,
     displayOrder: 6,
-    projectId: null,
   },
 ];
 

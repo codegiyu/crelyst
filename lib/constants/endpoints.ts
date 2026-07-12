@@ -724,7 +724,6 @@ export interface IProjectCreatePayload {
     status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
     order: number;
   }>;
-  teamMembers?: string[];
   challengesFaced?: Array<{
     challenge: string;
     solution: string;
@@ -738,8 +737,6 @@ export interface IProjectCreatePayload {
     type?: 'text' | 'html' | 'markdown';
     order: number;
   }>;
-  relatedProjects?: string[];
-  testimonials?: string[];
   tags?: string[];
   budget?: {
     amount?: number;
@@ -784,7 +781,6 @@ export interface ITestimonialCreatePayload {
   isFeatured?: boolean;
   isActive?: boolean;
   displayOrder?: number;
-  projectId?: string; // Optional reference to a project
 }
 
 export type ITestimonialUpdatePayload = Partial<ITestimonialCreatePayload>;
