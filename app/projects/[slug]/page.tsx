@@ -8,6 +8,10 @@ import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
 import { getCachedProjectBySlug } from '@/lib/ssr/cachedPublicDetail';
 import { getAdjacentPublishedProjects } from '@/lib/ssr/adjacentPublishedProjects';
 import { buildEntityDetailMetadata } from '@/lib/utils/siteLayoutSettings';
+import { getSettingsSlice } from '@/app/_server/controllers/site/fetchSettings';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildBreadcrumbJsonLd, buildCreativeWorkJsonLd } from '@/lib/seo/jsonLd';
+import type { SEODetails } from '@/lib/types/site-settings';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -18,11 +22,15 @@ interface ProjectPageProps {
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const data = await getCachedProjectBySlug(slug);
+  const [data, seoSlice] = await Promise.all([
+    getCachedProjectBySlug(slug),
+    getSettingsSlice('seo', false),
+  ]);
   const project = data.ok ? data.data.project : undefined;
+  const seo = (seoSlice as { seo?: SEODetails } | null)?.seo;
 
   if (project?.title) {
-    return buildEntityDetailMetadata(project, '/projects', 'Our Projects');
+    return buildEntityDetailMetadata(project, '/projects', 'Our Projects', seo);
   }
 
   const title = slug
@@ -33,7 +41,8 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   return buildEntityDetailMetadata(
     { title, slug, description: `Discover the details of our ${title.toLowerCase()} project.` },
     '/projects',
-    'Our Projects'
+    'Our Projects',
+    seo
   );
 }
 
@@ -84,9 +93,26 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   };
 
   const adjacent = project.caseStudy ? await getAdjacentPublishedProjects(slug) : undefined;
+  const image =
+    project.heroImage || project.featuredImage || project.cardImage || project.bannerImage;
+  const jsonLd = [
+    buildCreativeWorkJsonLd({
+      title: project.title,
+      description: project.shortDescription || project.description,
+      image,
+      slug: project.slug,
+      routePrefix: '/projects',
+    }),
+    buildBreadcrumbJsonLd([
+      { name: 'Home', path: '/' },
+      { name: 'Projects', path: '/projects' },
+      { name: project.title, path: `/projects/${project.slug}` },
+    ]),
+  ];
 
   return (
     <PublicShell transparentHeader footerSettings={footerSettings}>
+      <JsonLd data={jsonLd} />
       <ProjectDetailHero project={project} />
       {project.caseStudy ? <ProjectCaseStudyView project={project} adjacent={adjacent} /> : null}
       <ProjectDetailContent project={project} />
