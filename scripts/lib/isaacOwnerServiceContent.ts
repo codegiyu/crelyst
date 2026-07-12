@@ -1,6 +1,7 @@
 import type {
   IServicePackagePricing,
   IServicePricingFooter,
+  ProjectWorkflow,
 } from '@/app/_server/lib/types/constants';
 
 export type IsaacServiceContentUpdate = {
@@ -254,6 +255,49 @@ const ADDITIONAL_SERVICES_SERVICE = {
       'Pitch deck design, social media templates, and print-ready marketing materials tailored to your brand.',
     keywords: ['pitch deck design', 'social media design', 'print design'],
   },
+};
+
+export const ISAAC_PROJECT_WORKFLOW: ProjectWorkflow = {
+  title: 'Project Workflow',
+  subtitle: 'From brief to final delivery',
+  steps: [
+    {
+      title: 'Brief',
+      description:
+        'You fill out a short questionnaire about your business, goals, and project requirements.',
+      order: 0,
+    },
+    {
+      title: 'Proposal',
+      description:
+        'I send you a detailed proposal outlining the project scope, pricing, timeline, and deliverables.',
+      order: 1,
+    },
+    {
+      title: 'Deposit',
+      description:
+        'A 50% upfront payment is required to secure your project and begin the design process.',
+      order: 2,
+    },
+    {
+      title: 'Concepts',
+      description:
+        'Initial design concepts are presented within the agreed timeframe for your review and feedback.',
+      order: 3,
+    },
+    {
+      title: 'Revisions',
+      description:
+        'Up to 3–4 rounds of revisions are included (depending on your selected package) to refine the final outcome.',
+      order: 4,
+    },
+    {
+      title: 'Delivery',
+      description:
+        'Once the final balance is received, you’ll receive all approved files, brand assets, and source files in the required formats.',
+      order: 5,
+    },
+  ],
 };
 
 export const ISAAC_SERVICE_CONTENT_UPDATES: IsaacServiceContentUpdate[] = [

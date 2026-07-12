@@ -18,9 +18,12 @@ export default async function WorkWithUsPage() {
     ),
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'projectWorkflow'>>(
+      '/api/site-settings/projectWorkflow'
+    ),
   ]);
 
-  const [contactInfoSlice, socialsSlice, appDetailsSlice] = fetchResults;
+  const [contactInfoSlice, socialsSlice, appDetailsSlice, projectWorkflowSlice] = fetchResults;
   const loadFailed = hasAnyServerFetchFailure(fetchResults);
 
   const footerSettings = {
@@ -32,7 +35,9 @@ export default async function WorkWithUsPage() {
   return (
     <PublicShell transparentHeader footerSettings={footerSettings}>
       {loadFailed ? <PublicLoadErrorBanner /> : null}
-      <WorkWithUsPageView />
+      <WorkWithUsPageView
+        projectWorkflow={projectWorkflowSlice.ok ? projectWorkflowSlice.data.projectWorkflow : null}
+      />
     </PublicShell>
   );
 }

@@ -13,8 +13,10 @@ import {
   createService,
   getServiceBySlug,
   updateService,
+  updateSiteSettingsSlice,
 } from '../app/_server/lib/firestore/collections';
 import {
+  ISAAC_PROJECT_WORKFLOW,
   ISAAC_SERVICE_CONTENT_UPDATES,
   type IsaacServiceContentUpdate,
 } from './lib/isaacOwnerServiceContent';
@@ -24,6 +26,12 @@ dotenv.config({ path: resolve(process.cwd(), '.env') });
 type MigrationReportEntry = {
   slug: string;
   action: 'created' | 'updated' | 'skipped';
+  fieldsWritten: string[];
+};
+
+type WorkflowReportEntry = {
+  slice: 'projectWorkflow';
+  action: 'updated';
   fieldsWritten: string[];
 };
 
@@ -102,6 +110,30 @@ function comparePackagePricing(stored: unknown, expected: unknown): string[] {
   return issues;
 }
 
+async function upsertProjectWorkflow(): Promise<WorkflowReportEntry> {
+  await updateSiteSettingsSlice('settings', 'projectWorkflow', ISAAC_PROJECT_WORKFLOW);
+  return {
+    slice: 'projectWorkflow',
+    action: 'updated',
+    fieldsWritten: ['title', 'subtitle', 'steps'],
+  };
+}
+
+async function verifyProjectWorkflow(): Promise<number> {
+  const { getSiteSettingsSlice } = await import('../app/_server/lib/firestore/collections');
+  const stored = await getSiteSettingsSlice('settings', 'projectWorkflow');
+  const issues: string[] = [];
+
+  if (!stored) {
+    issues.push('missing projectWorkflow slice');
+  } else if (JSON.stringify(stored) !== JSON.stringify(ISAAC_PROJECT_WORKFLOW)) {
+    issues.push('projectWorkflow content mismatch');
+  }
+
+  issues.forEach(issue => console.error(`[verify] projectWorkflow: ${issue}`));
+  return issues.length;
+}
+
 async function verifyContent(): Promise<void> {
   let mismatches = 0;
 
@@ -139,6 +171,8 @@ async function verifyContent(): Promise<void> {
     }
   }
 
+  mismatches += await verifyProjectWorkflow();
+
   if (mismatches === 0) {
     console.log('[verify] Isaac service content checks passed.');
   } else {
@@ -157,13 +191,23 @@ async function main(): Promise<void> {
     return;
   }
 
-  const report: MigrationReportEntry[] = [];
+  const report: {
+    services: MigrationReportEntry[];
+    workflow: WorkflowReportEntry;
+  } = {
+    services: [],
+    workflow: await upsertProjectWorkflow(),
+  };
 
   for (const update of ISAAC_SERVICE_CONTENT_UPDATES) {
     const entry = await upsertServiceContent(update);
-    report.push(entry);
+    report.services.push(entry);
     console.log(`[${entry.action}] ${entry.slug} (${entry.fieldsWritten.join(', ')})`);
   }
+
+  console.log(
+    `[${report.workflow.action}] ${report.workflow.slice} (${report.workflow.fieldsWritten.join(', ')})`
+  );
 
   const reportDir = resolve(process.cwd(), 'scripts/migration-reports');
   mkdirSync(reportDir, { recursive: true });
