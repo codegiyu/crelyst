@@ -22,6 +22,7 @@
     "test:phase:integration": "npm run test:integration",
     "test:phase:e2e": "npm run test:e2e",
     "migrate:case-study": "npx tsx scripts/migrate-project-case-study.ts",
+    "migrate:bold-brand-studio": "npx tsx scripts/migrate-bold-brand-studio-content.ts",
     "generate:icons": "npx @svgr/cli --out-dir components/icons --ignore-existing --typescript --replace-attr-values #fff=currentColor,#000=currentColor --jsx-runtime automatic --icon -- public/icons",
     "seed": "npx tsx scripts/seed.ts",
     "deploy:firestore-indexes": "firebase deploy --only firestore:indexes",

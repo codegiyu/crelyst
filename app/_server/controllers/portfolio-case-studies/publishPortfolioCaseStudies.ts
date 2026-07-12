@@ -2,12 +2,14 @@ import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 
+import { ENVIRONMENT } from '@/lib/config/environment';
+
 export const publishPortfolioCaseStudies: RouteHandler = async ({ user }) => {
   if (!user || !(user as { _id?: string })._id) {
     throw new AppError('Unauthorized', 401);
   }
 
-  const hookUrl = process.env.BOLD_BRAND_STUDIO_DEPLOY_HOOK_URL?.trim();
+  const hookUrl = ENVIRONMENT.BOLD_BRAND_STUDIO.DEPLOY_HOOK_URL;
   if (!hookUrl) {
     throw new AppError('Bold Brand Studio deploy hook is not configured', 503);
   }
