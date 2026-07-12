@@ -158,9 +158,10 @@ export type EntitySeoFields = {
 export function buildEntityDetailMetadata(
   entity: EntitySeoFields,
   routePrefix: '/projects' | '/services',
-  pageLabel: string
+  pageLabel: string,
+  seo?: SEODetails | null
 ): Metadata {
-  const metadataBase = resolveMetadataBase();
+  const metadataBase = resolveMetadataBase(seo);
   const title = entity.seo?.metaTitle?.trim()
     ? { absolute: entity.seo.metaTitle.trim() }
     : `${entity.title} | ${pageLabel}`;
@@ -170,16 +171,20 @@ export function buildEntityDetailMetadata(
     entity.description?.trim() ||
     `Discover ${entity.title}.`;
   const keywords = entity.seo?.keywords;
-  const ogImageUrl =
+  const entityImage =
     entity.seo?.openGraph?.images?.[0] ||
     entity.seo?.openGraph?.image ||
     entity.heroImage ||
     entity.featuredImage ||
     entity.bannerImage ||
     entity.cardImage;
+  const siteDefaultOg = resolveAbsoluteAssetUrl(seo?.ogImageUrl, metadataBase) || SEO_DETAILS.image;
+  const ogImage = entityImage
+    ? (resolveAbsoluteAssetUrl(entityImage, metadataBase) ?? siteDefaultOg)
+    : siteDefaultOg;
   const canonicalPath = entity.seo?.canonicalPath?.trim() || `${routePrefix}/${entity.slug}`;
   const canonical = resolveAbsoluteAssetUrl(canonicalPath, metadataBase) ?? canonicalPath;
-  const ogImage = ogImageUrl ? resolveAbsoluteAssetUrl(ogImageUrl, metadataBase) : undefined;
+  const resolvedTitle = typeof title === 'object' ? title.absolute : title;
 
   return {
     title,
@@ -188,16 +193,17 @@ export function buildEntityDetailMetadata(
     alternates: {
       canonical,
     },
-    ...(ogImage
-      ? {
-          openGraph: {
-            images: [{ url: ogImage }],
-          },
-          twitter: {
-            card: 'summary_large_image' as const,
-            images: ogImage,
-          },
-        }
-      : {}),
+    openGraph: {
+      title: resolvedTitle,
+      description,
+      images: [{ url: ogImage }],
+      url: canonical,
+    },
+    twitter: {
+      card: 'summary_large_image' as const,
+      title: resolvedTitle,
+      description,
+      images: ogImage,
+    },
   };
 }

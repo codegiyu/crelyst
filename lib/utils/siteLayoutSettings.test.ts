@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { SEODetails } from '@/lib/types/site-settings';
 import {
   buildBrandingCssVariables,
   buildEntityDetailMetadata,
@@ -92,5 +93,21 @@ describe('buildEntityDetailMetadata', () => {
     expect(metadata.title).toEqual({ absolute: 'Nextron | Brand Identity Case Study' });
     expect(metadata.description).toBe('Custom meta description');
     expect(metadata.openGraph?.images).toEqual([{ url: expect.stringContaining('/hero.png') }]);
+    expect(metadata.twitter?.images).toEqual(expect.stringContaining('/hero.png'));
+  });
+
+  it('falls back to site default OG when entity has no imagery', () => {
+    const metadata = buildEntityDetailMetadata(
+      {
+        title: 'Untitled',
+        slug: 'untitled',
+        seo: { metaTitle: 'Untitled project' },
+      },
+      '/projects',
+      'Our Projects',
+      { ogImageUrl: 'https://example.com/site-og.png' } as SEODetails
+    );
+
+    expect(metadata.openGraph?.images).toEqual([{ url: 'https://example.com/site-og.png' }]);
   });
 });
