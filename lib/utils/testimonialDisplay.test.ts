@@ -7,12 +7,17 @@ import {
   sortTestimonialsForDisplay,
 } from './testimonialDisplay';
 
-function t(id: string, displayOrder: number, isActive = true): ClientTestimonial {
+function t(
+  id: string,
+  displayOrder: number,
+  isActive = true,
+  isFeatured = false
+): ClientTestimonial {
   return {
     _id: id,
     clientName: `Client ${id}`,
     testimonial: `Quote ${id}`,
-    isFeatured: false,
+    isFeatured,
     isActive,
     displayOrder,
     createdAt: '2025-01-01T00:00:00.000Z',
@@ -22,9 +27,17 @@ function t(id: string, displayOrder: number, isActive = true): ClientTestimonial
 
 describe('sortTestimonialsForDisplay', () => {
   it('sorts by displayOrder then _id', () => {
-    const sorted = sortTestimonialsForDisplay([t('b', 2), t('a', 1), t('c', 1)]);
+    const sorted = sortTestimonialsForDisplay([t('b', 2), t('a', 1), t('c', 1)], {
+      featuredFirst: false,
+    });
 
     expect(sorted.map(x => x._id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('prioritizes featured testimonials before displayOrder', () => {
+    const sorted = sortTestimonialsForDisplay([t('low', 0), t('featured', 5, true, true)]);
+
+    expect(sorted.map(x => x._id)).toEqual(['featured', 'low']);
   });
 });
 
