@@ -28,6 +28,7 @@ import type { ClientBrand } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
 
 export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand[] }) => {
   const router = useRouter();
@@ -51,6 +52,8 @@ export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand
     setEditingBrand(brand);
     setIsFormOpen(true);
   };
+
+  useAdminEditDeepLink(brands, handleEdit);
 
   const handleFormSuccess = () => {
     setIsFormOpen(false);

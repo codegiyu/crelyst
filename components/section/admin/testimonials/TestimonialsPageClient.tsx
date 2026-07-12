@@ -30,6 +30,7 @@ import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
 import { cn } from '@/lib/utils';
 
 export const TestimonialsPageClient = ({
@@ -61,6 +62,8 @@ export const TestimonialsPageClient = ({
     setEditingTestimonial(testimonial);
     setIsFormOpen(true);
   };
+
+  useAdminEditDeepLink(testimonials, handleEdit);
 
   const handleFormSuccess = () => {
     setIsFormOpen(false);

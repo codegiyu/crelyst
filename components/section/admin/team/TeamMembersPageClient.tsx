@@ -34,6 +34,7 @@ import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
 import Link from 'next/link';
 
 export const TeamMembersPageClient = ({
@@ -62,6 +63,8 @@ export const TeamMembersPageClient = ({
     setEditingMember(member);
     setIsFormOpen(true);
   };
+
+  useAdminEditDeepLink(teamMembers, handleEdit);
 
   const handleFormSuccess = () => {
     setIsFormOpen(false);

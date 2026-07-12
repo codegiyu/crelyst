@@ -20,6 +20,7 @@ import type { ClientService } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
 
 export const ServicesPageClient = ({ initialServices }: { initialServices: ClientService[] }) => {
   const router = useRouter();
@@ -43,6 +44,8 @@ export const ServicesPageClient = ({ initialServices }: { initialServices: Clien
     setEditingService(service);
     setIsFormOpen(true);
   };
+
+  useAdminEditDeepLink(services, handleEdit);
 
   const handleFormSuccess = () => {
     setIsFormOpen(false);
