@@ -119,6 +119,35 @@ async function upsertProjectWorkflow(): Promise<WorkflowReportEntry> {
   };
 }
 
+function normalizeProjectWorkflow(value: unknown) {
+  if (!value || typeof value !== 'object') return null;
+
+  const workflow = value as {
+    title?: string;
+    subtitle?: string;
+    steps?: Array<{ title?: string; description?: string; order?: number }>;
+  };
+
+  return {
+    title: workflow.title ?? '',
+    subtitle: workflow.subtitle ?? '',
+    steps: [...(workflow.steps ?? [])]
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((step, index) => ({
+        title: step.title ?? '',
+        description: step.description ?? '',
+        order: index,
+      })),
+  };
+}
+
+function projectWorkflowsEqual(stored: unknown, expected: typeof ISAAC_PROJECT_WORKFLOW): boolean {
+  return (
+    JSON.stringify(normalizeProjectWorkflow(stored)) ===
+    JSON.stringify(normalizeProjectWorkflow(expected))
+  );
+}
+
 async function verifyProjectWorkflow(): Promise<number> {
   const { getSiteSettingsSlice } = await import('../app/_server/lib/firestore/collections');
   const stored = await getSiteSettingsSlice('settings', 'projectWorkflow');
@@ -126,7 +155,7 @@ async function verifyProjectWorkflow(): Promise<number> {
 
   if (!stored) {
     issues.push('missing projectWorkflow slice');
-  } else if (JSON.stringify(stored) !== JSON.stringify(ISAAC_PROJECT_WORKFLOW)) {
+  } else if (!projectWorkflowsEqual(stored, ISAAC_PROJECT_WORKFLOW)) {
     issues.push('projectWorkflow content mismatch');
   }
 
