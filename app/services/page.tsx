@@ -1,6 +1,7 @@
 import { PublicShell } from '@/components/layout/PublicShell';
+import { PublicLoadErrorBanner } from '@/components/general/PublicLoadErrorBanner';
 import { ServicesPageView } from '@/components/section/services/ServicesPageView';
-import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
+import { hasAnyServerFetchFailure, serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
 import type { IServicesListRes, ClientSiteSettings } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
-  const [servicesRes, contactInfoSlice, socialsSlice, appDetailsSlice] = await Promise.all([
+  const fetchResults = await Promise.all([
     serverFetchJsonOrNull<IServicesListRes>('/api/services?limit=100'),
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
       '/api/site-settings/contactInfo'
@@ -20,15 +21,19 @@ export default async function ServicesPage() {
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
   ]);
 
+  const [servicesRes, contactInfoSlice, socialsSlice, appDetailsSlice] = fetchResults;
+  const loadFailed = hasAnyServerFetchFailure(fetchResults);
+
   const footerSettings = {
-    ...contactInfoSlice,
-    ...socialsSlice,
-    ...appDetailsSlice,
+    ...(contactInfoSlice.ok ? contactInfoSlice.data : {}),
+    ...(socialsSlice.ok ? socialsSlice.data : {}),
+    ...(appDetailsSlice.ok ? appDetailsSlice.data : {}),
   };
 
   return (
     <PublicShell transparentHeader footerSettings={footerSettings}>
-      <ServicesPageView services={servicesRes?.services ?? []} />
+      {loadFailed ? <PublicLoadErrorBanner /> : null}
+      <ServicesPageView services={servicesRes.ok ? (servicesRes.data.services ?? []) : []} />
     </PublicShell>
   );
 }

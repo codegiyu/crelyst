@@ -1,4 +1,5 @@
 import { PublicShell } from '@/components/layout/PublicShell';
+import { PublicLoadErrorBanner } from '@/components/general/PublicLoadErrorBanner';
 import { ProjectDetailHero } from '@/components/section/projects/ProjectDetailHero';
 import { ProjectDetailContent } from '@/components/section/projects/ProjectDetailContent';
 import { ProjectCaseStudyView } from '@/components/section/projects/ProjectCaseStudyView';
@@ -18,7 +19,7 @@ interface ProjectPageProps {
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
   const data = await getCachedProjectBySlug(slug);
-  const project = data?.project;
+  const project = data.ok ? data.data.project : undefined;
 
   if (project?.title) {
     return buildEntityDetailMetadata(project, '/projects', 'Our Projects');
@@ -39,12 +40,36 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { slug } = await params;
   const data = await getCachedProjectBySlug(slug);
-  const project = data?.project;
+  if (!data.ok) {
+    const footerResults = await Promise.all([
+      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
+        '/api/site-settings/contactInfo'
+      ),
+      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
+      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>(
+        '/api/site-settings/appDetails'
+      ),
+    ]);
+
+    const footerSettings = {
+      ...(footerResults[0].ok ? footerResults[0].data : {}),
+      ...(footerResults[1].ok ? footerResults[1].data : {}),
+      ...(footerResults[2].ok ? footerResults[2].data : {}),
+    };
+
+    return (
+      <PublicShell transparentHeader footerSettings={footerSettings}>
+        <PublicLoadErrorBanner />
+      </PublicShell>
+    );
+  }
+
+  const project = data.data.project;
   if (!project) {
     notFound();
   }
 
-  const [contactInfoSlice, socialsSlice, appDetailsSlice] = await Promise.all([
+  const footerResults = await Promise.all([
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
       '/api/site-settings/contactInfo'
     ),
@@ -53,9 +78,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   ]);
 
   const footerSettings = {
-    ...contactInfoSlice,
-    ...socialsSlice,
-    ...appDetailsSlice,
+    ...(footerResults[0].ok ? footerResults[0].data : {}),
+    ...(footerResults[1].ok ? footerResults[1].data : {}),
+    ...(footerResults[2].ok ? footerResults[2].data : {}),
   };
 
   const adjacent = project.caseStudy ? await getAdjacentPublishedProjects(slug) : undefined;

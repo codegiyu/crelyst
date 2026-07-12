@@ -1,4 +1,5 @@
 import { PublicShell } from '@/components/layout/PublicShell';
+import { PublicLoadErrorBanner } from '@/components/general/PublicLoadErrorBanner';
 import { ServiceDetailHero } from '@/components/section/services/ServiceDetailHero';
 import { ServiceDetailContent } from '@/components/section/services/ServiceDetailContent';
 import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
@@ -15,7 +16,7 @@ interface ServicePageProps {
 export async function generateMetadata({ params }: ServicePageProps): Promise<Metadata> {
   const { slug } = await params;
   const data = await getCachedServiceBySlug(slug);
-  const service = data?.service;
+  const service = data.ok ? data.data.service : undefined;
 
   if (service?.title) {
     return buildEntityDetailMetadata(service, '/services', 'Our Services');
@@ -36,12 +37,37 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
 export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const { slug } = await params;
   const data = await getCachedServiceBySlug(slug);
-  const service = data?.service;
+
+  if (!data.ok) {
+    const footerResults = await Promise.all([
+      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
+        '/api/site-settings/contactInfo'
+      ),
+      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
+      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>(
+        '/api/site-settings/appDetails'
+      ),
+    ]);
+
+    const footerSettings = {
+      ...(footerResults[0].ok ? footerResults[0].data : {}),
+      ...(footerResults[1].ok ? footerResults[1].data : {}),
+      ...(footerResults[2].ok ? footerResults[2].data : {}),
+    };
+
+    return (
+      <PublicShell transparentHeader footerSettings={footerSettings}>
+        <PublicLoadErrorBanner />
+      </PublicShell>
+    );
+  }
+
+  const service = data.data.service;
   if (!service) {
     notFound();
   }
 
-  const [contactInfoSlice, socialsSlice, appDetailsSlice] = await Promise.all([
+  const footerResults = await Promise.all([
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
       '/api/site-settings/contactInfo'
     ),
@@ -50,9 +76,9 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
   ]);
 
   const footerSettings = {
-    ...contactInfoSlice,
-    ...socialsSlice,
-    ...appDetailsSlice,
+    ...(footerResults[0].ok ? footerResults[0].data : {}),
+    ...(footerResults[1].ok ? footerResults[1].data : {}),
+    ...(footerResults[2].ok ? footerResults[2].data : {}),
   };
 
   return (
