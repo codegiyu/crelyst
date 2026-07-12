@@ -28,7 +28,9 @@ export default async function StyleguidePage() {
   const testimonialsRes = await serverFetchJsonOrNull<ITestimonialsListRes>(
     '/api/testimonials?limit=20'
   );
-  const sampleTestimonial = pickStyleguideTestimonial(testimonialsRes?.testimonials ?? []);
+  const sampleTestimonial = pickStyleguideTestimonial(
+    testimonialsRes.ok ? (testimonialsRes.data.testimonials ?? []) : []
+  );
 
   return <StyleguideView sampleTestimonial={sampleTestimonial} />;
 }

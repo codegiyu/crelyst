@@ -1,6 +1,7 @@
 import { PublicShell } from '@/components/layout/PublicShell';
+import { PublicLoadErrorBanner } from '@/components/general/PublicLoadErrorBanner';
 import { GalleryPageView } from '@/components/section/gallery';
-import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
+import { hasAnyServerFetchFailure, serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
 import { getAllProjectAndServiceImages } from '@/lib/utils/getAllProjectAndServiceImages';
 import type {
   ClientSiteSettings,
@@ -16,32 +17,33 @@ export const metadata: Metadata = {
 };
 
 export default async function GalleryPage() {
-  const [projectsRes, servicesRes, contactInfoSlice, socialsSlice, appDetailsSlice] =
-    await Promise.all([
-      serverFetchJsonOrNull<IProjectsListRes>('/api/projects?limit=100'),
-      serverFetchJsonOrNull<IServicesListRes>('/api/services?limit=100'),
-      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
-        '/api/site-settings/contactInfo'
-      ),
-      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
-      serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>(
-        '/api/site-settings/appDetails'
-      ),
-    ]);
+  const fetchResults = await Promise.all([
+    serverFetchJsonOrNull<IProjectsListRes>('/api/projects?limit=100'),
+    serverFetchJsonOrNull<IServicesListRes>('/api/services?limit=100'),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
+      '/api/site-settings/contactInfo'
+    ),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'socials'>>('/api/site-settings/socials'),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
+  ]);
+
+  const [projectsRes, servicesRes, contactInfoSlice, socialsSlice, appDetailsSlice] = fetchResults;
+  const loadFailed = hasAnyServerFetchFailure(fetchResults);
 
   const footerSettings = {
-    ...contactInfoSlice,
-    ...socialsSlice,
-    ...appDetailsSlice,
+    ...(contactInfoSlice.ok ? contactInfoSlice.data : {}),
+    ...(socialsSlice.ok ? socialsSlice.data : {}),
+    ...(appDetailsSlice.ok ? appDetailsSlice.data : {}),
   };
 
   const images = getAllProjectAndServiceImages(
-    projectsRes?.projects ?? [],
-    servicesRes?.services ?? []
+    projectsRes.ok ? (projectsRes.data.projects ?? []) : [],
+    servicesRes.ok ? (servicesRes.data.services ?? []) : []
   );
 
   return (
     <PublicShell transparentHeader footerSettings={footerSettings}>
+      {loadFailed ? <PublicLoadErrorBanner /> : null}
       <GalleryPageView images={images} />
     </PublicShell>
   );

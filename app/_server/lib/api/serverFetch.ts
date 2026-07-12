@@ -139,30 +139,49 @@ function isNextDynamicServerMessage(message: string): boolean {
 }
 
 /**
- * Same as serverFetchJson but returns null on failure.
- * Defaults to no caching (`revalidate: false`). Pass a positive `revalidate` or
- * {@link PUBLIC_RSC_REVALIDATE_SECONDS} to opt into time-based ISR.
+ * Same as serverFetchJson but returns a discriminated result instead of swallowing failures as null.
  */
+export type ServerFetchErrorKind = 'network' | 'http' | 'timeout';
+
+export type ServerFetchResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: ServerFetchErrorKind };
+
 export async function serverFetchJsonOrNull<T>(
   path: string,
   options: ServerFetchOptions = {}
-): Promise<T | null> {
+): Promise<ServerFetchResult<T>> {
   const revalidate = options.revalidate === undefined ? false : options.revalidate;
 
   try {
-    return await serverFetchJson<T>(path, { ...options, revalidate });
+    const data = await serverFetchJson<T>(path, { ...options, revalidate });
+    return { ok: true, data };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (isNextDynamicServerMessage(msg)) {
-      return null;
+    if (/timeout|ETIMEDOUT/i.test(msg)) {
+      return { ok: false, error: 'timeout' };
     }
     if (e instanceof ServerFetchError) {
       logger.warn(`serverFetchJsonOrNull: ${path} failed (${e.status}): ${e.message}`);
-    } else {
+      return { ok: false, error: 'http' };
+    }
+    if (!isNextDynamicServerMessage(msg)) {
       logger.warn(`serverFetchJsonOrNull: ${path} failed: ${msg}`);
     }
-    return null;
+    return { ok: false, error: 'network' };
   }
 }
 
 export { AUTH_COOKIE };
+
+export function getServerFetchData<T>(result: ServerFetchResult<T>): T | null {
+  return result.ok ? result.data : null;
+}
+
+export function isServerFetchFailure(result: ServerFetchResult<unknown>): boolean {
+  return !result.ok;
+}
+
+export function hasAnyServerFetchFailure(results: ServerFetchResult<unknown>[]): boolean {
+  return results.some(isServerFetchFailure);
+}

@@ -13,9 +13,9 @@ async function loadFooterSettings(): Promise<PublicFooterSettings> {
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
   ]);
   return {
-    ...contactInfo,
-    ...socials,
-    ...appDetails,
+    ...(contactInfo.ok ? contactInfo.data : {}),
+    ...(socials.ok ? socials.data : {}),
+    ...(appDetails.ok ? appDetails.data : {}),
   };
 }
 
