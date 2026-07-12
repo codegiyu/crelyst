@@ -9,6 +9,7 @@ import { ExternalLink, Github, Target, Calendar, AlertCircle, DollarSign } from 
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 import { PublicContactCTASection } from '@/components/section/shared';
+import { DynamicIcon, LucideIconName } from '@/components/general/DynamicIcon';
 import { plainTextToSafeHtml, sanitizeHtml } from '@/lib/utils/sanitizeHtml';
 import Image from 'next/image';
 
@@ -375,9 +376,14 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     viewport={{ once: true }}
                     className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl border border-border text-center">
-                    {metric.icon && (
-                      <div className="text-4xl mb-3 flex justify-center">{metric.icon}</div>
-                    )}
+                    {metric.icon ? (
+                      <div className="mb-3 flex justify-center">
+                        <DynamicIcon
+                          name={metric.icon as LucideIconName}
+                          props={{ className: 'h-10 w-10 text-primary' }}
+                        />
+                      </div>
+                    ) : null}
                     <div className="text-3xl font-bold text-foreground mb-2">{metric.value}</div>
                     <div className="text-sm text-muted-foreground">{metric.label}</div>
                   </motion.div>
