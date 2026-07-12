@@ -55,6 +55,7 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
       'analytics',
       'localization',
       'branding',
+      'projectWorkflow',
       'contactInfo',
       'socials',
     ];
@@ -63,17 +64,16 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
     }
 
     const currentSettings = await getSettingsSlice(setting.name as Portion);
+    const currentSliceData = currentSettings ? (currentSettings as any)[setting.name] : undefined;
 
-    if (!currentSettings) throw new AppError('Current setting not found', 404);
-
-    const currentSliceData = (currentSettings as any)[setting.name];
-
-    if (setting.name === 'contactInfo') {
-      const mergedValue = { ...currentSliceData, ...setting.value };
+    if (setting.name === 'contactInfo' || setting.name === 'projectWorkflow') {
+      const mergedValue = { ...(currentSliceData || {}), ...setting.value };
       await updateSiteSettingsSlice('settings', setting.name, mergedValue);
       updatedSettings[setting.name] = mergedValue;
       continue;
     }
+
+    if (!currentSettings) throw new AppError('Current setting not found', 404);
 
     const currentKeysSet = new Set(getAllKeys(currentSliceData));
     const payloadKeysSet = new Set(getAllKeys(setting.value));

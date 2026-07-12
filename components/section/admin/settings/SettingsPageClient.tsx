@@ -17,6 +17,7 @@ import {
   ToggleLeft,
   Globe,
   BarChart3,
+  ListOrdered,
 } from 'lucide-react';
 import { AppDetailsTab } from './tabs/AppDetailsTab';
 import { ContactInfoTab } from './tabs/ContactInfoTab';
@@ -28,6 +29,7 @@ import { LegalTab } from './tabs/LegalTab';
 import { FeaturesTab } from './tabs/FeaturesTab';
 import { LocalizationTab } from './tabs/LocalizationTab';
 import { AnalyticsTab } from './tabs/AnalyticsTab';
+import { ProjectWorkflowTab } from './tabs/ProjectWorkflowTab';
 import { Skeleton } from '@/components/ui/skeleton';
 import { settingsTabRemountKey } from '@/lib/utils/settingsTabKey';
 
@@ -42,6 +44,7 @@ const SETTINGS_TABS = [
   'features',
   'localization',
   'analytics',
+  'project-workflow',
 ] as const;
 
 type SettingsTab = (typeof SETTINGS_TABS)[number];
@@ -111,6 +114,12 @@ const tabConfig: {
     label: 'Analytics',
     icon: BarChart3,
     description: 'Tracking and analytics IDs',
+  },
+  {
+    id: 'project-workflow',
+    label: 'Project Workflow',
+    icon: ListOrdered,
+    description: 'Client journey from brief to delivery',
   },
 ];
 
@@ -243,6 +252,13 @@ export const SettingsPageClient = ({
         return (
           <AnalyticsTab
             key={settingsTabRemountKey('analytics', effective.analytics)}
+            settings={effective}
+          />
+        );
+      case 'project-workflow':
+        return (
+          <ProjectWorkflowTab
+            key={settingsTabRemountKey('project-workflow', effective.projectWorkflow)}
             settings={effective}
           />
         );

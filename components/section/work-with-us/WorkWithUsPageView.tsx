@@ -3,11 +3,18 @@
 import { WorkWithUsHeroSection } from './WorkWithUsHeroSection';
 import { WorkWithUsFormSection } from './WorkWithUsFormSection';
 import { PublicContactCTASection } from '@/components/section/shared/PublicContactCTASection';
+import { ProjectWorkflowSection } from '@/components/section/shared/ProjectWorkflowSection';
+import type { ProjectWorkflow } from '@/lib/types/site-settings';
 
-export const WorkWithUsPageView = () => {
+type WorkWithUsPageViewProps = {
+  projectWorkflow?: ProjectWorkflow | null;
+};
+
+export const WorkWithUsPageView = ({ projectWorkflow }: WorkWithUsPageViewProps) => {
   return (
     <>
       <WorkWithUsHeroSection />
+      {projectWorkflow ? <ProjectWorkflowSection workflow={projectWorkflow} /> : null}
       <WorkWithUsFormSection />
       <PublicContactCTASection
         caption="Questions?"

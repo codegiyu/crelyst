@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getIsaacServiceContentBySlug,
+  ISAAC_PROJECT_WORKFLOW,
   ISAAC_SERVICE_CONTENT_UPDATES,
 } from './isaacOwnerServiceContent';
 
@@ -28,5 +29,10 @@ describe('isaacOwnerServiceContent', () => {
     expect(additional?.payload.pricingFooter).toMatchObject({
       title: 'Custom Projects Are Welcome',
     });
+  });
+
+  it('defines a six-step project workflow', () => {
+    expect(ISAAC_PROJECT_WORKFLOW.steps).toHaveLength(6);
+    expect(ISAAC_PROJECT_WORKFLOW.subtitle).toBe('From brief to final delivery');
   });
 });

@@ -423,6 +423,18 @@ export interface Branding {
   secondaryBrandColor: string;
 }
 
+export interface ProjectWorkflowStep {
+  title: string;
+  description: string;
+  order: number;
+}
+
+export interface ProjectWorkflow {
+  title: string;
+  subtitle?: string;
+  steps: ProjectWorkflowStep[];
+}
+
 export interface ISiteSettings {
   _id: string;
   name: string;
@@ -434,6 +446,7 @@ export interface ISiteSettings {
   analytics: Analytics;
   localization: Localization;
   branding: Branding;
+  projectWorkflow?: ProjectWorkflow;
   contactInfo: ContactInfo;
   socials: Social[];
   createdAt: Date;
