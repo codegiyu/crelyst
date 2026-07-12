@@ -6,6 +6,8 @@ import type { DecodedIdToken, UserRecord } from 'firebase-admin/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/firebase/admin';
 import { isAdminEmail } from '@/lib/constants/admin-emails';
+import { getDocument } from '@/lib/firebase/firestore';
+import type { AdminProfile } from '@/lib/types/firestore-models';
 
 function isLikelyTransientNetworkError(error: unknown): boolean {
   const msg = error instanceof Error ? error.message : String(error);
@@ -34,6 +36,13 @@ export async function resolveConsoleAdminFromToken(
       const isAdmin =
         isAdminEmail(user.email ?? undefined) || decoded.role === 'admin' || decoded.admin === true;
       if (!isAdmin) return { status: 'forbidden' };
+
+      // Firestore accountStatus is the per-admin kill switch (suspension UI tracked separately).
+      const profile = await getDocument<AdminProfile>('admins', decoded.uid);
+      if (profile && profile.accountStatus !== 'active') {
+        return { status: 'forbidden' };
+      }
+
       return { status: 'ok', user, decoded };
     } catch (error) {
       console.error('Console admin token verification error:', error);
