@@ -3,6 +3,7 @@ import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
 import { getSiteSettings, getSiteSettingsSlice } from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
+import { redactSensitiveSettings } from './redactSensitiveSettings';
 
 export type Portion =
   | 'all'
@@ -21,17 +22,24 @@ type I = ISiteSettings | Partial<ISiteSettings> | null;
 
 export const getSettingsSlice = async (
   slice: Portion,
-  _withSensitiveFields: boolean = true
+  withSensitiveFields: boolean = true
 ): Promise<I> => {
+  let settings: I;
+
   if (slice === 'all') {
-    const settings = await getSiteSettings('settings');
-    if (!settings) return null;
-    return settings as I;
+    const allSettings = await getSiteSettings('settings');
+    if (!allSettings) return null;
+    settings = allSettings as I;
+  } else {
+    const value = await getSiteSettingsSlice('settings', slice);
+    if (value === null || value === undefined) return null;
+    settings = { [slice]: value } as I;
   }
 
-  const value = await getSiteSettingsSlice('settings', slice);
-  if (value === null || value === undefined) return null;
-  return { [slice]: value } as I;
+  if (withSensitiveFields) return settings;
+
+  // Default new sensitive settings fields to hidden on public reads.
+  return redactSensitiveSettings(settings as ISiteSettings | Partial<ISiteSettings>, slice);
 };
 
 export const fetchSettings =
