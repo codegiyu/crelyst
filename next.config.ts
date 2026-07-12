@@ -32,9 +32,46 @@ function buildImageRemotePatterns(): NonNullable<NextConfig['images']>['remotePa
   return patterns;
 }
 
+import type { Redirect } from 'next/dist/lib/load-custom-routes';
+
+function buildCanonicalHostRedirects(): Redirect[] {
+  const liveUrl = process.env.live_url || 'https://crelyst.com.ng';
+
+  try {
+    const canonical = new URL(liveUrl);
+    const host = canonical.hostname;
+
+    if (host.startsWith('www.')) {
+      const bareHost = host.slice(4);
+      return [
+        {
+          source: '/:path*',
+          has: [{ type: 'host' as const, value: bareHost }],
+          destination: `${canonical.protocol}//${host}/:path*`,
+          permanent: true,
+        },
+      ];
+    }
+
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host' as const, value: `www.${host}` }],
+        destination: `${canonical.protocol}//${host}/:path*`,
+        permanent: true,
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: buildImageRemotePatterns(),
+  },
+  async redirects() {
+    return buildCanonicalHostRedirects();
   },
   async headers() {
     const security = [
@@ -71,6 +108,10 @@ const nextConfig: NextConfig = {
     }
 
     return [
+      {
+        source: '/admin/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }, ...security],
+      },
       {
         source: '/:path*',
         headers: security,
