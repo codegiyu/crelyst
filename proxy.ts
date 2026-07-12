@@ -9,6 +9,9 @@ import {
 const STYLEGUIDE_PATH = '/internal/styleguide';
 const COOKIE_NAME = 'crelyst_styleguide';
 const AUTH_COOKIE_NAME = 'authToken';
+const CACHE_TTL_MS = 30_000;
+
+let cachedMaintenanceMode: { value: boolean; expiresAt: number } | null = null;
 
 async function styleguideToken(secret: string): Promise<string> {
   const data = new TextEncoder().encode(secret);
@@ -22,6 +25,28 @@ function withPathnameHeader(request: NextRequest, pathname: string) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', pathname);
   return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
+async function isMaintenanceModeEnabled(request: NextRequest): Promise<boolean> {
+  const now = Date.now();
+  if (cachedMaintenanceMode && cachedMaintenanceMode.expiresAt > now) {
+    return cachedMaintenanceMode.value;
+  }
+
+  try {
+    const featuresUrl = new URL('/api/site-settings/features', request.url);
+    const response = await fetch(featuresUrl, { cache: 'no-store' });
+    if (!response.ok) return false;
+
+    const json = (await response.json()) as {
+      data?: { features?: { maintenanceMode?: boolean } };
+    };
+    const value = Boolean(json.data?.features?.maintenanceMode);
+    cachedMaintenanceMode = { value, expiresAt: now + CACHE_TTL_MS };
+    return value;
+  } catch {
+    return false;
+  }
 }
 
 async function handleStyleguide(request: NextRequest): Promise<NextResponse> {
@@ -86,9 +111,21 @@ export async function proxy(request: NextRequest) {
     return handleAdmin(request);
   }
 
+  if (pathname.startsWith('/api') || pathname.startsWith('/maintenance')) {
+    return NextResponse.next();
+  }
+
+  if (await isMaintenanceModeEnabled(request)) {
+    return NextResponse.rewrite(new URL('/maintenance', request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/internal/styleguide', '/admin/:path*'],
+  matcher: [
+    '/internal/styleguide',
+    '/admin/:path*',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
