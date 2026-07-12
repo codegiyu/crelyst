@@ -27,6 +27,11 @@ function withPathnameHeader(request: NextRequest, pathname: string) {
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
+function withAdminNoIndex(response: NextResponse): NextResponse {
+  response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  return response;
+}
+
 async function isMaintenanceModeEnabled(request: NextRequest): Promise<boolean> {
   const now = Date.now();
   if (cachedMaintenanceMode && cachedMaintenanceMode.expiresAt > now) {
@@ -87,17 +92,19 @@ function handleAdmin(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
 
   if (isAdminUnprotectedPath(pathname)) {
-    return withPathnameHeader(request, pathname);
+    return withAdminNoIndex(withPathnameHeader(request, pathname));
   }
 
   if (isAdminDashboardPath(pathname)) {
     const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
     if (!token) {
-      return NextResponse.redirect(new URL(buildAdminLoginUrl(pathname), request.url));
+      return withAdminNoIndex(
+        NextResponse.redirect(new URL(buildAdminLoginUrl(pathname), request.url))
+      );
     }
   }
 
-  return withPathnameHeader(request, pathname);
+  return withAdminNoIndex(withPathnameHeader(request, pathname));
 }
 
 export async function proxy(request: NextRequest) {

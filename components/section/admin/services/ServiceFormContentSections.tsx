@@ -35,7 +35,11 @@ export type ServiceContentFormState = {
 
 export type PackagePricingErrors = {
   categoryErrors: { categoryIndex: number }[];
-  packageErrors: { categoryIndex: number; packageIndex: number; field: 'packageId' | 'priceRange' }[];
+  packageErrors: {
+    categoryIndex: number;
+    packageIndex: number;
+    field: 'packageId' | 'priceRange';
+  }[];
 };
 
 /**
