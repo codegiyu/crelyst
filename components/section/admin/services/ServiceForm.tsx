@@ -15,6 +15,12 @@ import { X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useFileUpload } from '@/lib/hooks/use-file-upload';
+import { slugify } from '@/lib/utils/routes';
+import {
+  ServiceFormContentSections,
+  getInitialServiceContentState,
+  type ServiceContentFormState,
+} from './ServiceFormContentSections';
 
 const serviceSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -29,6 +35,37 @@ const serviceSchema = z.object({
 });
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;
+
+function buildExtendedPayload(state: ServiceContentFormState) {
+  return {
+    pageTitle: state.pageTitle.trim() || undefined,
+    gallery: state.gallery.map(url => url.trim()).filter(Boolean),
+    expertise: state.expertise?.title?.trim() ? state.expertise : undefined,
+    breakdownSummary: state.breakdownSummary.map(item => item.trim()).filter(Boolean),
+    whatMakesUsUnique: state.whatMakesUsUnique?.title?.trim() ? state.whatMakesUsUnique : undefined,
+    process: state.process
+      .filter(step => step.title.trim() || step.description.trim())
+      .map((step, index) => ({ ...step, order: index })),
+    benefits: state.benefits.map(item => item.trim()).filter(Boolean),
+    packagePricing: state.packagePricing
+      .filter(category => category.id.trim())
+      .map(category => ({
+        ...category,
+        packages: category.packages
+          .filter(pkg => pkg.id.trim() && pkg.priceRange.length > 0)
+          .map(pkg => ({
+            ...pkg,
+            benefits: pkg.benefits.map(b => b.trim()).filter(Boolean),
+          })),
+      }))
+      .filter(category => category.packages.length > 0),
+    faq: state.faq
+      .filter(item => item.question.trim() || item.answer.trim())
+      .map((item, index) => ({ ...item, order: index })),
+    tags: state.tags.map(tag => tag.trim()).filter(Boolean),
+    image: state.imageUrl || undefined,
+  };
+}
 
 interface ServiceFormProps {
   service?: ClientService | null;
@@ -52,6 +89,9 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
   // Image URLs (from server or after upload)
   const [bannerImageUrl, setBannerImageUrl] = useState<string>(service?.bannerImage || '');
   const [cardImageUrl, setCardImageUrl] = useState<string>(service?.cardImage || '');
+  const [contentState, setContentState] = useState<ServiceContentFormState>(() =>
+    getInitialServiceContentState(service)
+  );
 
   // Upload hooks for editing mode (immediate upload)
   const bannerUpload = useFileUpload({
@@ -69,6 +109,15 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
     intent: 'card-image',
     onUploadComplete: url => {
       setCardImageUrl(url);
+    },
+  });
+
+  const serviceImageUpload = useFileUpload({
+    entityType: 'service',
+    entityId: service?._id || '',
+    intent: 'image',
+    onUploadComplete: url => {
+      setContentState(current => ({ ...current, imageUrl: url }));
     },
   });
 
@@ -169,6 +218,8 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
             : undefined,
         };
 
+        const extendedPayload = buildExtendedPayload(contentState);
+
         if (isEditing) {
           // Update existing service - images already uploaded immediately
           const payload = {
@@ -181,6 +232,7 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
             isActive: values.isActive,
             features,
             seo,
+            ...extendedPayload,
           };
 
           const { data, error } = await callApi('ADMIN_UPDATE_SERVICE', {
@@ -198,12 +250,14 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
           // Create new service first (without images)
           const payload = {
             title: values.title,
+            slug: slugify(values.title),
             description: values.description,
             shortDescription: values.shortDescription,
             icon: values.icon,
             isActive: values.isActive,
             features,
             seo,
+            ...extendedPayload,
           };
 
           const { data, error } = await callApi('ADMIN_CREATE_SERVICE', {
@@ -248,10 +302,11 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
           }
 
           // Update service with image URLs if we uploaded any
-          if (finalBannerUrl || finalCardUrl) {
+          if (finalBannerUrl || finalCardUrl || contentState.imageUrl) {
             const updatePayload: Record<string, string> = {};
             if (finalBannerUrl) updatePayload.bannerImage = finalBannerUrl;
             if (finalCardUrl) updatePayload.cardImage = finalCardUrl;
+            if (contentState.imageUrl) updatePayload.image = contentState.imageUrl;
 
             await callApi('ADMIN_UPDATE_SERVICE', {
               query: `/${createdService.slug}`,
@@ -426,6 +481,28 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
             </div>
           </div>
         </div>
+
+        <ServiceFormContentSections
+          state={contentState}
+          onChange={patch => setContentState(current => ({ ...current, ...patch }))}
+          isEditing={isEditing}
+          serviceId={service?._id}
+          imageUpload={{
+            previewUrl: serviceImageUpload.previewUrl,
+            uploading: serviceImageUpload.loading,
+            progress: serviceImageUpload.progress,
+            onFileSelect: file => {
+              if (isEditing && file) {
+                serviceImageUpload.handleFileSelect(file);
+                serviceImageUpload.uploadFile({ file });
+              }
+            },
+            onClear: () => {
+              serviceImageUpload.clearFile();
+              setContentState(current => ({ ...current, imageUrl: '' }));
+            },
+          }}
+        />
 
         {/* Active Toggle */}
         <div className="flex items-center justify-between py-2">
