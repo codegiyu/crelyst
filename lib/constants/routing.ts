@@ -6,6 +6,7 @@ import {
   Star,
   LogOut,
   FolderKanban,
+  Palette,
   UsersRound,
   Mail,
   UserPlus,
@@ -34,6 +35,11 @@ export const sidebarLinksData: ISidebarLinkGroup[] = [
         LucideIcon: FolderKanban,
         page: 'Projects',
         path: { prefix: '/admin', suffix: '/dashboard/projects' },
+      },
+      {
+        LucideIcon: Palette,
+        page: 'Portfolio (BBS)',
+        path: { prefix: '/admin', suffix: '/dashboard/portfolio' },
       },
       {
         LucideIcon: Users,

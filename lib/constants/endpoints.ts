@@ -12,6 +12,7 @@ import {
   ProjectStatus,
 } from '@/app/_server/lib/types/constants';
 import type { ProjectCaseStudy } from '@/lib/types/project-case-study';
+import type { PortfolioCaseStudy } from '@/lib/types/portfolio-case-study';
 
 export type HttpMethods = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -34,6 +35,7 @@ export type ClientFriendly<T> = T extends Date
 // Client-friendly type aliases for backend types
 export type ClientService = ClientFriendly<IService>;
 export type ClientProject = ClientFriendly<IProject>;
+export type ClientPortfolioCaseStudy = ClientFriendly<PortfolioCaseStudy>;
 export type ClientBrand = ClientFriendly<IBrand>;
 export type ClientTestimonial = ClientFriendly<ITestimonial>;
 export type ClientTeamMember = ClientFriendly<ITeamMember>;
@@ -107,6 +109,51 @@ export interface AllEndpoints {
   >;
   ADMIN_DELETE_PROJECT: EndpointDefinition<undefined, { success: boolean }, `/${string}`>;
   ADMIN_REORDER_PROJECTS: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
+
+  // Portfolio case studies — Bold Brand Studio (Public)
+  LIST_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
+    undefined,
+    IPortfolioCaseStudiesListRes,
+    PageAndSizeQuery
+  >;
+  GET_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    undefined,
+    { caseStudy: ClientPortfolioCaseStudy },
+    `/${string}`
+  >;
+
+  // Portfolio case studies (Admin)
+  ADMIN_LIST_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
+    undefined,
+    IPortfolioCaseStudiesListRes,
+    PageAndSizeQuery
+  >;
+  ADMIN_CREATE_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    IPortfolioCaseStudyCreatePayload,
+    { caseStudy: ClientPortfolioCaseStudy },
+    undefined
+  >;
+  ADMIN_GET_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    undefined,
+    { caseStudy: ClientPortfolioCaseStudy },
+    `/${string}`
+  >;
+  ADMIN_UPDATE_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    IPortfolioCaseStudyUpdatePayload,
+    { caseStudy: ClientPortfolioCaseStudy },
+    `/${string}`
+  >;
+  ADMIN_DELETE_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    undefined,
+    { success: boolean },
+    `/${string}`
+  >;
+  ADMIN_REORDER_PORTFOLIO_CASE_STUDIES: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
+  ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
+    undefined,
+    { triggered: boolean; deploy?: unknown },
+    undefined
+  >;
 
   // Brand Management (Public)
   LIST_BRANDS: EndpointDefinition<undefined, IBrandsListRes, PageAndSizeQuery>;
@@ -320,6 +367,46 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
     method: 'PATCH',
   },
 
+  LIST_PORTFOLIO_CASE_STUDIES: {
+    path: '/public/portfolio-case-studies',
+    method: 'GET',
+    isNotAuthenticated: true,
+  },
+  GET_PORTFOLIO_CASE_STUDY: {
+    path: '/public/portfolio-case-studies',
+    method: 'GET',
+    isNotAuthenticated: true,
+  },
+
+  ADMIN_LIST_PORTFOLIO_CASE_STUDIES: {
+    path: '/admin/portfolio-case-studies',
+    method: 'GET',
+  },
+  ADMIN_CREATE_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'POST',
+  },
+  ADMIN_GET_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'GET',
+  },
+  ADMIN_UPDATE_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'PATCH',
+  },
+  ADMIN_DELETE_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'DELETE',
+  },
+  ADMIN_REORDER_PORTFOLIO_CASE_STUDIES: {
+    path: '/admin/portfolio-case-studies/reorder',
+    method: 'PATCH',
+  },
+  ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: {
+    path: '/admin/portfolio-case-studies/publish',
+    method: 'POST',
+  },
+
   // Brand Management (Public)
   LIST_BRANDS: {
     path: '/brands',
@@ -526,6 +613,7 @@ export type GetListRes<T, Name extends string> = {
 
 export type IServicesListRes = GetListRes<ClientService, 'services'>;
 export type IProjectsListRes = GetListRes<ClientProject, 'projects'>;
+export type IPortfolioCaseStudiesListRes = GetListRes<ClientPortfolioCaseStudy, 'caseStudies'>;
 export type IBrandsListRes = GetListRes<ClientBrand, 'brands'>;
 export type ITestimonialsListRes = GetListRes<ClientTestimonial, 'testimonials'>;
 export type ITeamMembersListRes = GetListRes<ClientTeamMember, 'teamMembers'>;
@@ -757,6 +845,29 @@ export type IProjectUpdatePayload = Omit<Partial<IProjectCreatePayload>, 'caseSt
   /** Pass `null` to remove case study from the document */
   caseStudy?: ProjectCaseStudy | null;
 };
+
+// Portfolio case study payloads (Bold Brand Studio)
+export type IPortfolioCaseStudyCreatePayload = Partial<PortfolioCaseStudy> &
+  Pick<PortfolioCaseStudy, 'title' | 'description' | 'category' | 'client' | 'industry'> & {
+    slug?: string;
+    image?: string;
+    hero?: string;
+    services?: string[];
+    timeline?: string;
+    summary?: PortfolioCaseStudy['summary'];
+    challenge?: PortfolioCaseStudy['challenge'];
+    strategy?: PortfolioCaseStudy['strategy'];
+    identityImages?: string[];
+    colorPalette?: PortfolioCaseStudy['colorPalette'];
+    typographyPrimary?: string;
+    typographySecondary?: string;
+    results?: PortfolioCaseStudy['results'];
+    keywords?: string[];
+    isActive?: boolean;
+    displayOrder?: number;
+  };
+
+export type IPortfolioCaseStudyUpdatePayload = Partial<IPortfolioCaseStudyCreatePayload>;
 
 // Brand Payloads
 export interface IBrandCreatePayload {

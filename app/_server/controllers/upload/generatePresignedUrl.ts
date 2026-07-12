@@ -13,6 +13,7 @@ import {
   getBrandById,
   getServiceById,
   getProjectById,
+  getPortfolioCaseStudyById,
   getTestimonialById,
   createDocument,
   getTeamMemberById,
@@ -27,6 +28,7 @@ const presignedUrlBodySchema = z
       'admin',
       'service',
       'project',
+      'portfolio-case-study',
       'testimonial',
       'brand',
       'team-member',
@@ -113,6 +115,8 @@ async function entityExists(entityType: EntityType, entityId: string): Promise<b
       return (await getServiceById(entityId)) !== null;
     case 'project':
       return (await getProjectById(entityId)) !== null;
+    case 'portfolio-case-study':
+      return (await getPortfolioCaseStudyById(entityId)) !== null;
     case 'testimonial':
       return (await getTestimonialById(entityId)) !== null;
     case 'brand':

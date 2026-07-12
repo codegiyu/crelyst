@@ -101,6 +101,7 @@ export const mainSchema = z.object({
     'admin',
     'service',
     'project',
+    'portfolio-case-study',
     'testimonial',
     'brand',
     'team-member',

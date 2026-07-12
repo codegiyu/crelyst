@@ -67,6 +67,7 @@ export interface PortfolioCaseStudyContent {
 }
 
 export interface PortfolioCaseStudy extends PortfolioCaseStudyContent {
+  _id: string;
   isActive: boolean;
   displayOrder: number;
   createdAt?: Date | string;
