@@ -32,6 +32,7 @@ import type { ClientProject } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
 import { cn } from '@/lib/utils';
 
 export const ProjectsPageClient = ({ initialProjects }: { initialProjects: ClientProject[] }) => {
@@ -56,6 +57,8 @@ export const ProjectsPageClient = ({ initialProjects }: { initialProjects: Clien
     setEditingProject(project);
     setIsFormOpen(true);
   };
+
+  useAdminEditDeepLink(projects, handleEdit);
 
   const handleFormSuccess = () => {
     setIsFormOpen(false);

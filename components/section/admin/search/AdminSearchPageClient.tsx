@@ -7,6 +7,7 @@ import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Input } from '@/components/ui/input';
 import { callApi } from '@/lib/services/callApi';
 import type { IAdminSearchHit, IAdminSearchRes } from '@/lib/constants/endpoints';
+import { adminSearchHitHref } from '@/lib/utils/adminDeepLink';
 
 const section = (title: string, base: string, items: IAdminSearchHit[]) =>
   items.length === 0 ? null : (
@@ -18,8 +19,10 @@ const section = (title: string, base: string, items: IAdminSearchHit[]) =>
             key={`${hit.type}-${hit.id}`}
             className="px-4 py-3 flex flex-wrap items-center justify-between gap-2">
             <span className="font-medium">{hit.title}</span>
-            <Link href={base} className="text-sm text-primary hover:underline shrink-0">
-              Open in admin →
+            <Link
+              href={adminSearchHitHref(base, hit)}
+              className="text-sm text-primary hover:underline shrink-0">
+              Open record →
             </Link>
           </li>
         ))}
