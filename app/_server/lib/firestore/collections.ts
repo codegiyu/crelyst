@@ -33,6 +33,16 @@ export function getCollection(name: keyof typeof COLLECTIONS) {
   return adminDb.collection(COLLECTIONS[name]);
 }
 
+export async function getNextDisplayOrder(
+  collName: 'brands' | 'services' | 'projects' | 'testimonials' | 'teamMembers'
+): Promise<number> {
+  const snap = await getCollection(collName).orderBy('displayOrder', 'desc').limit(1).get();
+  if (snap.empty) return 1;
+
+  const value = snap.docs[0].data().displayOrder;
+  return (typeof value === 'number' ? value : 0) + 1;
+}
+
 const MAX_LIST_PAGE_SIZE = 100;
 const MAX_LIST_OFFSET = 500;
 
