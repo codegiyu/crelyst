@@ -13,6 +13,7 @@ const COLLECTIONS = {
   brands: 'brands',
   services: 'services',
   projects: 'projects',
+  portfolioCaseStudies: 'portfolioCaseStudies',
   testimonials: 'testimonials',
   teamMembers: 'teamMembers',
   siteSettings: 'siteSettings',
@@ -21,6 +22,14 @@ const COLLECTIONS = {
   formSubmissions: 'formSubmissions',
   auditLogs: 'auditLogs',
 } as const;
+
+type OrderedCollectionName =
+  | 'brands'
+  | 'services'
+  | 'projects'
+  | 'portfolioCaseStudies'
+  | 'testimonials'
+  | 'teamMembers';
 
 export { COLLECTIONS };
 
@@ -33,9 +42,7 @@ export function getCollection(name: keyof typeof COLLECTIONS) {
   return adminDb.collection(COLLECTIONS[name]);
 }
 
-export async function getNextDisplayOrder(
-  collName: 'brands' | 'services' | 'projects' | 'testimonials' | 'teamMembers'
-): Promise<number> {
+export async function getNextDisplayOrder(collName: OrderedCollectionName): Promise<number> {
   const snap = await getCollection(collName).orderBy('displayOrder', 'desc').limit(1).get();
   if (snap.empty) return 1;
 
@@ -60,10 +67,7 @@ type OrderedListOptions = {
   page?: number;
 };
 
-async function listOrderedCollection(
-  collName: 'brands' | 'services' | 'projects' | 'testimonials' | 'teamMembers',
-  options: OrderedListOptions
-) {
+async function listOrderedCollection(collName: OrderedCollectionName, options: OrderedListOptions) {
   const { isActive, limit = 50, page = 1 } = options;
   const { safeLimit, offset } = clampListPagination(limit, page);
   const coll = getCollection(collName);
@@ -279,6 +283,76 @@ export async function deleteAllProjects(): Promise<number> {
     await batch.commit();
   }
   return docs.length;
+}
+
+// ----- Portfolio case studies (Bold Brand Studio) -----
+export async function listPortfolioCaseStudies(opts: OrderedListOptions) {
+  return listOrderedCollection('portfolioCaseStudies', opts);
+}
+
+export async function getPortfolioCaseStudyBySlug(slug: string) {
+  const snap = await getCollection('portfolioCaseStudies').where('slug', '==', slug).limit(1).get();
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...d.data() };
+}
+
+export async function getPortfolioCaseStudyById(id: string) {
+  const doc = await getCollection('portfolioCaseStudies').doc(id).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+}
+
+export async function upsertPortfolioCaseStudyBySlug(slug: string, data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const existing = await getPortfolioCaseStudyBySlug(slug);
+
+  if (existing) {
+    const ref = getCollection('portfolioCaseStudies').doc(existing.id);
+    await ref.update({ ...data, updatedAt: now });
+    const snap = await ref.get();
+    return { id: snap.id, ...snap.data(), created: false };
+  }
+
+  const docRef = getCollection('portfolioCaseStudies').doc();
+  await docRef.set({ ...data, slug, createdAt: now, updatedAt: now });
+  const snap = await docRef.get();
+  return { id: snap.id, ...snap.data(), created: true };
+}
+
+export async function createPortfolioCaseStudy(data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const docRef = getCollection('portfolioCaseStudies').doc();
+  await docRef.set({ ...data, createdAt: now, updatedAt: now });
+  const snap = await docRef.get();
+  return { id: snap.id, ...snap.data() };
+}
+
+export async function updatePortfolioCaseStudy(id: string, data: Record<string, unknown>) {
+  const ref = getCollection('portfolioCaseStudies').doc(id);
+  if (!(await ref.get()).exists) return null;
+  await ref.update({ ...data, updatedAt: Timestamp.now() });
+  const snap = await ref.get();
+  return { id: snap.id, ...snap.data() };
+}
+
+export async function deletePortfolioCaseStudy(id: string) {
+  const ref = getCollection('portfolioCaseStudies').doc(id);
+  if (!(await ref.get()).exists) return false;
+  await ref.delete();
+  return true;
+}
+
+export async function reorderPortfolioCaseStudies(
+  items: Array<{ id: string; displayOrder: number }>
+) {
+  const batch = adminDb!.batch();
+  for (const item of items) {
+    const ref = getCollection('portfolioCaseStudies').doc(item.id);
+    batch.update(ref, { displayOrder: item.displayOrder, updatedAt: Timestamp.now() });
+  }
+  await batch.commit();
+  return { modifiedCount: items.length, matchedCount: items.length };
 }
 
 // ----- Testimonials -----
