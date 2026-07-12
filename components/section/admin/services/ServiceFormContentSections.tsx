@@ -33,6 +33,55 @@ export type ServiceContentFormState = {
   imageUrl: string;
 };
 
+export type PackagePricingErrors = {
+  categoryErrors: { categoryIndex: number }[];
+  packageErrors: { categoryIndex: number; packageIndex: number; field: 'packageId' | 'priceRange' }[];
+};
+
+/**
+ * A category/package that's missing an id or price range gets silently dropped by
+ * buildExtendedPayload's filter on submit — this surfaces those cases as validation
+ * errors instead, so the form can block submission and explain why.
+ */
+export function getPackagePricingErrors(
+  packagePricing: IServicePackagePricing[]
+): PackagePricingErrors {
+  const categoryErrors: PackagePricingErrors['categoryErrors'] = [];
+  const packageErrors: PackagePricingErrors['packageErrors'] = [];
+
+  packagePricing.forEach((category, categoryIndex) => {
+    if (!category.id.trim()) {
+      categoryErrors.push({ categoryIndex });
+    }
+    category.packages.forEach((pkg, packageIndex) => {
+      if (!pkg.id.trim()) {
+        packageErrors.push({ categoryIndex, packageIndex, field: 'packageId' });
+      }
+      if (pkg.priceRange.length === 0) {
+        packageErrors.push({ categoryIndex, packageIndex, field: 'priceRange' });
+      }
+    });
+  });
+
+  return { categoryErrors, packageErrors };
+}
+
+export function describePackagePricingErrors(errors: PackagePricingErrors): string[] {
+  const messages: string[] = [];
+
+  errors.categoryErrors.forEach(({ categoryIndex }) => {
+    messages.push(`Pricing category ${categoryIndex + 1} needs a category id`);
+  });
+  errors.packageErrors.forEach(({ categoryIndex, packageIndex, field }) => {
+    const label = `Pricing category ${categoryIndex + 1}, package ${packageIndex + 1}`;
+    messages.push(
+      field === 'packageId' ? `${label} needs a package id` : `${label} needs at least one price`
+    );
+  });
+
+  return messages;
+}
+
 export function getInitialServiceContentState(
   service?: ClientService | null
 ): ServiceContentFormState {
@@ -114,6 +163,8 @@ type ServiceFormContentSectionsProps = {
     onFileSelect: (file: File | null) => void;
     onClear: () => void;
   };
+  pricingErrors: PackagePricingErrors;
+  showPricingErrors: boolean;
 };
 
 export function ServiceFormContentSections({
@@ -121,9 +172,23 @@ export function ServiceFormContentSections({
   onChange,
   isEditing,
   imageUpload,
+  pricingErrors,
+  showPricingErrors,
 }: ServiceFormContentSectionsProps) {
   const expertise = state.expertise;
   const unique = state.whatMakesUsUnique;
+
+  const categoryHasError = (categoryIndex: number) =>
+    showPricingErrors && pricingErrors.categoryErrors.some(e => e.categoryIndex === categoryIndex);
+  const packageFieldErrors = (
+    categoryIndex: number,
+    packageIndex: number,
+    field: 'packageId' | 'priceRange'
+  ) =>
+    showPricingErrors &&
+    pricingErrors.packageErrors.some(
+      e => e.categoryIndex === categoryIndex && e.packageIndex === packageIndex && e.field === field
+    );
 
   return (
     <Accordion type="multiple" defaultValue={['content', 'gallery', 'pricing']} className="w-full">
@@ -440,6 +505,7 @@ export function ServiceFormContentSections({
                     onChange({ packagePricing });
                   }}
                   placeholder="e.g. branding"
+                  errors={categoryHasError(ci) ? ['Category id is required'] : []}
                 />
                 {category.packages.map((pkg, pi) => (
                   <div key={pi} className="grid gap-3 rounded-md border border-border/60 p-3">
@@ -455,6 +521,9 @@ export function ServiceFormContentSections({
                         onChange({ packagePricing });
                       }}
                       placeholder="e.g. basic"
+                      errors={
+                        packageFieldErrors(ci, pi, 'packageId') ? ['Package id is required'] : []
+                      }
                     />
                     <RegularInput
                       label="Price range (comma-separated Naira amounts)"
@@ -472,6 +541,11 @@ export function ServiceFormContentSections({
                         onChange({ packagePricing });
                       }}
                       placeholder="500000, 1000000"
+                      errors={
+                        packageFieldErrors(ci, pi, 'priceRange')
+                          ? ['At least one price is required']
+                          : []
+                      }
                     />
                     <StringListEditor
                       label="Package benefits"
