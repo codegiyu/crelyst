@@ -26,44 +26,61 @@ export type DashboardHomeInitial = {
   testimonials: ClientTestimonial[];
   brands: ClientBrand[];
   teamMembers: ClientTeamMember[];
+  totals: {
+    services: number;
+    projects: number;
+    testimonials: number;
+    brands: number;
+    teamMembers: number;
+  };
 };
+
+const DASHBOARD_LIST_LIMIT = 100;
+
+function formatDashboardStatValue(fetched: number, total: number): string {
+  if (total > DASHBOARD_LIST_LIMIT && fetched >= DASHBOARD_LIST_LIMIT) {
+    return `${DASHBOARD_LIST_LIMIT}+`;
+  }
+
+  return String(total);
+}
 
 export const DashboardHomeClient = ({ initial }: { initial: DashboardHomeInitial }) => {
   const { user } = useAuthStore(state => state);
-  const { services, projects, testimonials, brands, teamMembers } = initial;
+  const { services, projects, testimonials, brands, teamMembers, totals } = initial;
 
   const stats = [
     {
       title: 'Services',
-      value: services.length,
+      value: formatDashboardStatValue(services.length, totals.services),
       icon: Briefcase,
       color: 'bg-blue-500/10 text-blue-500',
       href: '/admin/dashboard/services',
     },
     {
       title: 'Projects',
-      value: projects.length,
+      value: formatDashboardStatValue(projects.length, totals.projects),
       icon: FolderKanban,
       color: 'bg-purple-500/10 text-purple-500',
       href: '/admin/dashboard/projects',
     },
     {
       title: 'Testimonials',
-      value: testimonials.length,
+      value: formatDashboardStatValue(testimonials.length, totals.testimonials),
       icon: Star,
       color: 'bg-amber-500/10 text-amber-500',
       href: '/admin/dashboard/testimonials',
     },
     {
       title: 'Brands',
-      value: brands.length,
+      value: formatDashboardStatValue(brands.length, totals.brands),
       icon: Users,
       color: 'bg-emerald-500/10 text-emerald-500',
       href: '/admin/dashboard/brands',
     },
     {
       title: 'Team Members',
-      value: teamMembers.length,
+      value: formatDashboardStatValue(teamMembers.length, totals.teamMembers),
       icon: UsersRound,
       color: 'bg-rose-500/10 text-rose-500',
       href: '/admin/dashboard/team',
@@ -84,7 +101,7 @@ export const DashboardHomeClient = ({ initial }: { initial: DashboardHomeInitial
           {greeting()}, {user?.firstName || 'Admin'}!
         </h1>
         <p className="text-muted-foreground">
-          Here&apos;s an overview of your site&apos;s content and recent activity.
+          Here&apos;s an overview of your site&apos;s content.
         </p>
       </div>
 
