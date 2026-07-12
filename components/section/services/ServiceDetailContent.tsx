@@ -29,10 +29,14 @@ type PackagePricingCardProps = {
 
 const PackagePricingCard = ({ pkg, packageIndex, delay, anim }: PackagePricingCardProps) => {
   const isMiddle = packageIndex === 1;
+  const minPrice = pkg.priceRange?.[0];
+  const maxPrice = pkg.priceRange?.[1];
   const priceLabel =
-    pkg.priceRange.length === 1
-      ? `${(pkg.priceRange[0] / 1000).toLocaleString()}k`
-      : `${(pkg.priceRange[0] / 1000).toLocaleString()}k – ${(pkg.priceRange[1] / 1000).toLocaleString()}k`;
+    minPrice == null
+      ? 'Contact for pricing'
+      : maxPrice == null || maxPrice === minPrice
+        ? `${(minPrice / 1000).toLocaleString()}k`
+        : `${(minPrice / 1000).toLocaleString()}k – ${(maxPrice / 1000).toLocaleString()}k`;
 
   return (
     <motion.div
@@ -52,7 +56,9 @@ const PackagePricingCard = ({ pkg, packageIndex, delay, anim }: PackagePricingCa
       <p className="mb-1 text-sm font-medium uppercase tracking-wider text-muted-foreground">
         {pkg.id}
       </p>
-      <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">&#8358;{priceLabel}</p>
+      <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">
+        {priceLabel === 'Contact for pricing' ? priceLabel : <>&#8358;{priceLabel}</>}
+      </p>
       <ul className="grid gap-2.5">
         {pkg.benefits.map((b, bi) => (
           <li key={bi} className="flex items-start gap-2 text-sm text-muted-foreground">
