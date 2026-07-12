@@ -65,9 +65,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
       <ProjectDetailHero project={project} />
       {project.caseStudy ? <ProjectCaseStudyView project={project} adjacent={adjacent} /> : null}
       <ProjectDetailContent project={project} />
-      {!project.caseStudy && project.images && project.images.length > 0 ? (
-        <ProjectGallery project={project} />
-      ) : null}
+      {project.images && project.images.length > 0 ? <ProjectGallery project={project} /> : null}
     </PublicShell>
   );
 }
