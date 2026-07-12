@@ -64,6 +64,8 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
   const [newTechnology, setNewTechnology] = useState('');
   const [tags, setTags] = useState<string[]>(project?.tags ?? []);
   const [newTag, setNewTag] = useState('');
+  const [galleryImages, setGalleryImages] = useState<string[]>(project?.images ?? []);
+  const [newGalleryImage, setNewGalleryImage] = useState('');
   // For new projects: toggle to use featured image as card image
   const [useFeaturedAsCard, setUseFeaturedAsCard] = useState(!isEditing);
 
@@ -315,6 +317,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           isActive: values.isActive ?? true,
           technologies,
           tags: tags.length ? tags : undefined,
+          images: galleryImages.map(url => url.trim()).filter(Boolean),
           ...(cs === null ? { caseStudy: null } : cs ? { caseStudy: cs } : {}),
           seo,
         };
@@ -350,6 +353,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           isActive: values.isActive ?? true,
           technologies,
           tags: tags.length ? tags : undefined,
+          images: galleryImages.map(url => url.trim()).filter(Boolean),
           ...(csCreate && csCreate !== null ? { caseStudy: csCreate } : {}),
           seo,
         };
@@ -466,6 +470,17 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
 
   const removeTag = (index: number) => {
     setTags(tags.filter((_, i) => i !== index));
+  };
+
+  const addGalleryImage = () => {
+    if (newGalleryImage.trim()) {
+      setGalleryImages([...galleryImages, newGalleryImage.trim()]);
+      setNewGalleryImage('');
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(galleryImages.filter((_, i) => i !== index));
   };
 
   return (
@@ -675,6 +690,52 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           placeholder="Large image below title on case study layout"
           subtext="Used when case study mode is on; falls back to featured image if empty"
         />
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
+            Gallery images
+          </label>
+          <div className="flex flex-col gap-2">
+            {galleryImages.map((imageUrl, index) => (
+              <div key={index} className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
+                <span className="flex-1 truncate text-sm">{imageUrl}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => removeGalleryImage(index)}>
+                  <X className="size-4" />
+                </Button>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newGalleryImage}
+                onChange={e => setNewGalleryImage(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addGalleryImage();
+                  }
+                }}
+                placeholder="Add gallery image URL..."
+                className={cn(
+                  'flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm',
+                  'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2',
+                  'focus-visible:ring-ring focus-visible:ring-offset-2'
+                )}
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addGalleryImage}>
+                <Plus className="size-4" />
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Images shown in the project gallery on the public detail page.
+          </p>
+        </div>
 
         {/* Technologies */}
         <div className="flex flex-col gap-2">
