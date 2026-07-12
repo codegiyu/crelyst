@@ -4,7 +4,7 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
-import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 import { SocialBtn } from '@/components/layout/Footer';
 import { getSocialIcon, formatSocialLabel } from '@/lib/utils/socials';
 import { formatOfficeHours } from '@/lib/utils/contactInfo';
@@ -30,6 +30,11 @@ export const ContactInfoSection = ({
       label: formatSocialLabel(social.platform),
     })) || [];
 
+  const whatsappDigits = contactInfo?.whatsapp?.replace(/\D/g, '') ?? '';
+  const whatsappUrl = whatsappDigits
+    ? `https://wa.me/${whatsappDigits}?text=${encodeURIComponent('Hello Crelyst, I would like to get in touch.')}`
+    : '';
+
   const contactItems = [
     {
       Icon: MapPin,
@@ -50,6 +55,17 @@ export const ContactInfoSection = ({
       isLink: true,
       linkPrefix: 'mailto:',
     },
+    ...(whatsappUrl
+      ? [
+          {
+            Icon: MessageCircle,
+            title: 'WhatsApp',
+            details: [contactInfo?.whatsapp ?? whatsappDigits],
+            isLink: true,
+            href: whatsappUrl,
+          },
+        ]
+      : []),
     {
       Icon: Clock,
       title: 'Office Hours',
@@ -99,8 +115,15 @@ export const ContactInfoSection = ({
                       <p key={i} className="text-sm text-muted-foreground">
                         {item.isLink ? (
                           <a
-                            href={`${item.linkPrefix}${detail.replace(/\s/g, '')}`}
-                            className="hover:text-primary transition-colors break-all">
+                            href={
+                              'href' in item && item.href
+                                ? item.href
+                                : `${item.linkPrefix}${detail.replace(/\s/g, '')}`
+                            }
+                            className="hover:text-primary transition-colors break-all"
+                            {...('href' in item && item.href?.startsWith('https://wa.me')
+                              ? { target: '_blank', rel: 'noopener noreferrer' }
+                              : {})}>
                             {detail}
                           </a>
                         ) : (

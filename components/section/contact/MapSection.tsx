@@ -30,10 +30,22 @@ export const MapSection = ({
 }) => {
   const { siteLoading } = useSiteStore(state => state);
   const rawEmbed = contactInfo?.mapsEmbedUrl?.trim() ?? '';
+  const locationUrl = contactInfo?.locationUrl?.trim() ?? '';
   const showMap = rawEmbed.length > 0 && isGoogleMapsEmbedUrl(rawEmbed);
 
   return (
     <SectionContainer className="bg-background pb-16 md:pb-20">
+      {locationUrl ? (
+        <div className="mb-4 flex justify-end">
+          <a
+            href={locationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-primary hover:underline">
+            Get Directions
+          </a>
+        </div>
+      ) : null}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
