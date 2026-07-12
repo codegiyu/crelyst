@@ -3,6 +3,7 @@ import { ServiceDetailHero } from '@/components/section/services/ServiceDetailHe
 import { ServiceDetailContent } from '@/components/section/services/ServiceDetailContent';
 import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
 import { getCachedServiceBySlug } from '@/lib/ssr/cachedPublicDetail';
+import { buildEntityDetailMetadata } from '@/lib/utils/siteLayoutSettings';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -15,23 +16,21 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
   const { slug } = await params;
   const data = await getCachedServiceBySlug(slug);
   const service = data?.service;
+
   if (service?.title) {
-    return {
-      title: `${service.title} | Our Services`,
-      description:
-        service.shortDescription ||
-        service.description ||
-        `Learn more about our ${service.title} services.`,
-    };
+    return buildEntityDetailMetadata(service, '/services', 'Our Services');
   }
+
   const title = slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-  return {
-    title: `${title} | Our Services`,
-    description: `Learn more about our ${title.toLowerCase()} services and how we can help your business succeed.`,
-  };
+
+  return buildEntityDetailMetadata(
+    { title, slug, description: `Learn more about our ${title.toLowerCase()} services.` },
+    '/services',
+    'Our Services'
+  );
 }
 
 export default async function ServiceDetailPage({ params }: ServicePageProps) {

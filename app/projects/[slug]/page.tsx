@@ -6,6 +6,7 @@ import { ProjectGallery } from '@/components/section/projects/ProjectGallery';
 import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
 import { getCachedProjectBySlug } from '@/lib/ssr/cachedPublicDetail';
 import { getAdjacentPublishedProjects } from '@/lib/ssr/adjacentPublishedProjects';
+import { buildEntityDetailMetadata } from '@/lib/utils/siteLayoutSettings';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -18,27 +19,21 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   const { slug } = await params;
   const data = await getCachedProjectBySlug(slug);
   const project = data?.project;
+
   if (project?.title) {
-    const keywords = project.caseStudy?.keywords?.length
-      ? project.caseStudy.keywords
-      : project.seo?.keywords;
-    return {
-      title: `${project.title} | Our Projects`,
-      description:
-        project.shortDescription ||
-        project.description ||
-        `Discover how we delivered ${project.title}.`,
-      ...(keywords?.length ? { keywords } : {}),
-    };
+    return buildEntityDetailMetadata(project, '/projects', 'Our Projects');
   }
+
   const title = slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-  return {
-    title: `${title} | Our Projects`,
-    description: `Discover the details of our ${title.toLowerCase()} project and see how we delivered exceptional results.`,
-  };
+
+  return buildEntityDetailMetadata(
+    { title, slug, description: `Discover the details of our ${title.toLowerCase()} project.` },
+    '/projects',
+    'Our Projects'
+  );
 }
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
