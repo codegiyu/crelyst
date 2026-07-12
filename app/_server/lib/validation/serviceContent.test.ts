@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   serviceExtendedContentSchema,
   servicePackageSchema,
+  servicePricingFooterSchema,
   serviceWriteBodySchema,
 } from './serviceContent';
 
@@ -21,6 +22,32 @@ describe('servicePackageSchema', () => {
       id: 'basic',
       priceRange: [500000],
       benefits: ['Logo design'],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts display metadata on packages', () => {
+    const result = servicePackageSchema.safeParse({
+      id: 'label-design',
+      title: 'Label Design',
+      summary: 'For bottles, jars, pouches, cans, and containers.',
+      priceRange: [100000],
+      benefits: ['2 Initial Concepts'],
+      isFeatured: true,
+    });
+
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('servicePricingFooterSchema', () => {
+  it('accepts custom project footer copy', () => {
+    const result = servicePricingFooterSchema.safeParse({
+      title: 'Custom Projects Are Welcome',
+      description: 'Reach out for a tailored solution.',
+      ctaLabel: 'Get in touch',
+      ctaHref: '/contact',
     });
 
     expect(result.success).toBe(true);

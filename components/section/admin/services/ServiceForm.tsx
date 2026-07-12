@@ -61,6 +61,15 @@ function buildExtendedPayload(state: ServiceContentFormState) {
           })),
       }))
       .filter(category => category.packages.length > 0),
+    pricingFooter:
+      state.pricingFooter?.title?.trim() && state.pricingFooter.description?.trim()
+        ? {
+            title: state.pricingFooter.title.trim(),
+            description: state.pricingFooter.description.trim(),
+            ctaLabel: state.pricingFooter.ctaLabel?.trim() || undefined,
+            ctaHref: state.pricingFooter.ctaHref?.trim() || undefined,
+          }
+        : undefined,
     faq: state.faq
       .filter(item => item.question.trim() || item.answer.trim())
       .map((item, index) => ({ ...item, order: index })),
