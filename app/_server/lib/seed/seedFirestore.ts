@@ -120,7 +120,7 @@ const DEFAULT_SITE_SETTINGS = {
 function normalizeTestimonialSeedPayload(
   testimonial: (typeof TESTIMONIALS_DATA)[number]
 ): Record<string, unknown> {
-  const { projectId, ...rest } = testimonial as Record<string, unknown>;
+  const rest = testimonial as Record<string, unknown>;
 
   return {
     ...rest,
@@ -132,7 +132,6 @@ function normalizeTestimonialSeedPayload(
     companyLogo: (rest.companyLogo as string | undefined) ?? '',
     clientImage: (rest.clientImage as string | undefined) ?? '',
     rating: (rest.rating as number | undefined) ?? 5,
-    ...(projectId != null && projectId !== '' ? { projectId } : {}),
   };
 }
 

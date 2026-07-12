@@ -20,7 +20,6 @@ const updateTestimonialBodySchema = z.object({
   isFeatured: z.boolean().optional(),
   isActive: z.boolean().optional(),
   displayOrder: z.number().int().min(0).optional(),
-  projectId: z.string().nullable().optional(),
 });
 
 export const updateTestimonial: RouteHandler = async ({ request, body, user }) => {
@@ -55,7 +54,6 @@ export const updateTestimonial: RouteHandler = async ({ request, body, user }) =
     'isFeatured',
     'isActive',
     'displayOrder',
-    'projectId',
   ] as const;
   for (const f of fields) {
     const val = payload[f];

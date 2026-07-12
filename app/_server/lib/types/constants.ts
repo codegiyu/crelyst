@@ -242,7 +242,6 @@ export interface IProject {
     status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
     order: number;
   }>;
-  teamMembers?: string[];
   challengesFaced?: Array<{
     challenge: string;
     solution: string;
@@ -256,8 +255,6 @@ export interface IProject {
     type?: 'text' | 'html' | 'markdown';
     order: number;
   }>;
-  relatedProjects?: string[];
-  testimonials?: string[];
   tags?: string[];
   budget?: {
     amount?: number;
@@ -289,7 +286,6 @@ export interface ITestimonial {
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: number;
-  projectId?: string; // Optional reference to a project
   createdAt: Date;
   updatedAt: Date;
 }
