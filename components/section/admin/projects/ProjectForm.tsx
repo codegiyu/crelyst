@@ -538,11 +538,26 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
             label="Status"
             name="status"
             value={formValues.status || 'draft'}
-            onSelectChange={value => onChange('status', value as ProjectStatus)}
+            onSelectChange={value => {
+              const status = value as ProjectStatus;
+              onChange('status', status);
+              if (status === 'draft' || status === 'archived' || status === 'cancelled') {
+                onChange('isActive', false);
+              }
+            }}
             options={statusOptions}
             errors={errorsVisible ? formErrors.status : []}
+            subtext="Display label only. Active controls whether the project appears on the public site."
           />
         </div>
+        {(formValues.status === 'draft' ||
+          formValues.status === 'archived' ||
+          formValues.status === 'cancelled') && (
+          <p className="text-xs text-muted-foreground -mt-4">
+            Draft, archived, and cancelled projects are hidden from the public site by default. You
+            can still turn Active on for teaser use cases.
+          </p>
+        )}
 
         {/* Client Info */}
         <div className="grid grid-cols-2 gap-6">
