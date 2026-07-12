@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { callApi } from '@/lib/services/callApi';
 import { toast } from 'sonner';
 import type { ClientService } from '@/lib/constants/endpoints';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ import { slugify } from '@/lib/utils/routes';
 import {
   ServiceFormContentSections,
   getInitialServiceContentState,
+  getPackagePricingErrors,
+  describePackagePricingErrors,
   type ServiceContentFormState,
 } from './ServiceFormContentSections';
 
@@ -191,6 +193,7 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
     handleInputChange,
     handleSubmit,
     setFormErrors,
+    validateForm,
     onChange,
   } = useForm<typeof serviceSchema>({
     formSchema: serviceSchema,
@@ -325,6 +328,38 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
       }
     },
   });
+
+  const [showPricingErrors, setShowPricingErrors] = useState(false);
+  const pricingErrors = useMemo(
+    () => getPackagePricingErrors(contentState.packagePricing),
+    [contentState.packagePricing]
+  );
+  const baseFieldsValid = serviceSchema.safeParse(formValues).success;
+  const isFormValid =
+    baseFieldsValid &&
+    pricingErrors.categoryErrors.length === 0 &&
+    pricingErrors.packageErrors.length === 0;
+
+  const handleDisabledSubmitClick = () => {
+    validateForm();
+    setShowPricingErrors(true);
+
+    const baseParse = serviceSchema.safeParse(formValues);
+    const baseMessages = baseParse.success
+      ? []
+      : Object.values(z.flattenError(baseParse.error).fieldErrors)
+          .flat()
+          .filter((message): message is string => !!message);
+    const pricingMessages = describePackagePricingErrors(pricingErrors);
+    const allMessages = [...baseMessages, ...pricingMessages];
+
+    if (allMessages.length === 0) return;
+
+    toast.error(
+      allMessages.length === 1 ? allMessages[0] : `Fix ${allMessages.length} issues before saving`,
+      allMessages.length > 1 ? { description: allMessages.join(' • ') } : undefined
+    );
+  };
 
   const addFeature = () => {
     if (newFeature.trim()) {
@@ -487,6 +522,8 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
           onChange={patch => setContentState(current => ({ ...current, ...patch }))}
           isEditing={isEditing}
           serviceId={service?._id}
+          pricingErrors={pricingErrors}
+          showPricingErrors={showPricingErrors}
           imageUpload={{
             previewUrl: serviceImageUpload.previewUrl,
             uploading: serviceImageUpload.loading,
@@ -581,6 +618,8 @@ export const ServiceForm = ({ service, onSuccess, onCancel }: ServiceFormProps) 
           type="submit"
           text={isEditing ? 'Update Service' : 'Create Service'}
           loading={loading}
+          disabled={!isFormValid}
+          onDisabledClick={handleDisabledSubmitClick}
           className="flex-1"
         />
       </div>
