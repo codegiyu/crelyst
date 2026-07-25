@@ -12,6 +12,7 @@ import {
   EyeOff,
   Rocket,
   Star,
+  AlertTriangle,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Modal } from '@/components/ui/Modal';
@@ -29,23 +30,26 @@ import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
 import { cn } from '@/lib/utils';
-import {
-  PortfolioCaseStudyForm,
-  DeletePortfolioCaseStudyDialog,
-  ReorderPortfolioModal,
-} from './index';
+import { PortfolioCaseStudyForm } from './PortfolioCaseStudyForm';
+import { DeletePortfolioCaseStudyDialog } from './DeletePortfolioCaseStudyDialog';
+import { ReorderPortfolioModal } from './ReorderPortfolioModal';
 
 export const PortfolioPageClient = ({
   initialCaseStudies,
+  loadFailed = false,
 }: {
   initialCaseStudies: ClientPortfolioCaseStudy[];
+  loadFailed?: boolean;
 }) => {
   const router = useRouter();
   const [caseStudies, setCaseStudies] = useState(initialCaseStudies);
+  const [fetchError, setFetchError] = useState(loadFailed);
 
   useEffect(() => {
     setCaseStudies(initialCaseStudies);
-  }, [initialCaseStudies]);
+
+    if (!loadFailed) setFetchError(false);
+  }, [initialCaseStudies, loadFailed]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCaseStudy, setEditingCaseStudy] = useState<ClientPortfolioCaseStudy | null>(null);
@@ -130,6 +134,7 @@ export const PortfolioPageClient = ({
             LeftIcon={Rocket}
             leftIconProps={{ className: 'size-4' }}
             loading={publishing}
+            disabled={fetchError}
             onClick={handlePublish}
           />
           {caseStudies.length > 1 && (
@@ -138,6 +143,7 @@ export const PortfolioPageClient = ({
               variant="outline"
               LeftIcon={ArrowUpDown}
               leftIconProps={{ className: 'size-4' }}
+              disabled={fetchError}
               onClick={() => setIsReorderOpen(true)}
             />
           )}
@@ -145,11 +151,22 @@ export const PortfolioPageClient = ({
             text="Add Case Study"
             LeftIcon={Plus}
             leftIconProps={{ className: 'size-5' }}
+            disabled={fetchError}
             onClick={handleCreate}
           />
         </div>
       }>
-      {caseStudies.length === 0 ? (
+      {fetchError ? (
+        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div className="space-y-2">
+            <p>Could not load portfolio case studies. Check your connection and try again.</p>
+            <RegularBtn text="Retry" size="sm" variant="outline" onClick={() => router.refresh()} />
+          </div>
+        </div>
+      ) : null}
+
+      {fetchError ? null : caseStudies.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-muted p-4 mb-4">
             <Plus className="size-8 text-muted-foreground" />
