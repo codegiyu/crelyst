@@ -237,6 +237,11 @@ export interface AllEndpoints {
   >;
 
   // Site Settings (Admin)
+  ADMIN_GET_SITE_SETTINGS: EndpointDefinition<
+    undefined,
+    ClientSiteSettings | Partial<ClientSiteSettings>,
+    `/${string}`
+  >;
   ADMIN_UPDATE_SITE_SETTINGS: EndpointDefinition<
     ISiteSettingsUpdatePayload,
     Partial<ClientSiteSettings>,
@@ -542,6 +547,10 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   },
 
   // Site Settings (Admin)
+  ADMIN_GET_SITE_SETTINGS: {
+    path: '/admin/site-settings', // /:slice
+    method: 'GET',
+  },
   ADMIN_UPDATE_SITE_SETTINGS: {
     path: '/admin/site-settings',
     method: 'PATCH',
