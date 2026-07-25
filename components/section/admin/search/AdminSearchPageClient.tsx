@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminSectionError } from '@/components/general/admin/AdminSectionError';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Input } from '@/components/ui/input';
 import { callApi } from '@/lib/services/callApi';
@@ -34,6 +35,7 @@ export function AdminSearchPageClient() {
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<IAdminSearchRes | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const search = async () => {
     const term = q.trim();
@@ -43,7 +45,12 @@ export function AdminSearchPageClient() {
       const { data, error } = await callApi('ADMIN_SEARCH', {
         query: `?q=${encodeURIComponent(term)}` as `?${string}`,
       });
-      if (!error && data) setResult(data);
+      if (error || !data) {
+        setErrorMessage(error?.message || 'Could not search CMS content.');
+        return;
+      }
+      setErrorMessage(null);
+      setResult(data);
     } finally {
       setLoading(false);
     }
@@ -68,6 +75,10 @@ export function AdminSearchPageClient() {
         />
         <RegularBtn text="Search" loading={loading} onClick={() => void search()} />
       </div>
+
+      {errorMessage ? (
+        <AdminSectionError message={errorMessage} onRetry={() => void search()} />
+      ) : null}
 
       {result ? (
         <div className="grid gap-10 pt-6">
