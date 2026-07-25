@@ -8,6 +8,9 @@ import { Timestamp } from 'firebase-admin/firestore';
 import type { DocumentSnapshot, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { logger } from '../utils/logger';
 import { omitUndefinedFields } from '../utils/omitUndefinedFields';
+import type { OrderedCollectionName } from './orderedCollectionNames';
+
+export { ORDERED_COLLECTION_NAMES } from './orderedCollectionNames';
 
 const COLLECTIONS = {
   brands: 'brands',
@@ -22,14 +25,6 @@ const COLLECTIONS = {
   formSubmissions: 'formSubmissions',
   auditLogs: 'auditLogs',
 } as const;
-
-type OrderedCollectionName =
-  | 'brands'
-  | 'services'
-  | 'projects'
-  | 'portfolioCaseStudies'
-  | 'testimonials'
-  | 'teamMembers';
 
 export { COLLECTIONS };
 
