@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   Plus,
   Pencil,
@@ -30,25 +29,27 @@ import { TeamMemberForm } from './TeamMemberForm';
 import { DeleteTeamMemberDialog } from './DeleteTeamMemberDialog';
 import { ReorderTeamMembersModal } from './ReorderTeamMembersModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
+import { useRemoteListItems } from '@/lib/hooks/use-remote-list-items';
 import Link from 'next/link';
 
-export const TeamMembersPageClient = ({
-  initialTeamMembers,
-}: {
-  initialTeamMembers: ClientTeamMember[];
-}) => {
-  const router = useRouter();
-  const [teamMembers, setTeamMembers] = useState<ClientTeamMember[]>(initialTeamMembers);
+const LIST_QUERY = '?limit=100' as const;
 
-  useEffect(() => {
-    setTeamMembers(initialTeamMembers);
-  }, [initialTeamMembers]);
+export const TeamMembersPageClient = () => {
+  const list = useAdminResource({
+    resourceKey: ['admin', 'team-members', { limit: 100 }],
+    endpoint: 'ADMIN_LIST_TEAM_MEMBERS',
+    options: { query: LIST_QUERY },
+    sectionLabel: 'team members',
+  });
 
+  const [teamMembers, setTeamMembers] = useRemoteListItems(list.data?.teamMembers);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<ClientTeamMember | null>(null);
   const [deleteMember, setDeleteMember] = useState<ClientTeamMember | null>(null);
@@ -69,7 +70,7 @@ export const TeamMembersPageClient = ({
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingMember(null);
-    router.refresh();
+    void list.reload();
   };
 
   const handleToggleActive = async (member: ClientTeamMember) => {
@@ -106,6 +107,7 @@ export const TeamMembersPageClient = ({
               variant="outline"
               LeftIcon={ArrowUpDown}
               leftIconProps={{ className: 'size-4' }}
+              disabled={list.isError || list.isLoading}
               onClick={() => setIsReorderOpen(true)}
             />
           )}
@@ -113,37 +115,46 @@ export const TeamMembersPageClient = ({
             text="Add Member"
             LeftIcon={Plus}
             leftIconProps={{ className: 'size-5' }}
+            disabled={list.isError || list.isLoading}
             onClick={handleCreate}
           />
         </div>
       }>
-      {teamMembers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Plus className="size-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground">No team members yet</h3>
-          <p className="text-muted-foreground mb-4">Get started by adding your first team member</p>
-          <RegularBtn
-            text="Add Member"
-            LeftIcon={Plus}
-            leftIconProps={{ className: 'size-5' }}
-            onClick={handleCreate}
-          />
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {sortedMembers.map(member => (
-            <TeamMemberCard
-              key={member._id}
-              member={member}
-              onEdit={() => handleEdit(member)}
-              onDelete={() => setDeleteMember(member)}
-              onToggleActive={() => handleToggleActive(member)}
+      <AdminAsyncSection
+        status={list.status}
+        errorMessage={list.errorMessage}
+        onRetry={() => void list.reload()}
+        hasData={list.data != null}>
+        {teamMembers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Plus className="size-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">No team members yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Get started by adding your first team member
+            </p>
+            <RegularBtn
+              text="Add Member"
+              LeftIcon={Plus}
+              leftIconProps={{ className: 'size-5' }}
+              onClick={handleCreate}
             />
-          ))}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {sortedMembers.map(member => (
+              <TeamMemberCard
+                key={member._id}
+                member={member}
+                onEdit={() => handleEdit(member)}
+                onDelete={() => setDeleteMember(member)}
+                onToggleActive={() => handleToggleActive(member)}
+              />
+            ))}
+          </div>
+        )}
+      </AdminAsyncSection>
 
       {/* Create/Edit Modal */}
       <Modal
@@ -170,7 +181,7 @@ export const TeamMembersPageClient = ({
         onOpenChange={open => !open && setDeleteMember(null)}
         onSuccess={() => {
           setDeleteMember(null);
-          router.refresh();
+          void list.reload();
         }}
       />
 
@@ -179,7 +190,7 @@ export const TeamMembersPageClient = ({
         members={sortedMembers}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={() => void list.reload()}
       />
     </DashboardPageWrapper>
   );

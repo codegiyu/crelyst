@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   Plus,
   Pencil,
@@ -12,7 +11,6 @@ import {
   EyeOff,
   Rocket,
   Star,
-  AlertTriangle,
 } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Modal } from '@/components/ui/Modal';
@@ -24,33 +22,30 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
 import type { ClientPortfolioCaseStudy } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
+import { useRemoteListItems } from '@/lib/hooks/use-remote-list-items';
 import { cn } from '@/lib/utils';
 import { PortfolioCaseStudyForm } from './PortfolioCaseStudyForm';
 import { DeletePortfolioCaseStudyDialog } from './DeletePortfolioCaseStudyDialog';
 import { ReorderPortfolioModal } from './ReorderPortfolioModal';
 
-export const PortfolioPageClient = ({
-  initialCaseStudies,
-  loadFailed = false,
-}: {
-  initialCaseStudies: ClientPortfolioCaseStudy[];
-  loadFailed?: boolean;
-}) => {
-  const router = useRouter();
-  const [caseStudies, setCaseStudies] = useState(initialCaseStudies);
-  const [fetchError, setFetchError] = useState(loadFailed);
+const LIST_QUERY = '?limit=100' as const;
 
-  useEffect(() => {
-    setCaseStudies(initialCaseStudies);
+export const PortfolioPageClient = () => {
+  const list = useAdminResource({
+    resourceKey: ['admin', 'portfolio-case-studies', { limit: 100 }],
+    endpoint: 'ADMIN_LIST_PORTFOLIO_CASE_STUDIES',
+    options: { query: LIST_QUERY },
+    sectionLabel: 'portfolio case studies',
+  });
 
-    if (!loadFailed) setFetchError(false);
-  }, [initialCaseStudies, loadFailed]);
-
+  const [caseStudies, setCaseStudies] = useRemoteListItems(list.data?.caseStudies);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCaseStudy, setEditingCaseStudy] = useState<ClientPortfolioCaseStudy | null>(null);
   const [deleteCaseStudy, setDeleteCaseStudy] = useState<ClientPortfolioCaseStudy | null>(null);
@@ -72,7 +67,7 @@ export const PortfolioPageClient = ({
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingCaseStudy(null);
-    router.refresh();
+    void list.reload();
   };
 
   const handleToggleActive = async (item: ClientPortfolioCaseStudy) => {
@@ -134,7 +129,7 @@ export const PortfolioPageClient = ({
             LeftIcon={Rocket}
             leftIconProps={{ className: 'size-4' }}
             loading={publishing}
-            disabled={fetchError}
+            disabled={list.isError || list.isLoading}
             onClick={handlePublish}
           />
           {caseStudies.length > 1 && (
@@ -143,7 +138,7 @@ export const PortfolioPageClient = ({
               variant="outline"
               LeftIcon={ArrowUpDown}
               leftIconProps={{ className: 'size-4' }}
-              disabled={fetchError}
+              disabled={list.isError || list.isLoading}
               onClick={() => setIsReorderOpen(true)}
             />
           )}
@@ -151,126 +146,122 @@ export const PortfolioPageClient = ({
             text="Add Case Study"
             LeftIcon={Plus}
             leftIconProps={{ className: 'size-5' }}
-            disabled={fetchError}
+            disabled={list.isError || list.isLoading}
             onClick={handleCreate}
           />
         </div>
       }>
-      {fetchError ? (
-        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-          <div className="space-y-2">
-            <p>Could not load portfolio case studies. Check your connection and try again.</p>
-            <RegularBtn text="Retry" size="sm" variant="outline" onClick={() => router.refresh()} />
+      <AdminAsyncSection
+        status={list.status}
+        errorMessage={list.errorMessage}
+        onRetry={() => void list.reload()}
+        hasData={list.data != null}>
+        {caseStudies.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Plus className="size-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">No case studies yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Add your first portfolio case study or run the migration script
+            </p>
+            <RegularBtn
+              text="Add Case Study"
+              LeftIcon={Plus}
+              leftIconProps={{ className: 'size-5' }}
+              onClick={handleCreate}
+            />
           </div>
-        </div>
-      ) : null}
-
-      {fetchError ? null : caseStudies.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Plus className="size-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground">No case studies yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Add your first portfolio case study or run the migration script
-          </p>
-          <RegularBtn
-            text="Add Case Study"
-            LeftIcon={Plus}
-            leftIconProps={{ className: 'size-5' }}
-            onClick={handleCreate}
-          />
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[...caseStudies]
-            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-            .map(item => (
-              <div
-                key={item._id}
-                className="group relative rounded-xl border bg-card overflow-hidden hover:border-primary/40 transition-colors">
-                <div className="relative aspect-[16/10] bg-muted">
-                  {item.image ? (
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-                      No image
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    {item.featured && (
-                      <span className="rounded-full bg-amber-500/90 px-2 py-0.5 text-xs font-medium text-white">
-                        Featured
-                      </span>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[...caseStudies]
+              .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+              .map(item => (
+                <div
+                  key={item._id}
+                  className="group relative rounded-xl border bg-card overflow-hidden hover:border-primary/40 transition-colors">
+                  <div className="relative aspect-[16/10] bg-muted">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+                        No image
+                      </div>
                     )}
-                    <span
-                      className={cn(
-                        'rounded-full px-2 py-0.5 text-xs font-medium',
-                        item.isActive
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                      )}>
-                      {item.isActive ? 'Active' : 'Draft'}
-                    </span>
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      {item.featured && (
+                        <span className="rounded-full bg-amber-500/90 px-2 py-0.5 text-xs font-medium text-white">
+                          Featured
+                        </span>
+                      )}
+                      <span
+                        className={cn(
+                          'rounded-full px-2 py-0.5 text-xs font-medium',
+                          item.isActive
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                        )}>
+                        {item.isActive ? 'Active' : 'Draft'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="font-semibold text-foreground line-clamp-1">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                      {item.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">{item.category}</p>
+                  </div>
+
+                  <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="rounded-lg bg-background/90 p-1.5 shadow-sm border hover:bg-accent">
+                          <MoreHorizontal className="size-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        <DropdownMenuItem onClick={() => handleEdit(item)}>
+                          <Pencil className="size-4 mr-2" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleFeatured(item)}>
+                          <Star className="size-4 mr-2" />
+                          {item.featured ? 'Unfeature' : 'Feature'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleActive(item)}>
+                          {item.isActive ? (
+                            <>
+                              <EyeOff className="size-4 mr-2" /> Deactivate
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="size-4 mr-2" /> Activate
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteCaseStudy(item)}>
+                          <Trash2 className="size-4 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-
-                <div className="p-4">
-                  <h3 className="font-semibold text-foreground line-clamp-1">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                    {item.description}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">{item.category}</p>
-                </div>
-
-                <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className="rounded-lg bg-background/90 p-1.5 shadow-sm border hover:bg-accent">
-                        <MoreHorizontal className="size-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => handleEdit(item)}>
-                        <Pencil className="size-4 mr-2" /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleToggleFeatured(item)}>
-                        <Star className="size-4 mr-2" />
-                        {item.featured ? 'Unfeature' : 'Feature'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleToggleActive(item)}>
-                        {item.isActive ? (
-                          <>
-                            <EyeOff className="size-4 mr-2" /> Deactivate
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="size-4 mr-2" /> Activate
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onClick={() => setDeleteCaseStudy(item)}>
-                        <Trash2 className="size-4 mr-2" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))}
-        </div>
-      )}
+              ))}
+          </div>
+        )}
+      </AdminAsyncSection>
 
       <Modal
         open={isFormOpen}
@@ -301,7 +292,7 @@ export const PortfolioPageClient = ({
         }}
         onSuccess={() => {
           setDeleteCaseStudy(null);
-          router.refresh();
+          void list.reload();
         }}
       />
 
@@ -309,7 +300,7 @@ export const PortfolioPageClient = ({
         caseStudies={caseStudies}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={() => void list.reload()}
       />
     </DashboardPageWrapper>
   );

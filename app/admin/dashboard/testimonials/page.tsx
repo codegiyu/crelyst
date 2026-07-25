@@ -1,7 +1,5 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TestimonialsPageClient } from '@/components/section/admin/testimonials/TestimonialsPageClient';
-import { fetchAdminJson } from '@/app/_server/lib/api/fetchAdminJson';
-import type { ITestimonialsListRes } from '@/lib/constants/endpoints';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -9,12 +7,10 @@ export const metadata: Metadata = {
   description: 'Manage client testimonials',
 };
 
-export default async function TestimonialsPage() {
-  const res = await fetchAdminJson<ITestimonialsListRes>('/api/admin/testimonials?limit=100');
-
+export default function TestimonialsPage() {
   return (
     <DashboardLayout>
-      <TestimonialsPageClient initialTestimonials={res.testimonials} />
+      <TestimonialsPageClient />
     </DashboardLayout>
   );
 }
