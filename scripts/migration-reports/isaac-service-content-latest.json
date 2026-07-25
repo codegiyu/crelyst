@@ -1,0 +1,59 @@
+{
+  "services": [
+    {
+      "slug": "packaging-design",
+      "action": "updated",
+      "fieldsWritten": [
+        "packagePricing"
+      ]
+    },
+    {
+      "slug": "brand-strategy",
+      "action": "created",
+      "fieldsWritten": [
+        "title",
+        "slug",
+        "pageTitle",
+        "description",
+        "shortDescription",
+        "cardImage",
+        "bannerImage",
+        "features",
+        "packagePricing",
+        "tags",
+        "isActive",
+        "displayOrder",
+        "seo"
+      ]
+    },
+    {
+      "slug": "additional-services",
+      "action": "created",
+      "fieldsWritten": [
+        "title",
+        "slug",
+        "pageTitle",
+        "description",
+        "shortDescription",
+        "cardImage",
+        "bannerImage",
+        "features",
+        "packagePricing",
+        "pricingFooter",
+        "tags",
+        "isActive",
+        "displayOrder",
+        "seo"
+      ]
+    }
+  ],
+  "workflow": {
+    "slice": "projectWorkflow",
+    "action": "updated",
+    "fieldsWritten": [
+      "title",
+      "subtitle",
+      "steps"
+    ]
+  }
+}

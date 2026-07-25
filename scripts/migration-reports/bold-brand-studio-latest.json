@@ -1,0 +1,481 @@
+[
+  {
+    "slug": "techxforge-global",
+    "displayOrder": 1,
+    "fieldsWritten": [
+      "featured",
+      "slug",
+      "title",
+      "category",
+      "industry",
+      "client",
+      "aboutClientHeading",
+      "aboutClient",
+      "services",
+      "timeline",
+      "description",
+      "image",
+      "hero",
+      "summary",
+      "challengeHeading",
+      "challenge",
+      "strategy",
+      "logoDesign",
+      "identityImages",
+      "applicationsImages",
+      "colorPalette",
+      "typographyPrimary",
+      "typographySecondary",
+      "results",
+      "keywords",
+      "isActive",
+      "displayOrder"
+    ],
+    "imagesUploaded": [
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/techxforge.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techlogo.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techlogo.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techlogo.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge1.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge1.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge1.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge2.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge2.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge2.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge3.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge3.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge3.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge4.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge4.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge4.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge5.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge5.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge5.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge6.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge6.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge6.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge7.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge7.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge7.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/techxforge/techxforge8.png",
+        "key": "development-files/portfolio-migration/techxforge-global/techxforge8.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/techxforge-global/techxforge8.png",
+        "skipped": false
+      }
+    ],
+    "unmappedFields": []
+  },
+  {
+    "slug": "abbys-fragrance",
+    "displayOrder": 2,
+    "fieldsWritten": [
+      "featured",
+      "slug",
+      "title",
+      "category",
+      "industry",
+      "client",
+      "aboutClientHeading",
+      "aboutClient",
+      "services",
+      "timeline",
+      "description",
+      "image",
+      "hero",
+      "summary",
+      "challengeHeading",
+      "challenge",
+      "strategy",
+      "identityImages",
+      "applicationsImages",
+      "colorPalette",
+      "typographyPrimary",
+      "typographySecondary",
+      "results",
+      "keywords",
+      "isActive",
+      "displayOrder"
+    ],
+    "imagesUploaded": [
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/abbys.png",
+        "key": "development-files/portfolio-migration/abbys-fragrance/abbys.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/abbys-fragrance/abbys.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/abbys/abbys1.png",
+        "key": "development-files/portfolio-migration/abbys-fragrance/abbys1.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/abbys-fragrance/abbys1.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/abbys/abbys2.png",
+        "key": "development-files/portfolio-migration/abbys-fragrance/abbys2.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/abbys-fragrance/abbys2.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/abbys/abbys3.png",
+        "key": "development-files/portfolio-migration/abbys-fragrance/abbys3.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/abbys-fragrance/abbys3.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/abbys/abbys4.png",
+        "key": "development-files/portfolio-migration/abbys-fragrance/abbys4.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/abbys-fragrance/abbys4.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/abbys/abbys5.png",
+        "key": "development-files/portfolio-migration/abbys-fragrance/abbys5.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/abbys-fragrance/abbys5.png",
+        "skipped": false
+      }
+    ],
+    "unmappedFields": []
+  },
+  {
+    "slug": "purestart",
+    "displayOrder": 3,
+    "fieldsWritten": [
+      "featured",
+      "slug",
+      "title",
+      "category",
+      "industry",
+      "client",
+      "aboutClientHeading",
+      "aboutClient",
+      "services",
+      "timeline",
+      "description",
+      "image",
+      "hero",
+      "summary",
+      "challengeHeading",
+      "challenge",
+      "strategy",
+      "logoDesign",
+      "identityImages",
+      "colorPalette",
+      "typographyPrimary",
+      "typographySecondary",
+      "results",
+      "keywords",
+      "isActive",
+      "displayOrder"
+    ],
+    "imagesUploaded": [
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/BABY.png",
+        "key": "development-files/portfolio-migration/purestart/BABY.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/purestart/BABY.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/purestart/BABY1.png",
+        "key": "development-files/portfolio-migration/purestart/BABY1.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/purestart/BABY1.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/purestart/BABY2.png",
+        "key": "development-files/portfolio-migration/purestart/BABY2.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/purestart/BABY2.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/purestart/BABY3.png",
+        "key": "development-files/portfolio-migration/purestart/BABY3.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/purestart/BABY3.png",
+        "skipped": false
+      }
+    ],
+    "unmappedFields": []
+  },
+  {
+    "slug": "nextron",
+    "displayOrder": 4,
+    "fieldsWritten": [
+      "featured",
+      "slug",
+      "title",
+      "category",
+      "industry",
+      "client",
+      "aboutClientHeading",
+      "aboutClient",
+      "services",
+      "timeline",
+      "description",
+      "image",
+      "hero",
+      "summary",
+      "challenge",
+      "strategy",
+      "logoDesign",
+      "identityImages",
+      "applicationsImages",
+      "colorPalette",
+      "typographyPrimary",
+      "typographySecondary",
+      "results",
+      "keywords",
+      "isActive",
+      "displayOrder"
+    ],
+    "imagesUploaded": [
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/Nextron-card.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron-card.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron-card.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/Nextron.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/Nextron-breakdown.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron-breakdown.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron-breakdown.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/nextron/Nextron1.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron1.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron1.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/nextron/Nextron2.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron2.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron2.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/nextron/Nextron3.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron3.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron3.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/nextron/Nextron4.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron4.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron4.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/nextron/Nextron5.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron5.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron5.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/nextron/Nextron6.png",
+        "key": "development-files/portfolio-migration/nextron/Nextron6.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/nextron/Nextron6.png",
+        "skipped": false
+      }
+    ],
+    "unmappedFields": []
+  },
+  {
+    "slug": "davora",
+    "displayOrder": 5,
+    "fieldsWritten": [
+      "slug",
+      "title",
+      "category",
+      "industry",
+      "client",
+      "aboutClientHeading",
+      "aboutClient",
+      "services",
+      "timeline",
+      "description",
+      "image",
+      "hero",
+      "summary",
+      "challenge",
+      "strategy",
+      "logoDesign",
+      "identityImages",
+      "applicationsImages",
+      "colorPalette",
+      "typographyPrimary",
+      "typographySecondary",
+      "results",
+      "keywords",
+      "isActive",
+      "displayOrder"
+    ],
+    "imagesUploaded": [
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/Davora.png",
+        "key": "development-files/portfolio-migration/davora/Davora.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora8.png",
+        "key": "development-files/portfolio-migration/davora/Davora8.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora8.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora9.png",
+        "key": "development-files/portfolio-migration/davora/Davora9.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora9.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora1.png",
+        "key": "development-files/portfolio-migration/davora/Davora1.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora1.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora2.png",
+        "key": "development-files/portfolio-migration/davora/Davora2.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora2.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora3.png",
+        "key": "development-files/portfolio-migration/davora/Davora3.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora3.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora4.png",
+        "key": "development-files/portfolio-migration/davora/Davora4.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora4.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora5.png",
+        "key": "development-files/portfolio-migration/davora/Davora5.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora5.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora6.png",
+        "key": "development-files/portfolio-migration/davora/Davora6.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora6.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/davora/Davora7.png",
+        "key": "development-files/portfolio-migration/davora/Davora7.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/davora/Davora7.png",
+        "skipped": false
+      }
+    ],
+    "unmappedFields": []
+  },
+  {
+    "slug": "pixelore",
+    "displayOrder": 6,
+    "fieldsWritten": [
+      "slug",
+      "title",
+      "category",
+      "industry",
+      "client",
+      "aboutClientHeading",
+      "aboutClient",
+      "services",
+      "timeline",
+      "description",
+      "image",
+      "hero",
+      "summary",
+      "challenge",
+      "strategy",
+      "logoDesign",
+      "identityImages",
+      "applicationsImages",
+      "colorPalette",
+      "typographyPrimary",
+      "typographySecondary",
+      "results",
+      "keywords",
+      "isActive",
+      "displayOrder"
+    ],
+    "imagesUploaded": [
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/PIXELORE.png",
+        "key": "development-files/portfolio-migration/pixelore/PIXELORE.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/pixelore/PIXELORE.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/pixelore/pixelore1.png",
+        "key": "development-files/portfolio-migration/pixelore/pixelore1.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/pixelore/pixelore1.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/pixelore/pixelore2.png",
+        "key": "development-files/portfolio-migration/pixelore/pixelore2.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/pixelore/pixelore2.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/pixelore/pixelore3.png",
+        "key": "development-files/portfolio-migration/pixelore/pixelore3.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/pixelore/pixelore3.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/pixelore/pixelore4.png",
+        "key": "development-files/portfolio-migration/pixelore/pixelore4.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/pixelore/pixelore4.png",
+        "skipped": false
+      },
+      {
+        "localPath": "C:/Users/EDWARD/Documents/safe/freelance/isaac/bold-brand-studio/src/assets/project/pixelore/pixelore5.png",
+        "key": "development-files/portfolio-migration/pixelore/pixelore5.png",
+        "publicUrl": "https://static.crelyst.com.ng/development-files/portfolio-migration/pixelore/pixelore5.png",
+        "skipped": false
+      }
+    ],
+    "unmappedFields": []
+  }
+]
