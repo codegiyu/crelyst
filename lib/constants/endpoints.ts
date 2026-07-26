@@ -13,6 +13,7 @@ import {
 } from '@/app/_server/lib/types/constants';
 import type { ProjectCaseStudy } from '@/lib/types/project-case-study';
 import type { PortfolioCaseStudy } from '@/lib/types/portfolio-case-study';
+import type { BbsSiteContent } from '@/lib/types/bbs-site-content';
 
 export type HttpMethods = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -36,6 +37,7 @@ export type ClientFriendly<T> = T extends Date
 export type ClientService = ClientFriendly<IService>;
 export type ClientProject = ClientFriendly<IProject>;
 export type ClientPortfolioCaseStudy = ClientFriendly<PortfolioCaseStudy>;
+export type ClientBbsSiteContent = ClientFriendly<BbsSiteContent>;
 export type ClientBrand = ClientFriendly<IBrand>;
 export type ClientTestimonial = ClientFriendly<ITestimonial>;
 export type ClientTeamMember = ClientFriendly<ITeamMember>;
@@ -152,6 +154,21 @@ export interface AllEndpoints {
   ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
     undefined,
     { triggered: boolean; deploy?: unknown },
+    undefined
+  >;
+
+  // Bold Brand Studio site content (Public)
+  GET_BBS_SITE_CONTENT: EndpointDefinition<undefined, { content: ClientBbsSiteContent }, undefined>;
+
+  // Bold Brand Studio site content (Admin)
+  ADMIN_GET_BBS_SITE_CONTENT: EndpointDefinition<
+    undefined,
+    { content: ClientBbsSiteContent },
+    undefined
+  >;
+  ADMIN_UPDATE_BBS_SITE_CONTENT: EndpointDefinition<
+    IBbsSiteContentUpdatePayload,
+    { content: ClientBbsSiteContent },
     undefined
   >;
 
@@ -410,6 +427,20 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: {
     path: '/admin/portfolio-case-studies/publish',
     method: 'POST',
+  },
+
+  GET_BBS_SITE_CONTENT: {
+    path: '/public/bbs-site-content',
+    method: 'GET',
+    isNotAuthenticated: true,
+  },
+  ADMIN_GET_BBS_SITE_CONTENT: {
+    path: '/admin/bbs-site-content',
+    method: 'GET',
+  },
+  ADMIN_UPDATE_BBS_SITE_CONTENT: {
+    path: '/admin/bbs-site-content',
+    method: 'PATCH',
   },
 
   // Brand Management (Public)
@@ -877,6 +908,11 @@ export type IPortfolioCaseStudyCreatePayload = Partial<PortfolioCaseStudy> &
   };
 
 export type IPortfolioCaseStudyUpdatePayload = Partial<IPortfolioCaseStudyCreatePayload>;
+
+export interface IBbsSiteContentUpdatePayload {
+  about?: ClientBbsSiteContent['about'];
+  contact?: ClientBbsSiteContent['contact'];
+}
 
 // Brand Payloads
 export interface IBrandCreatePayload {

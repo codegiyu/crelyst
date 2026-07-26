@@ -642,6 +642,7 @@ export const ENTITY_TYPES = [
   'service',
   'project',
   'portfolio-case-study',
+  'bbs-site-content',
   'testimonial',
   'brand',
   'team-member',
@@ -656,6 +657,7 @@ export const UPLOAD_ENTITY_TYPES: EntityType[] = [
   'service',
   'project',
   'portfolio-case-study',
+  'bbs-site-content',
   'testimonial',
   'brand',
   'form-submission',
@@ -674,6 +676,7 @@ export const AUDIT_LOG_RESOURCES = [
   'service',
   'project',
   'portfolio-case-study',
+  'bbs-site-content',
   'testimonial',
   'brand',
 ] as const;

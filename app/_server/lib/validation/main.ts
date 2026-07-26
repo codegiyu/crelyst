@@ -102,6 +102,7 @@ export const mainSchema = z.object({
     'service',
     'project',
     'portfolio-case-study',
+    'bbs-site-content',
     'testimonial',
     'brand',
     'team-member',

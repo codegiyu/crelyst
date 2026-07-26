@@ -17,6 +17,7 @@ const COLLECTIONS = {
   services: 'services',
   projects: 'projects',
   portfolioCaseStudies: 'portfolioCaseStudies',
+  bbsSiteContent: 'bbsSiteContent',
   testimonials: 'testimonials',
   teamMembers: 'teamMembers',
   siteSettings: 'siteSettings',
@@ -491,6 +492,29 @@ export async function updateSiteSettingsSlice(name: string, slice: string, value
   await ref.set({ ...existing, [slice]: value, updatedAt: Timestamp.now() }, { merge: true });
   const updated = await ref.get();
   return { id: updated.id, ...updated.data() };
+}
+
+// ----- Bold Brand Studio site content (singleton) -----
+const BBS_SITE_CONTENT_DOC_ID = 'content';
+
+export async function getBbsSiteContent() {
+  const doc = await getCollection('bbsSiteContent').doc(BBS_SITE_CONTENT_DOC_ID).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+}
+
+export async function setBbsSiteContent(data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const ref = getCollection('bbsSiteContent').doc(BBS_SITE_CONTENT_DOC_ID);
+  const existing = await ref.get();
+  const payload = {
+    ...data,
+    updatedAt: now,
+    ...(existing.exists ? {} : { createdAt: now }),
+  };
+  await ref.set(payload, { merge: true });
+  const snap = await ref.get();
+  return { id: snap.id, ...snap.data() };
 }
 
 // ----- Documents (for upload tracking) -----
