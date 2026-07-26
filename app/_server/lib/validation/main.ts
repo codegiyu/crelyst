@@ -1,12 +1,19 @@
 import { z } from 'zod';
 import { projectStatusSchema } from './projectStatus';
 
-// Reusable schemas
+// Reusable schemas — permissive enough for service SEO and BBS site-content SEO.
+// Controllers apply stricter domain schemas after this coarse body pass.
 const seoSchema = z.object({
-  metaTitle: z.string().max(100).optional(),
+  metaTitle: z.string().max(120).optional(),
   metaDescription: z.string().max(300).optional(),
   keywords: z.array(z.string()).optional(),
+  siteName: z.string().max(120).optional(),
+  ogImageUrl: z.url('Invalid OG image URL').or(z.literal('')).optional(),
+  faviconUrl: z.url('Invalid favicon URL').or(z.literal('')).optional(),
 });
+
+/** Nested BBS site-content slices — keep shape intact for controller Zod schemas. */
+const bbsSiteContentSliceSchema = z.record(z.string(), z.any());
 
 const socialSchema = z.object({
   platform: z.string(),
@@ -138,6 +145,11 @@ export const mainSchema = z.object({
       value: z.record(z.string(), z.any(), { error: 'Setting value must be a valid object!' }),
     })
   ),
+
+  // ===== Bold Brand Studio site content (admin PATCH /bbs-site-content) =====
+  about: bbsSiteContentSliceSchema,
+  contact: bbsSiteContentSliceSchema,
+  projectsListingSeo: bbsSiteContentSliceSchema,
 });
 
 export const partialMainSchema = mainSchema.partial();
