@@ -7,11 +7,7 @@ import {
   splitTeamMemberBioParagraphs,
 } from './teamMemberDisplay';
 
-function member(
-  id: string,
-  displayOrder: number,
-  isActive = true
-): ClientTeamMember {
+function member(id: string, displayOrder: number, isActive = true): ClientTeamMember {
   return {
     _id: id,
     name: `Member ${id}`,
@@ -68,8 +64,10 @@ describe('splitTeamMemberBioParagraphs', () => {
   });
 
   it('splits newline-separated paragraphs and trims each one', () => {
-    expect(
-      splitTeamMemberBioParagraphs('First paragraph.\n\nSecond paragraph.\nThird.')
-    ).toEqual(['First paragraph.', 'Second paragraph.', 'Third.']);
+    expect(splitTeamMemberBioParagraphs('First paragraph.\n\nSecond paragraph.\nThird.')).toEqual([
+      'First paragraph.',
+      'Second paragraph.',
+      'Third.',
+    ]);
   });
 });

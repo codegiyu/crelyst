@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PortfolioSeoPageClient } from '@/components/section/admin/portfolio/PortfolioSeoPageClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PortfolioSeoAdminPage() {
-  return (
-    <DashboardLayout>
-      <PortfolioSeoPageClient />
-    </DashboardLayout>
-  );
+  return <PortfolioSeoPageClient />;
 }

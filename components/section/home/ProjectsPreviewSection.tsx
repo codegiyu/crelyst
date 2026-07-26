@@ -64,7 +64,9 @@ export const ProjectsPreviewSection = ({ projects }: { projects: ClientProject[]
                 linkProps={{ href: '/projects' }}
                 variant="outline"
                 RightIcon={ArrowRight}
-                rightIconProps={{ className: 'size-4 group-hover:translate-x-1 transition-transform' }}
+                rightIconProps={{
+                  className: 'size-4 group-hover:translate-x-1 transition-transform',
+                }}
                 text="See More Projects"
                 className="group px-8"
               />

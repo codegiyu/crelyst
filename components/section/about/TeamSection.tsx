@@ -138,12 +138,7 @@ export const TeamSection = ({ teamMembers }: { teamMembers: ClientTeamMember[] }
         animate={siteLoading ? {} : { opacity: 1 }}
         className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {activeMembers.map((member, index) => (
-          <TeamMemberCard
-            key={member._id}
-            member={member}
-            index={index}
-            onOpen={setOpenIndex}
-          />
+          <TeamMemberCard key={member._id} member={member} index={index} onOpen={setOpenIndex} />
         ))}
       </motion.div>
 

@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SettingsPageClient } from '@/components/section/admin/settings/SettingsPageClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SettingsPage() {
-  return (
-    <DashboardLayout>
-      <SettingsPageClient />
-    </DashboardLayout>
-  );
+  return <SettingsPageClient />;
 }

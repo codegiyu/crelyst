@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProjectsPageClient } from '@/components/section/admin/projects/ProjectsPageClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProjectsPage() {
-  return (
-    <DashboardLayout>
-      <ProjectsPageClient />
-    </DashboardLayout>
-  );
+  return <ProjectsPageClient />;
 }

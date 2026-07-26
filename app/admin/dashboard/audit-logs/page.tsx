@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AuditLogsPageClient } from '@/components/section/admin/audit-logs/AuditLogsPageClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AuditLogsPage() {
-  return (
-    <DashboardLayout>
-      <AuditLogsPageClient />
-    </DashboardLayout>
-  );
+  return <AuditLogsPageClient />;
 }

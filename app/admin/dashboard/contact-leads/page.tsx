@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { FormSubmissionsInboxClient } from '@/components/section/admin/inbox/FormSubmissionsInboxClient';
 import type { Metadata } from 'next';
 
@@ -9,12 +8,10 @@ export const metadata: Metadata = {
 
 export default function ContactLeadsPage() {
   return (
-    <DashboardLayout>
-      <FormSubmissionsInboxClient
-        formType="quote-request"
-        title="Contact leads"
-        description="Quote requests submitted through the contact form"
-      />
-    </DashboardLayout>
+    <FormSubmissionsInboxClient
+      formType="quote-request"
+      title="Contact leads"
+      description="Quote requests submitted through the contact form"
+    />
   );
 }

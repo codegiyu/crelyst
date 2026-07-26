@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DashboardHomeClient } from '@/components/section/admin/dashboard/DashboardHomeClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardHomePage() {
-  return (
-    <DashboardLayout>
-      <DashboardHomeClient />
-    </DashboardLayout>
-  );
+  return <DashboardHomeClient />;
 }

@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TeamMembersPageClient } from '@/components/section/admin/team/TeamMembersPageClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TeamPage() {
-  return (
-    <DashboardLayout>
-      <TeamMembersPageClient />
-    </DashboardLayout>
-  );
+  return <TeamMembersPageClient />;
 }

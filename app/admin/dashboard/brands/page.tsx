@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { BrandsPageClient } from '@/components/section/admin/brands/BrandsPageClient';
 import type { Metadata } from 'next';
 
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function BrandsPage() {
-  return (
-    <DashboardLayout>
-      <BrandsPageClient />
-    </DashboardLayout>
-  );
+  return <BrandsPageClient />;
 }
