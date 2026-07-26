@@ -1,4 +1,5 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { PortfolioContactPageClient } from '@/components/section/admin/portfolio/PortfolioContactPageClient';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -9,12 +10,7 @@ export const metadata: Metadata = {
 export default function PortfolioContactAdminPage() {
   return (
     <DashboardLayout>
-      <div className="space-y-2 p-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Contact</h1>
-        <p className="text-sm text-muted-foreground">
-          Bold Brand Studio contact and social management will appear here.
-        </p>
-      </div>
+      <PortfolioContactPageClient />
     </DashboardLayout>
   );
 }

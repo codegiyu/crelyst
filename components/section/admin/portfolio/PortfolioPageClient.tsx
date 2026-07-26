@@ -1,17 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  MoreHorizontal,
-  ArrowUpDown,
-  Eye,
-  EyeOff,
-  Rocket,
-  Star,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, MoreHorizontal, ArrowUpDown, Eye, EyeOff, Star } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Modal } from '@/components/ui/Modal';
 import {
@@ -35,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { PortfolioCaseStudyForm } from './PortfolioCaseStudyForm';
 import { DeletePortfolioCaseStudyDialog } from './DeletePortfolioCaseStudyDialog';
 import { ReorderPortfolioModal } from './ReorderPortfolioModal';
+import { PublishBbsButton } from './PublishBbsButton';
 
 const LIST_QUERY = '?limit=100' as const;
 
@@ -51,7 +42,6 @@ export const PortfolioPageClient = () => {
   const [editingCaseStudy, setEditingCaseStudy] = useState<ClientPortfolioCaseStudy | null>(null);
   const [deleteCaseStudy, setDeleteCaseStudy] = useState<ClientPortfolioCaseStudy | null>(null);
   const [isReorderOpen, setIsReorderOpen] = useState(false);
-  const [publishing, setPublishing] = useState(false);
 
   const handleCreate = () => {
     setEditingCaseStudy(null);
@@ -103,19 +93,6 @@ export const PortfolioPageClient = () => {
     }
   };
 
-  const handlePublish = async () => {
-    setPublishing(true);
-    try {
-      await adminCallApiToast(
-        'Triggering Bold Brand Studio rebuild…',
-        () => callApi('ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES', {}),
-        'Publish triggered — Bold Brand Studio will rebuild shortly'
-      );
-    } finally {
-      setPublishing(false);
-    }
-  };
-
   return (
     <DashboardPageWrapper
       header={{
@@ -124,15 +101,7 @@ export const PortfolioPageClient = () => {
       }}
       headerActions={
         <div className="flex flex-wrap items-center gap-2">
-          <RegularBtn
-            text="Publish to Bold Brand Studio"
-            variant="outline"
-            LeftIcon={Rocket}
-            leftIconProps={{ className: 'size-4' }}
-            loading={publishing}
-            disabled={list.isError || list.isLoading}
-            onClick={handlePublish}
-          />
+          <PublishBbsButton disabled={list.isError || list.isLoading} />
           {caseStudies.length > 1 && (
             <RegularBtn
               text="Reorder"
