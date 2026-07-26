@@ -137,7 +137,7 @@ function HeadingFields({
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <RegularInput
           label="Start"
           name="_"
@@ -722,7 +722,7 @@ export const PortfolioCaseStudyForm = ({
               errors={errorsVisible ? formErrors.description : []}
               rows={3}
             />
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <RegularInput
                 label="Industry"
                 name="industry"
@@ -1004,7 +1004,9 @@ export const PortfolioCaseStudyForm = ({
               </div>
               <div className="flex flex-col gap-4">
                 {sections.colorPalette.map((c, i) => (
-                  <div key={i} className="flex gap-2 items-end">
+                  <div
+                    key={i}
+                    className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
                     <RegularInput
                       label="Name"
                       name="_"
@@ -1128,7 +1130,9 @@ export const PortfolioCaseStudyForm = ({
               </Button>
             </div>
             {sections.results.map((r, i) => (
-              <div key={i} className="flex gap-2">
+              <div
+                key={i}
+                className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
                 <RegularInput
                   label="Label"
                   name="_"

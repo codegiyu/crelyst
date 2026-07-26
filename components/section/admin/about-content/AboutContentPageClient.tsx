@@ -271,7 +271,9 @@ export const AboutContentPageClient = () => {
               </Button>
             </div>
             {content.stats.map((stat, index) => (
-              <div key={index} className="flex flex-wrap items-start gap-2">
+              <div
+                key={index}
+                className="grid grid-cols-1 gap-3 md:grid-cols-[auto_auto_1fr_auto] md:items-start">
                 <RegularSelect
                   value={stat.kind}
                   onSelectChange={(value: string) => {
@@ -285,7 +287,7 @@ export const AboutContentPageClient = () => {
                     { value: 'count', text: 'Count' },
                     { value: 'static', text: 'Static' },
                   ]}
-                  wrapClassName="w-32"
+                  wrapClassName="w-full md:w-32"
                 />
                 {stat.kind === 'count' ? (
                   <RegularInput
@@ -299,7 +301,7 @@ export const AboutContentPageClient = () => {
                         label: stat.label,
                       })
                     }
-                    wrapClassName="w-28"
+                    wrapClassName="w-full md:w-28"
                   />
                 ) : (
                   <RegularInput
@@ -312,14 +314,14 @@ export const AboutContentPageClient = () => {
                         label: stat.label,
                       })
                     }
-                    wrapClassName="w-28"
+                    wrapClassName="w-full md:w-28"
                   />
                 )}
                 <RegularInput
                   placeholder="Label"
                   value={stat.label}
                   onChange={e => updateStat(index, { ...stat, label: e.target.value })}
-                  wrapClassName="min-w-[10rem] flex-1"
+                  wrapClassName="w-full min-w-0"
                 />
                 {content.stats.length > 1 ? (
                   <Button
@@ -493,7 +495,7 @@ export const AboutContentPageClient = () => {
             </div>
             {content.values.items.map((item, index) => (
               <div key={index} className="grid gap-2 rounded-lg border p-4">
-                <div className="flex gap-2">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-[auto_1fr] md:items-start">
                   <RegularSelect
                     value={item.iconKey}
                     onSelectChange={(value: string) =>
@@ -508,7 +510,7 @@ export const AboutContentPageClient = () => {
                       }))
                     }
                     options={iconOptions}
-                    wrapClassName="w-40"
+                    wrapClassName="w-full md:w-40"
                   />
                   <RegularInput
                     value={item.title}
@@ -523,7 +525,7 @@ export const AboutContentPageClient = () => {
                         },
                       }))
                     }
-                    wrapClassName="flex-1"
+                    wrapClassName="w-full min-w-0"
                   />
                 </div>
                 <RegularTextarea

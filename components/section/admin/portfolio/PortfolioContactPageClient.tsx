@@ -189,7 +189,9 @@ export const PortfolioContactPageClient = () => {
                 </div>
               ) : (
                 contact.socials.map((social, index) => (
-                  <div key={index} className="flex gap-3 items-start">
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 gap-3 md:grid-cols-[auto_1fr_auto] md:items-start">
                     <RegularSelect
                       value={social.platform}
                       onSelectChange={(value: string) =>
@@ -201,7 +203,7 @@ export const PortfolioContactPageClient = () => {
                         }))
                       }
                       options={PLATFORM_OPTIONS}
-                      wrapClassName="w-40"
+                      wrapClassName="w-full md:w-40"
                     />
                     <RegularInput
                       placeholder="https://"
@@ -214,7 +216,7 @@ export const PortfolioContactPageClient = () => {
                           ),
                         }))
                       }
-                      wrapClassName="flex-1"
+                      wrapClassName="w-full min-w-0"
                     />
                     <Button
                       type="button"

@@ -232,18 +232,20 @@ export const PortfolioAboutPageClient = () => {
                 </Button>
               </div>
               {about.stats.map((stat, index) => (
-                <div key={index} className="flex gap-2">
+                <div
+                  key={index}
+                  className="grid grid-cols-1 gap-3 md:grid-cols-[auto_1fr_auto] md:items-end">
                   <RegularInput
                     placeholder="Value"
                     value={stat.value}
                     onChange={e => updateStat(index, 'value', e.target.value)}
-                    wrapClassName="w-32"
+                    wrapClassName="w-full md:w-32"
                   />
                   <RegularInput
                     placeholder="Label"
                     value={stat.label}
                     onChange={e => updateStat(index, 'label', e.target.value)}
-                    wrapClassName="flex-1"
+                    wrapClassName="w-full min-w-0"
                   />
                   {about.stats.length > 1 ? (
                     <Button
