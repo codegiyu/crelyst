@@ -17,6 +17,7 @@ export type SiteSettingsSlice =
   | 'localization'
   | 'branding'
   | 'projectWorkflow'
+  | 'aboutPage'
   | 'contactInfo'
   | 'socials';
 

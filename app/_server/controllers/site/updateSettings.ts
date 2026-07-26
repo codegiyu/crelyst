@@ -6,7 +6,10 @@ import { updateSiteSettingsSlice } from '../../lib/firestore/collections';
 import { sendResponse } from '../../lib/utils/appResponse';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 import { validateBody } from '../../lib/api/validateBody';
-import { revalidatePublicLayout } from '../../lib/utils/revalidateSiteCache';
+import {
+  revalidatePublicLayout,
+  revalidateAboutAndHome,
+} from '../../lib/utils/revalidateSiteCache';
 
 const updateSettingsBodySchema = z.object({
   settingsPayload: z.array(
@@ -56,6 +59,7 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
       'localization',
       'branding',
       'projectWorkflow',
+      'aboutPage',
       'contactInfo',
       'socials',
     ];
@@ -66,8 +70,24 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
     const currentSettings = await getSettingsSlice(setting.name as Portion);
     const currentSliceData = currentSettings ? (currentSettings as any)[setting.name] : undefined;
 
-    if (setting.name === 'contactInfo' || setting.name === 'projectWorkflow') {
+    if (
+      setting.name === 'contactInfo' ||
+      setting.name === 'projectWorkflow' ||
+      setting.name === 'aboutPage'
+    ) {
       const mergedValue = { ...(currentSliceData || {}), ...setting.value };
+
+      if (setting.name === 'aboutPage') {
+        const { aboutPageContentSchema } = await import('./aboutPageSchema');
+        const parsed = aboutPageContentSchema.safeParse(mergedValue);
+        if (!parsed.success) {
+          throw new AppError('Invalid about page content', 400);
+        }
+        await updateSiteSettingsSlice('settings', setting.name, parsed.data);
+        updatedSettings[setting.name] = parsed.data;
+        continue;
+      }
+
       await updateSiteSettingsSlice('settings', setting.name, mergedValue);
       updatedSettings[setting.name] = mergedValue;
       continue;
@@ -90,6 +110,10 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
   }
 
   revalidatePublicLayout();
+
+  if (updatedSettings.aboutPage) {
+    revalidateAboutAndHome();
+  }
 
   return sendResponse(200, updatedSettings, 'Settings updated successfully');
 };

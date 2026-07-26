@@ -435,6 +435,65 @@ export interface ProjectWorkflow {
   steps: ProjectWorkflowStep[];
 }
 
+export interface AboutPageHero {
+  badge: string;
+  titleLine1: string;
+  titleLine2: string;
+  description: string;
+  backgroundImage: string;
+}
+
+export interface AboutPageStatCount {
+  kind: 'count';
+  target: number;
+  label: string;
+}
+
+export interface AboutPageStatStatic {
+  kind: 'static';
+  value: string;
+  label: string;
+}
+
+export type AboutPageStat = AboutPageStatCount | AboutPageStatStatic;
+
+export interface AboutPageStory {
+  caption: string;
+  title: string;
+  subtitle: string;
+  paragraphs: string[];
+  imageUrl: string;
+  imageAlt: string;
+}
+
+export interface AboutPageValueItem {
+  iconKey: 'lightbulb' | 'heart' | 'target' | 'shield';
+  title: string;
+  description: string;
+}
+
+export interface AboutPageValues {
+  caption: string;
+  title: string;
+  text: string;
+  items: AboutPageValueItem[];
+}
+
+export interface AboutPageCta {
+  caption: string;
+  title: string;
+  description: string;
+  buttonLabel: string;
+}
+
+export interface AboutPageContent {
+  hero: AboutPageHero;
+  stats: AboutPageStat[];
+  story: AboutPageStory;
+  values: AboutPageValues;
+  cta: AboutPageCta;
+}
+
 export interface ISiteSettings {
   _id: string;
   name: string;
@@ -447,6 +506,7 @@ export interface ISiteSettings {
   localization: Localization;
   branding: Branding;
   projectWorkflow?: ProjectWorkflow;
+  aboutPage?: AboutPageContent;
   contactInfo: ContactInfo;
   socials: Social[];
   createdAt: Date;
@@ -643,6 +703,7 @@ export const ENTITY_TYPES = [
   'project',
   'portfolio-case-study',
   'bbs-site-content',
+  'site-settings',
   'testimonial',
   'brand',
   'team-member',
@@ -658,6 +719,7 @@ export const UPLOAD_ENTITY_TYPES: EntityType[] = [
   'project',
   'portfolio-case-study',
   'bbs-site-content',
+  'site-settings',
   'testimonial',
   'brand',
   'form-submission',

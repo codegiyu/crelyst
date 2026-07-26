@@ -1,25 +1,31 @@
 'use client';
 
 import { RegularPageHeroSection } from '@/components/general/RegularPageHeroSection';
+import type { AboutHeroContent } from '@/lib/types/about-page';
+import { DEFAULT_ABOUT_PAGE_CONTENT } from '@/lib/types/about-page';
 
 type HeroSectionProps = {
   immediate?: boolean;
+  content?: AboutHeroContent;
 };
 
-export const HeroSection = ({ immediate }: HeroSectionProps = {}) => {
+export const HeroSection = ({
+  immediate,
+  content = DEFAULT_ABOUT_PAGE_CONTENT.hero,
+}: HeroSectionProps = {}) => {
   return (
     <RegularPageHeroSection
       immediate={immediate}
-      backgroundImage="/images/bg-hero-3.jpg"
-      badge="About Us"
+      backgroundImage={content.backgroundImage}
+      badge={content.badge}
       title={
         <>
-          Where Creativity Meets
+          {content.titleLine1}
           <br />
-          Vision
+          {content.titleLine2}
         </>
       }
-      description="We're a creative design agency specializing in photography, branding, product design, packaging, and visual identity. We help brands express their unique personality through powerful visuals and storytelling."
+      description={content.description}
     />
   );
 };

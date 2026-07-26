@@ -4,27 +4,7 @@ import { SectionContainer } from '@/components/general/SectionContainer';
 import { useCountUp } from '@/lib/hooks/use-count-up';
 import { useSiteStore } from '@/lib/store/siteStore';
 import { motion } from 'motion/react';
-
-type CountStat = {
-  kind: 'count';
-  target: number;
-  label: string;
-};
-
-type StaticStat = {
-  kind: 'static';
-  value: string;
-  label: string;
-};
-
-type StatItem = CountStat | StaticStat;
-
-const STATS: readonly StatItem[] = [
-  { kind: 'count', target: 150, label: 'Projects' },
-  { kind: 'count', target: 50, label: 'Clients' },
-  { kind: 'count', target: 5, label: 'Years' },
-  { kind: 'static', value: '24/7', label: 'Support' },
-];
+import { DEFAULT_ABOUT_PAGE_CONTENT, type AboutStatItem } from '@/lib/types/about-page';
 
 const countDuration = (target: number) => Math.min(2.8, 1.2 + target / 80);
 
@@ -63,7 +43,7 @@ const StatValue = ({
   delay,
   siteLoading,
 }: {
-  stat: StatItem;
+  stat: AboutStatItem;
   delay: number;
   siteLoading: boolean;
 }) => {
@@ -74,15 +54,21 @@ const StatValue = ({
   return <CountValue target={stat.target} delay={delay} siteLoading={siteLoading} />;
 };
 
-export const AboutStatsSection = () => {
+type AboutStatsSectionProps = {
+  stats?: AboutStatItem[];
+};
+
+export const AboutStatsSection = ({
+  stats = DEFAULT_ABOUT_PAGE_CONTENT.stats,
+}: AboutStatsSectionProps) => {
   const { siteLoading } = useSiteStore(state => state);
 
   return (
     <SectionContainer background="surface-deep" className="py-10 md:py-12 lg:py-14">
       <div className="grid grid-cols-2 gap-y-8 md:grid-cols-4 md:gap-x-8">
-        {STATS.map((stat, index) => (
+        {stats.map((stat, index) => (
           <motion.div
-            key={stat.label}
+            key={`${stat.label}-${index}`}
             initial={{ opacity: 0, y: 18 }}
             whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1 + index * 0.08 }}

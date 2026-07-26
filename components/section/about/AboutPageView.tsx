@@ -7,24 +7,31 @@ import { StorySection } from './StorySection';
 import { ValuesSection } from './ValuesSection';
 import { TeamSection } from './TeamSection';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
+import { DEFAULT_ABOUT_PAGE_CONTENT, type AboutPageContent } from '@/lib/types/about-page';
 
 export type AboutPageViewProps = {
   teamMembers: ClientTeamMember[];
+  aboutPage?: AboutPageContent | null;
 };
 
-export const AboutPageView = ({ teamMembers }: AboutPageViewProps) => {
+export const AboutPageView = ({
+  teamMembers,
+  aboutPage = DEFAULT_ABOUT_PAGE_CONTENT,
+}: AboutPageViewProps) => {
+  const content = aboutPage ?? DEFAULT_ABOUT_PAGE_CONTENT;
+
   return (
     <>
-      <HeroSection />
-      <AboutStatsSection />
-      <StorySection />
-      <ValuesSection />
+      <HeroSection content={content.hero} />
+      <AboutStatsSection stats={content.stats} />
+      <StorySection content={content.story} />
+      <ValuesSection content={content.values} />
       <TeamSection teamMembers={teamMembers} />
       <PublicContactCTASection
-        caption="Work with us"
-        title="Ready to bring your story to life?"
-        description="You know who we are and how we work — tell us about your brand and goals, and we'll craft visuals that reflect your values with the same care you see across our team and work."
-        buttonLabel="Start Your Project"
+        caption={content.cta.caption}
+        title={content.cta.title}
+        description={content.cta.description}
+        buttonLabel={content.cta.buttonLabel}
         contactHref="/contact"
         motionDelay={0.2}
       />

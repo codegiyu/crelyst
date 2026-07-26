@@ -1071,6 +1071,7 @@ export interface ISiteSettingsUpdatePayload {
       | 'localization'
       | 'branding'
       | 'projectWorkflow'
+      | 'aboutPage'
       | 'contactInfo'
       | 'socials';
     value: any; // The value structure depends on the slice name

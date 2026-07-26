@@ -1,3 +1,5 @@
+import type { AboutPageContent } from './about-page';
+
 /**
  * Frontend types for Site Settings
  * These types match the backend ISiteSettings structure
@@ -125,6 +127,7 @@ export interface SiteSettings {
   localization: Localization;
   branding: Branding;
   projectWorkflow?: ProjectWorkflow;
+  aboutPage?: AboutPageContent;
   contactInfo: ContactInfo;
   socials: Social[];
   createdAt: string;

@@ -7,6 +7,11 @@ import { useSiteStore } from '@/lib/store/siteStore';
 import { Target, Heart, Lightbulb, Shield } from 'lucide-react';
 import { LucideIconComp } from '@/lib/types/general';
 import { shouldRevealMotion } from '@/lib/utils/motionReveal';
+import {
+  DEFAULT_ABOUT_PAGE_CONTENT,
+  type AboutValueIconKey,
+  type AboutValuesContent,
+} from '@/lib/types/about-page';
 
 interface ValueCardProps {
   Icon: LucideIconComp;
@@ -15,6 +20,13 @@ interface ValueCardProps {
   index: number;
   immediate?: boolean;
 }
+
+const ICON_MAP: Record<AboutValueIconKey, LucideIconComp> = {
+  lightbulb: Lightbulb,
+  heart: Heart,
+  target: Target,
+  shield: Shield,
+};
 
 const ValueCard = ({ Icon, title, description, index, immediate }: ValueCardProps) => {
   const { siteLoading } = useSiteStore(state => state);
@@ -36,50 +48,34 @@ const ValueCard = ({ Icon, title, description, index, immediate }: ValueCardProp
   );
 };
 
-const VALUES = [
-  {
-    Icon: Lightbulb,
-    title: 'Creative Vision',
-    description:
-      "We see design as storytelling. Every color, shape, and texture is chosen to express your brand's unique personality and connect with your audience on an emotional level.",
-  },
-  {
-    Icon: Heart,
-    title: 'Artistic Expression',
-    description:
-      'We believe in bold, expressive designs that break free from corporate templates. Our work is art-driven, memorable, and distinctly creative.',
-  },
-  {
-    Icon: Target,
-    title: 'Visual Storytelling',
-    description:
-      "Through photography, branding, and design, we help brands communicate their essence. We don't just make things look good—we make them speak.",
-  },
-  {
-    Icon: Shield,
-    title: 'Collaborative Spirit',
-    description:
-      "We partner with talented freelancers and work closely with clients to bring diverse perspectives together, creating work that's greater than the sum of its parts.",
-  },
-];
-
 type ValuesSectionProps = {
   immediate?: boolean;
+  content?: AboutValuesContent;
 };
 
-export const ValuesSection = ({ immediate }: ValuesSectionProps = {}) => {
+export const ValuesSection = ({
+  immediate,
+  content = DEFAULT_ABOUT_PAGE_CONTENT.values,
+}: ValuesSectionProps = {}) => {
   return (
     <SectionContainer>
       <SectionHeading
         immediate={immediate}
-        caption="Values"
-        title="Our Values"
-        text="The principles that guide everything we do"
+        caption={content.caption}
+        title={content.title}
+        text={content.text}
       />
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {VALUES.map((value, index) => (
-          <ValueCard key={value.title} {...value} index={index} immediate={immediate} />
+        {content.items.map((value, index) => (
+          <ValueCard
+            key={`${value.title}-${index}`}
+            Icon={ICON_MAP[value.iconKey] ?? Lightbulb}
+            title={value.title}
+            description={value.description}
+            index={index}
+            immediate={immediate}
+          />
         ))}
       </div>
     </SectionContainer>

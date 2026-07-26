@@ -16,6 +16,7 @@ export type Portion =
   | 'localization'
   | 'branding'
   | 'projectWorkflow'
+  | 'aboutPage'
   | 'contactInfo'
   | 'socials';
 
@@ -62,6 +63,7 @@ export const fetchSettings =
       'localization',
       'branding',
       'projectWorkflow',
+      'aboutPage',
       'contactInfo',
       'socials',
     ];

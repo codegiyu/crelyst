@@ -30,6 +30,7 @@ const presignedUrlBodySchema = z
       'project',
       'portfolio-case-study',
       'bbs-site-content',
+      'site-settings',
       'testimonial',
       'brand',
       'team-member',
@@ -121,6 +122,8 @@ async function entityExists(entityType: EntityType, entityId: string): Promise<b
     case 'bbs-site-content':
       // Singleton doc id — allow upload before/without an existing Firestore row
       return entityId === 'content';
+    case 'site-settings':
+      return entityId === 'settings';
     case 'testimonial':
       return (await getTestimonialById(entityId)) !== null;
     case 'brand':
