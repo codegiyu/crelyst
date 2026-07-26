@@ -1,20 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminInboxListSkeleton } from '@/components/general/admin/loading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/Modal';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
-import type {
-  ClientFormSubmission,
-  FormSubmissionFormType,
-  IFormSubmissionsListRes,
-} from '@/lib/constants/endpoints';
+import type { ClientFormSubmission, FormSubmissionFormType } from '@/lib/constants/endpoints';
 import {
   Mail,
   CheckCheck,
@@ -26,8 +23,11 @@ import {
 } from 'lucide-react';
 import { FormSubmissionAttachmentsList } from './FormSubmissionAttachmentsList';
 import { cn } from '@/lib/utils';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
+import { useRemoteListItems } from '@/lib/hooks/use-remote-list-items';
 
 const POLL_MS = 600_000; // 600 seconds = 10 minutes
+const PAGE_LIMIT = 25;
 
 function submissionApiPath(id: string, formType: FormSubmissionFormType): `/${string}` {
   return `/${id}?formType=${encodeURIComponent(formType)}` as `/${string}`;
@@ -122,50 +122,56 @@ function downloadSubmissionsCsv(rows: ClientFormSubmission[], formType: FormSubm
 }
 
 export interface FormSubmissionsInboxClientProps {
-  initial: IFormSubmissionsListRes;
   formType: FormSubmissionFormType;
   title: string;
   description: string;
-  loadFailed?: boolean;
 }
 
 export function FormSubmissionsInboxClient({
-  initial,
   formType,
   title,
   description,
-  loadFailed = false,
 }: FormSubmissionsInboxClientProps) {
-  const router = useRouter();
-  const pageLimit = initial.pagination.limit;
-  const [submissions, setSubmissions] = useState<ClientFormSubmission[]>(initial.submissions);
-  const [unreadCount, setUnreadCount] = useState(initial.unreadCount);
-  const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor);
-  const [hasMore, setHasMore] = useState(initial.hasMore);
-  const [total, setTotal] = useState(initial.pagination.total);
+  const listQuery = `?formType=${encodeURIComponent(formType)}&limit=${PAGE_LIMIT}` as `?${string}`;
+
+  const list = useAdminResource({
+    resourceKey: ['admin', 'form-submissions', formType, { limit: 25 }],
+    endpoint: 'ADMIN_LIST_FORM_SUBMISSIONS',
+    options: { query: listQuery },
+    sectionLabel: title || 'submissions',
+  });
+
+  const [submissions, setSubmissions] = useRemoteListItems(list.data?.submissions);
+  const [unreadCount, setUnreadCount] = useState(list.data?.unreadCount ?? 0);
+  const [nextCursor, setNextCursor] = useState<string | null>(list.data?.nextCursor ?? null);
+  const [hasMore, setHasMore] = useState(list.data?.hasMore ?? false);
+  const [total, setTotal] = useState(list.data?.pagination.total ?? 0);
+  const [prevListData, setPrevListData] = useState(list.data);
   const [markingAll, setMarkingAll] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<ClientFormSubmission | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [fetchError, setFetchError] = useState(loadFailed);
+
+  // Keep pagination/unread meta aligned when the remote list payload identity changes.
+  if (list.data !== prevListData) {
+    setPrevListData(list.data);
+
+    if (list.data) {
+      setUnreadCount(list.data.unreadCount);
+      setNextCursor(list.data.nextCursor);
+      setHasMore(list.data.hasMore);
+      setTotal(list.data.pagination.total);
+    }
+  }
 
   const submissionsRef = useRef(submissions);
   submissionsRef.current = submissions;
 
-  useEffect(() => {
-    setSubmissions(initial.submissions);
-    setUnreadCount(initial.unreadCount);
-    setNextCursor(initial.nextCursor);
-    setHasMore(initial.hasMore);
-    setTotal(initial.pagination.total);
-    if (!loadFailed) setFetchError(false);
-  }, [initial, loadFailed]);
-
   const pollNewSubmissions = useCallback(async () => {
     const { data, error } = await callApi('ADMIN_LIST_FORM_SUBMISSIONS', {
-      query: `?formType=${encodeURIComponent(formType)}&limit=${pageLimit}`,
+      query: `?formType=${encodeURIComponent(formType)}&limit=${PAGE_LIMIT}`,
     });
     if (error || !data?.submissions) return;
 
@@ -178,7 +184,7 @@ export function FormSubmissionsInboxClient({
     if (fresh.length > 0) {
       dispatchInboxChanged();
     }
-  }, [formType, pageLimit]);
+  }, [formType, setSubmissions]);
 
   useEffect(() => {
     const tick = () => {
@@ -283,7 +289,6 @@ export function FormSubmissionsInboxClient({
         setSubmissions(prev => prev.map(s => ({ ...s, isRead: true })));
         setUnreadCount(0);
         dispatchInboxChanged();
-        router.refresh();
       }
     } finally {
       setMarkingAll(false);
@@ -295,7 +300,7 @@ export function FormSubmissionsInboxClient({
     setLoadingMore(true);
     try {
       const { data, error } = await callApi('ADMIN_LIST_FORM_SUBMISSIONS', {
-        query: `?formType=${encodeURIComponent(formType)}&limit=${pageLimit}&cursor=${encodeURIComponent(nextCursor)}`,
+        query: `?formType=${encodeURIComponent(formType)}&limit=${PAGE_LIMIT}&cursor=${encodeURIComponent(nextCursor)}`,
       });
       if (error || !data) return;
       setSubmissions(prev => {
@@ -330,7 +335,6 @@ export function FormSubmissionsInboxClient({
         setTotal(t => Math.max(0, t - 1));
         setDeleteTarget(null);
         dispatchInboxChanged();
-        router.refresh();
       }
     } finally {
       setDeleteLoading(false);
@@ -351,7 +355,8 @@ export function FormSubmissionsInboxClient({
             variant="outline"
             LeftIcon={RefreshCw}
             leftIconProps={{ className: 'size-4' }}
-            onClick={() => router.refresh()}
+            disabled={list.isError || list.isLoading}
+            onClick={() => void list.reload()}
           />
           {!listEmpty && (
             <RegularBtn
@@ -359,6 +364,7 @@ export function FormSubmissionsInboxClient({
               variant="outline"
               LeftIcon={Download}
               leftIconProps={{ className: 'size-4' }}
+              disabled={list.isError || list.isLoading}
               onClick={() => downloadSubmissionsCsv(filteredSubmissions, formType)}
             />
           )}
@@ -368,232 +374,231 @@ export function FormSubmissionsInboxClient({
               variant="outline"
               LeftIcon={CheckCheck}
               leftIconProps={{ className: 'size-4' }}
-              disabled={markingAll}
+              disabled={markingAll || list.isError || list.isLoading}
               onClick={() => void markAllRead()}
             />
           ) : null}
         </div>
       }>
-      {fetchError ? (
-        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-          <div className="space-y-2">
-            <p>Could not load submissions. Check your connection and try again.</p>
-            <RegularBtn text="Retry" size="sm" variant="outline" onClick={() => router.refresh()} />
-          </div>
-        </div>
-      ) : null}
+      <AdminAsyncSection
+        status={list.status}
+        errorMessage={list.errorMessage}
+        onRetry={() => void list.reload()}
+        hasData={list.data != null}
+        loadingFallback={<AdminInboxListSkeleton label="Loading submissions" />}>
+        <div className="grid gap-6">
+          {!listEmpty && (
+            <div className="max-w-md">
+              <Input
+                placeholder="Search name, email, message, attachments…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                aria-label="Filter submissions"
+              />
+            </div>
+          )}
 
-      {!listEmpty && (
-        <div className="max-w-md">
-          <Input
-            placeholder="Search name, email, message, attachments…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            aria-label="Filter submissions"
-          />
-        </div>
-      )}
+          <p className="text-sm text-muted-foreground">
+            {total} total
+            {hasMore ? ` · showing ${submissions.length} loaded` : ''}
+          </p>
 
-      <p className="text-sm text-muted-foreground">
-        {total} total
-        {hasMore ? ` · showing ${submissions.length} loaded` : ''}
-      </p>
-
-      {listEmpty ? (
-        <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center text-muted-foreground">
-          <Mail className="mx-auto size-10 opacity-50 mb-3" />
-          <p>No submissions yet.</p>
-        </div>
-      ) : filterEmpty ? (
-        <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-10 text-center text-muted-foreground">
-          <p>No submissions match your search.</p>
-        </div>
-      ) : (
-        <>
-          <ul className="flex flex-col gap-4">
-            {filteredSubmissions.map(sub => (
-              <li key={sub._id}>
-                <Card
-                  className={cn(
-                    'overflow-hidden transition-colors',
-                    !sub.isRead && 'border-primary/40 bg-primary/[0.03]'
-                  )}>
-                  <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-2">
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={cn(
-                            'font-semibold text-foreground',
-                            !sub.isRead && 'text-primary'
-                          )}>
-                          {sub.name}
-                        </span>
-                        {!sub.isRead && (
-                          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
-                            Unread
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Submitted {formatSubmittedAt(sub.createdAt)}
-                        {sub.updatedAt ? ` · Updated ${formatMaybeAt(sub.updatedAt)}` : ''}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {!sub.isRead ? (
-                        <RegularBtn
-                          text="Mark read"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => void markOneRead(sub)}
-                        />
-                      ) : (
-                        <RegularBtn
-                          text="Mark unread"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => void markOneUnread(sub)}
-                        />
-                      )}
-                      <RegularBtn
-                        text="Delete"
-                        variant="destructive"
-                        size="sm"
-                        LeftIcon={Trash2}
-                        leftIconProps={{ className: 'size-3.5' }}
-                        onClick={() => setDeleteTarget(sub)}
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm">
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <div>
-                        <span className="text-muted-foreground">Email</span>
-                        <p>
-                          <a
-                            href={`mailto:${sub.email}`}
-                            className="text-primary hover:underline break-all">
-                            {sub.email}
-                          </a>
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Source IP</span>
-                        <p className="font-mono text-xs">{sub.sourceIp ?? '—'}</p>
-                      </div>
-                      {formType === 'quote-request' && (
-                        <>
-                          <div>
-                            <span className="text-muted-foreground">Company</span>
-                            <p>{sub.company ?? '—'}</p>
+          {listEmpty ? (
+            <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center text-muted-foreground">
+              <Mail className="mx-auto size-10 opacity-50 mb-3" />
+              <p>No submissions yet.</p>
+            </div>
+          ) : filterEmpty ? (
+            <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-10 text-center text-muted-foreground">
+              <p>No submissions match your search.</p>
+            </div>
+          ) : (
+            <>
+              <ul className="flex flex-col gap-4">
+                {filteredSubmissions.map(sub => (
+                  <li key={sub._id}>
+                    <Card
+                      className={cn(
+                        'overflow-hidden transition-colors',
+                        !sub.isRead && 'border-primary/40 bg-primary/[0.03]'
+                      )}>
+                      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-2">
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={cn(
+                                'font-semibold text-foreground',
+                                !sub.isRead && 'text-primary'
+                              )}>
+                              {sub.name}
+                            </span>
+                            {!sub.isRead && (
+                              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
+                                Unread
+                              </span>
+                            )}
                           </div>
+                          <p className="text-sm text-muted-foreground">
+                            Submitted {formatSubmittedAt(sub.createdAt)}
+                            {sub.updatedAt ? ` · Updated ${formatMaybeAt(sub.updatedAt)}` : ''}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {!sub.isRead ? (
+                            <RegularBtn
+                              text="Mark read"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => void markOneRead(sub)}
+                            />
+                          ) : (
+                            <RegularBtn
+                              text="Mark unread"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => void markOneUnread(sub)}
+                            />
+                          )}
+                          <RegularBtn
+                            text="Delete"
+                            variant="destructive"
+                            size="sm"
+                            LeftIcon={Trash2}
+                            leftIconProps={{ className: 'size-3.5' }}
+                            onClick={() => setDeleteTarget(sub)}
+                          />
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <div className="grid gap-2 sm:grid-cols-2">
                           <div>
-                            <span className="text-muted-foreground">Project type</span>
-                            <p>{sub.projectType ?? '—'}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Budget</span>
-                            <p>{sub.budget ?? '—'}</p>
-                          </div>
-                        </>
-                      )}
-                      {formType === 'work-with-us' && (
-                        <>
-                          <div>
-                            <span className="text-muted-foreground">Portfolio</span>
+                            <span className="text-muted-foreground">Email</span>
                             <p>
-                              {sub.portfolio ? (
-                                <a
-                                  href={sub.portfolio}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline break-all">
-                                  {sub.portfolio}
-                                </a>
-                              ) : (
-                                '—'
-                              )}
+                              <a
+                                href={`mailto:${sub.email}`}
+                                className="text-primary hover:underline break-all">
+                                {sub.email}
+                              </a>
                             </p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Experience</span>
-                            <p>{sub.experience ?? '—'}</p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Message</span>
-                      <p
-                        className={cn(
-                          'mt-1 whitespace-pre-wrap text-foreground',
-                          expandedId !== sub._id && 'line-clamp-4'
-                        )}>
-                        {sub.message}
-                      </p>
-                    </div>
-
-                    {expandedId === sub._id ? (
-                      <div className="space-y-4 border-t border-border pt-4">
-                        <div className="grid gap-2 sm:grid-cols-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Submitted</span>
-                            <p>{formatSubmittedAt(sub.createdAt)}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Source IP</span>
                             <p className="font-mono text-xs">{sub.sourceIp ?? '—'}</p>
                           </div>
-                          {formType === 'quote-request' && sub.budget ? (
-                            <div>
-                              <span className="text-muted-foreground">Budget</span>
-                              <p>{sub.budget}</p>
-                            </div>
-                          ) : null}
+                          {formType === 'quote-request' && (
+                            <>
+                              <div>
+                                <span className="text-muted-foreground">Company</span>
+                                <p>{sub.company ?? '—'}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Project type</span>
+                                <p>{sub.projectType ?? '—'}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Budget</span>
+                                <p>{sub.budget ?? '—'}</p>
+                              </div>
+                            </>
+                          )}
+                          {formType === 'work-with-us' && (
+                            <>
+                              <div>
+                                <span className="text-muted-foreground">Portfolio</span>
+                                <p>
+                                  {sub.portfolio ? (
+                                    <a
+                                      href={sub.portfolio}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-primary hover:underline break-all">
+                                      {sub.portfolio}
+                                    </a>
+                                  ) : (
+                                    '—'
+                                  )}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Experience</span>
+                                <p>{sub.experience ?? '—'}</p>
+                              </div>
+                            </>
+                          )}
                         </div>
                         <div>
-                          <span className="text-muted-foreground text-sm">Attachments</span>
-                          <div className="mt-2">
-                            <FormSubmissionAttachmentsList attachments={sub.attachments} />
-                          </div>
+                          <span className="text-muted-foreground">Message</span>
+                          <p
+                            className={cn(
+                              'mt-1 whitespace-pre-wrap text-foreground',
+                              expandedId !== sub._id && 'line-clamp-4'
+                            )}>
+                            {sub.message}
+                          </p>
                         </div>
-                      </div>
-                    ) : null}
 
-                    <RegularBtn
-                      text={expandedId === sub._id ? 'Hide details' : 'View full details'}
-                      size="sm"
-                      variant="ghost"
-                      LeftIcon={ChevronDown}
-                      leftIconProps={{
-                        className: cn(
-                          'size-4 transition-transform',
-                          expandedId === sub._id && 'rotate-180'
-                        ),
-                      }}
-                      onClick={() => toggleExpanded(sub)}
-                    />
-                  </CardContent>
-                </Card>
-              </li>
-            ))}
-          </ul>
+                        {expandedId === sub._id ? (
+                          <div className="space-y-4 border-t border-border pt-4">
+                            <div className="grid gap-2 sm:grid-cols-2 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Submitted</span>
+                                <p>{formatSubmittedAt(sub.createdAt)}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Source IP</span>
+                                <p className="font-mono text-xs">{sub.sourceIp ?? '—'}</p>
+                              </div>
+                              {formType === 'quote-request' && sub.budget ? (
+                                <div>
+                                  <span className="text-muted-foreground">Budget</span>
+                                  <p>{sub.budget}</p>
+                                </div>
+                              ) : null}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground text-sm">Attachments</span>
+                              <div className="mt-2">
+                                <FormSubmissionAttachmentsList attachments={sub.attachments} />
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
 
-          {hasMore ? (
-            <div className="flex justify-center pt-4">
-              <RegularBtn
-                text="Load more"
-                variant="outline"
-                loading={loadingMore}
-                loadingIconBesideText
-                loadingIconClassName="text-muted-foreground shrink-0 animate-spin"
-                onClick={() => void loadMore()}
-              />
-            </div>
-          ) : null}
-        </>
-      )}
+                        <RegularBtn
+                          text={expandedId === sub._id ? 'Hide details' : 'View full details'}
+                          size="sm"
+                          variant="ghost"
+                          LeftIcon={ChevronDown}
+                          leftIconProps={{
+                            className: cn(
+                              'size-4 transition-transform',
+                              expandedId === sub._id && 'rotate-180'
+                            ),
+                          }}
+                          onClick={() => toggleExpanded(sub)}
+                        />
+                      </CardContent>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+
+              {hasMore ? (
+                <div className="flex justify-center pt-4">
+                  <RegularBtn
+                    text="Load more"
+                    variant="outline"
+                    loading={loadingMore}
+                    loadingIconBesideText
+                    loadingIconClassName="text-muted-foreground shrink-0 animate-spin"
+                    onClick={() => void loadMore()}
+                  />
+                </div>
+              ) : null}
+            </>
+          )}
+        </div>
+      </AdminAsyncSection>
 
       <Modal
         open={!!deleteTarget}

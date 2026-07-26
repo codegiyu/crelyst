@@ -1,3 +1,5 @@
+import type { AboutPageContent } from './about-page';
+
 /**
  * Frontend types for Site Settings
  * These types match the backend ISiteSettings structure
@@ -102,6 +104,18 @@ export interface Branding {
   secondaryBrandColor: string;
 }
 
+export interface ProjectWorkflowStep {
+  title: string;
+  description: string;
+  order: number;
+}
+
+export interface ProjectWorkflow {
+  title: string;
+  subtitle?: string;
+  steps: ProjectWorkflowStep[];
+}
+
 export interface SiteSettings {
   _id: string;
   appDetails: AppDetails;
@@ -112,6 +126,8 @@ export interface SiteSettings {
   analytics: Analytics;
   localization: Localization;
   branding: Branding;
+  projectWorkflow?: ProjectWorkflow;
+  aboutPage?: AboutPageContent;
   contactInfo: ContactInfo;
   socials: Social[];
   createdAt: string;

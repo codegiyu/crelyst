@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
-import { createTeamMember as createTeamMemberRepo } from '../../lib/firestore/collections';
+import {
+  createTeamMember as createTeamMemberRepo,
+  getNextDisplayOrder,
+} from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 import { validateBody } from '../../lib/api/validateBody';
 import { revalidateAboutAndHome } from '../../lib/utils/revalidateSiteCache';
@@ -34,7 +37,7 @@ export const createTeamMember: RouteHandler = async ({ body, user }) => {
     phone: payload.phone ?? '',
     socials: payload.socials ?? {},
     isActive: payload.isActive ?? true,
-    displayOrder: payload.displayOrder ?? 0,
+    displayOrder: payload.displayOrder ?? (await getNextDisplayOrder('teamMembers')),
   });
 
   if (!newTeamMember) {

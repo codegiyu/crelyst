@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
 import { useQueryState, parseAsStringLiteral } from 'nuqs';
-import { useInitSiteSettingsStore, useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
+import { useSiteSettingsStore } from '@/lib/store/useSiteSettingsStore';
+import type { SiteSettingsSlice } from '@/lib/store/useSiteSettingsStore';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminSettingsFormSkeleton } from '@/components/general/admin/loading';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
 import { cn } from '@/lib/utils';
 import {
   Building2,
@@ -17,6 +20,7 @@ import {
   ToggleLeft,
   Globe,
   BarChart3,
+  ListOrdered,
 } from 'lucide-react';
 import { AppDetailsTab } from './tabs/AppDetailsTab';
 import { ContactInfoTab } from './tabs/ContactInfoTab';
@@ -28,7 +32,7 @@ import { LegalTab } from './tabs/LegalTab';
 import { FeaturesTab } from './tabs/FeaturesTab';
 import { LocalizationTab } from './tabs/LocalizationTab';
 import { AnalyticsTab } from './tabs/AnalyticsTab';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ProjectWorkflowTab } from './tabs/ProjectWorkflowTab';
 import { settingsTabRemountKey } from '@/lib/utils/settingsTabKey';
 
 const SETTINGS_TABS = [
@@ -42,9 +46,24 @@ const SETTINGS_TABS = [
   'features',
   'localization',
   'analytics',
+  'project-workflow',
 ] as const;
 
 type SettingsTab = (typeof SETTINGS_TABS)[number];
+
+const TAB_TO_SLICE: Record<SettingsTab, SiteSettingsSlice> = {
+  'app-details': 'appDetails',
+  'contact-info': 'contactInfo',
+  socials: 'socials',
+  seo: 'seo',
+  branding: 'branding',
+  email: 'email',
+  legal: 'legal',
+  features: 'features',
+  localization: 'localization',
+  analytics: 'analytics',
+  'project-workflow': 'projectWorkflow',
+};
 
 const tabConfig: {
   id: SettingsTab;
@@ -112,6 +131,12 @@ const tabConfig: {
     icon: BarChart3,
     description: 'Tracking and analytics IDs',
   },
+  {
+    id: 'project-workflow',
+    label: 'Project Workflow',
+    icon: ListOrdered,
+    description: 'Client journey from brief to delivery',
+  },
 ];
 
 type SettingsTabNavItemProps = {
@@ -125,33 +150,19 @@ const SettingsTabNavItem = ({ tab, isActive, onClick }: SettingsTabNavItemProps)
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200',
-        'hover:bg-muted/50 group',
-        isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
+        'w-full flex items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+        isActive ? 'bg-primary/10 text-primary' : 'hover:bg-muted/60 text-foreground'
       )}>
-      <div
-        className={cn(
-          'p-1.5 rounded-md transition-colors',
-          isActive ? 'bg-primary-foreground/20' : 'bg-muted group-hover:bg-muted-foreground/10'
-        )}>
-        <Icon
-          className={cn('size-4', isActive ? 'text-primary-foreground' : 'text-muted-foreground')}
-        />
-      </div>
-      <div className="flex-1 min-w-0">
+      <Icon className="size-4 mt-0.5 shrink-0" />
+      <div className="min-w-0 grid gap-0.5">
+        <span className="text-sm font-medium leading-none">{tab.label}</span>
         <p
           className={cn(
-            'text-sm font-medium truncate',
-            isActive ? 'text-primary-foreground' : 'text-foreground'
-          )}>
-          {tab.label}
-        </p>
-        <p
-          className={cn(
-            'text-xs truncate hidden sm:block lg:hidden xl:block',
-            isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
+            'text-xs leading-snug',
+            isActive ? 'text-primary/80' : 'text-muted-foreground'
           )}>
           {tab.description}
         </p>
@@ -160,32 +171,30 @@ const SettingsTabNavItem = ({ tab, isActive, onClick }: SettingsTabNavItemProps)
   );
 };
 
-export const SettingsPageClient = ({
-  initialSettings,
-}: {
-  initialSettings: Partial<ClientSiteSettings>;
-}) => {
-  const settings = useSiteSettingsStore(state => state.settings);
+export const SettingsPageClient = () => {
+  const storeSettings = useSiteSettingsStore(state => state.settings);
 
   const [activeTab, setActiveTab] = useQueryState(
     'tab',
     parseAsStringLiteral(SETTINGS_TABS).withDefault('app-details')
   );
 
-  useEffect(() => {
-    useInitSiteSettingsStore.getState().actions.setSettings(initialSettings);
-  }, [initialSettings]);
+  const slice = TAB_TO_SLICE[activeTab];
+  const sliceQuery = `/${slice}` as const;
 
-  const effective = useMemo(
-    () => (settings && Object.keys(settings).length > 0 ? settings : initialSettings),
-    [settings, initialSettings]
-  );
+  const sliceResource = useAdminResource({
+    resourceKey: ['admin', 'site-settings', slice],
+    endpoint: 'ADMIN_GET_SITE_SETTINGS',
+    options: { query: sliceQuery },
+    sectionLabel: `${tabConfig.find(t => t.id === activeTab)?.label ?? 'settings'}`,
+  });
+
+  const effective: Partial<ClientSiteSettings> = {
+    ...(storeSettings ?? {}),
+    ...(sliceResource.data ?? {}),
+  };
 
   const renderTabContent = () => {
-    if (!effective || Object.keys(effective).length === 0) {
-      return <TabContentSkeleton />;
-    }
-
     switch (activeTab) {
       case 'app-details':
         return (
@@ -246,6 +255,13 @@ export const SettingsPageClient = ({
             settings={effective}
           />
         );
+      case 'project-workflow':
+        return (
+          <ProjectWorkflowTab
+            key={settingsTabRemountKey('project-workflow', effective.projectWorkflow)}
+            settings={effective}
+          />
+        );
       default:
         return (
           <AppDetailsTab
@@ -263,7 +279,6 @@ export const SettingsPageClient = ({
         description: 'Manage your site configuration and preferences',
       }}>
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Tab Navigation - Sidebar Style */}
         <nav className="lg:w-64 shrink-0">
           <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
             <div className="p-4 border-b bg-muted/30">
@@ -282,35 +297,17 @@ export const SettingsPageClient = ({
           </div>
         </nav>
 
-        {/* Tab Content */}
-        <div className="flex-1 min-w-0">{renderTabContent()}</div>
+        <div className="flex-1 min-w-0">
+          <AdminAsyncSection
+            status={sliceResource.status}
+            errorMessage={sliceResource.errorMessage}
+            onRetry={() => void sliceResource.reload()}
+            hasData={sliceResource.data != null}
+            loadingFallback={<AdminSettingsFormSkeleton label="Loading settings" />}>
+            {renderTabContent()}
+          </AdminAsyncSection>
+        </div>
       </div>
     </DashboardPageWrapper>
   );
 };
-
-const TabContentSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm p-6 grid gap-6">
-    <div className="grid gap-2">
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="h-4 w-72" />
-    </div>
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-      <div className="grid gap-2">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-      <div className="grid gap-2">
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="h-24 w-full" />
-      </div>
-    </div>
-    <div className="flex justify-end">
-      <Skeleton className="h-10 w-32" />
-    </div>
-  </div>
-);

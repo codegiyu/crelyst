@@ -64,6 +64,8 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
   const [newTechnology, setNewTechnology] = useState('');
   const [tags, setTags] = useState<string[]>(project?.tags ?? []);
   const [newTag, setNewTag] = useState('');
+  const [galleryImages, setGalleryImages] = useState<string[]>(project?.images ?? []);
+  const [newGalleryImage, setNewGalleryImage] = useState('');
   // For new projects: toggle to use featured image as card image
   const [useFeaturedAsCard, setUseFeaturedAsCard] = useState(!isEditing);
 
@@ -112,7 +114,7 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
       startDate: formatDateForInput(project?.startDate),
       endDate: formatDateForInput(project?.endDate),
       isFeatured: project?.isFeatured ?? false,
-      isActive: project?.isActive ?? false,
+      isActive: project?.isActive ?? true,
       seoMetaTitle: project?.seo?.metaTitle || '',
       seoMetaDescription: project?.seo?.metaDescription || '',
       seoKeywords: project?.seo?.keywords?.join(', ') || '',
@@ -312,9 +314,10 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           bannerImage: bannerImageUrl || undefined,
           heroImage: heroImageUrl || undefined,
           isFeatured: values.isFeatured,
-          isActive: values.isActive ?? false,
+          isActive: values.isActive ?? true,
           technologies,
           tags: tags.length ? tags : undefined,
+          images: galleryImages.map(url => url.trim()).filter(Boolean),
           ...(cs === null ? { caseStudy: null } : cs ? { caseStudy: cs } : {}),
           seo,
         };
@@ -347,9 +350,10 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           startDate: values.startDate || undefined,
           endDate: values.endDate || undefined,
           isFeatured: values.isFeatured,
-          isActive: values.isActive ?? false,
+          isActive: values.isActive ?? true,
           technologies,
           tags: tags.length ? tags : undefined,
+          images: galleryImages.map(url => url.trim()).filter(Boolean),
           ...(csCreate && csCreate !== null ? { caseStudy: csCreate } : {}),
           seo,
         };
@@ -468,6 +472,17 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
     setTags(tags.filter((_, i) => i !== index));
   };
 
+  const addGalleryImage = () => {
+    if (newGalleryImage.trim()) {
+      setGalleryImages([...galleryImages, newGalleryImage.trim()]);
+      setNewGalleryImage('');
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(galleryImages.filter((_, i) => i !== index));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 py-4">
       {errorsVisible && formErrors.root && formErrors.root.length > 0 && (
@@ -523,11 +538,26 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
             label="Status"
             name="status"
             value={formValues.status || 'draft'}
-            onSelectChange={value => onChange('status', value as ProjectStatus)}
+            onSelectChange={value => {
+              const status = value as ProjectStatus;
+              onChange('status', status);
+              if (status === 'draft' || status === 'archived' || status === 'cancelled') {
+                onChange('isActive', false);
+              }
+            }}
             options={statusOptions}
             errors={errorsVisible ? formErrors.status : []}
+            subtext="Display label only. Active controls whether the project appears on the public site."
           />
         </div>
+        {(formValues.status === 'draft' ||
+          formValues.status === 'archived' ||
+          formValues.status === 'cancelled') && (
+          <p className="text-xs text-muted-foreground -mt-4">
+            Draft, archived, and cancelled projects are hidden from the public site by default. You
+            can still turn Active on for teaser use cases.
+          </p>
+        )}
 
         {/* Client Info */}
         <div className="grid grid-cols-2 gap-6">
@@ -675,6 +705,52 @@ export const ProjectForm = ({ project, onSuccess, onCancel }: ProjectFormProps) 
           placeholder="Large image below title on case study layout"
           subtext="Used when case study mode is on; falls back to featured image if empty"
         />
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.75rem] leading-[1.2] font-medium text-foreground font-inter">
+            Gallery images
+          </label>
+          <div className="flex flex-col gap-2">
+            {galleryImages.map((imageUrl, index) => (
+              <div key={index} className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
+                <span className="flex-1 truncate text-sm">{imageUrl}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => removeGalleryImage(index)}>
+                  <X className="size-4" />
+                </Button>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newGalleryImage}
+                onChange={e => setNewGalleryImage(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addGalleryImage();
+                  }
+                }}
+                placeholder="Add gallery image URL..."
+                className={cn(
+                  'flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm',
+                  'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2',
+                  'focus-visible:ring-ring focus-visible:ring-offset-2'
+                )}
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addGalleryImage}>
+                <Plus className="size-4" />
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Images shown in the project gallery on the public detail page.
+          </p>
+        </div>
 
         {/* Technologies */}
         <div className="flex flex-col gap-2">

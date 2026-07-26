@@ -8,3 +8,4 @@ export { LegalTab } from './LegalTab';
 export { FeaturesTab } from './FeaturesTab';
 export { LocalizationTab } from './LocalizationTab';
 export { AnalyticsTab } from './AnalyticsTab';
+export { ProjectWorkflowTab } from './ProjectWorkflowTab';

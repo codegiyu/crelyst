@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   Plus,
   Pencil,
@@ -24,19 +23,27 @@ import { BrandFormModal } from './BrandFormModal';
 import { DeleteBrandDialog } from './DeleteBrandDialog';
 import { ReorderBrandsModal } from './ReorderBrandsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminLogoCardGridSkeleton } from '@/components/general/admin/loading';
 import type { ClientBrand } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
+import { useRemoteListItems } from '@/lib/hooks/use-remote-list-items';
 
-export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand[] }) => {
-  const router = useRouter();
-  const [brands, setBrands] = useState<ClientBrand[]>(initialBrands);
+const LIST_QUERY = '?limit=100' as const;
 
-  useEffect(() => {
-    setBrands(initialBrands);
-  }, [initialBrands]);
+export const BrandsPageClient = () => {
+  const list = useAdminResource({
+    resourceKey: ['admin', 'brands', { limit: 100 }],
+    endpoint: 'ADMIN_LIST_BRANDS',
+    options: { query: LIST_QUERY },
+    sectionLabel: 'brands',
+  });
 
+  const [brands, setBrands] = useRemoteListItems(list.data?.brands);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<ClientBrand | null>(null);
   const [deleteBrand, setDeleteBrand] = useState<ClientBrand | null>(null);
@@ -52,10 +59,12 @@ export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand
     setIsFormOpen(true);
   };
 
+  useAdminEditDeepLink(brands, handleEdit);
+
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingBrand(null);
-    router.refresh();
+    void list.reload();
   };
 
   const handleToggleActive = async (brand: ClientBrand) => {
@@ -87,6 +96,7 @@ export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand
               variant="outline"
               LeftIcon={ArrowUpDown}
               leftIconProps={{ className: 'size-4' }}
+              disabled={list.isError || list.isLoading}
               onClick={() => setIsReorderOpen(true)}
             />
           )}
@@ -94,39 +104,47 @@ export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand
             text="Add Brand"
             LeftIcon={Plus}
             leftIconProps={{ className: 'size-5' }}
+            disabled={list.isError || list.isLoading}
             onClick={handleCreate}
           />
         </div>
       }>
-      {brands.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Plus className="size-8 text-muted-foreground" />
+      <AdminAsyncSection
+        status={list.status}
+        errorMessage={list.errorMessage}
+        onRetry={() => void list.reload()}
+        hasData={list.data != null}
+        loadingFallback={<AdminLogoCardGridSkeleton label="Loading brands" />}>
+        {brands.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Plus className="size-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">No brands yet</h3>
+            <p className="text-muted-foreground mb-4">Get started by adding your first brand</p>
+            <RegularBtn
+              text="Add Brand"
+              LeftIcon={Plus}
+              leftIconProps={{ className: 'size-5' }}
+              onClick={handleCreate}
+            />
           </div>
-          <h3 className="text-lg font-semibold text-foreground">No brands yet</h3>
-          <p className="text-muted-foreground mb-4">Get started by adding your first brand</p>
-          <RegularBtn
-            text="Add Brand"
-            LeftIcon={Plus}
-            leftIconProps={{ className: 'size-5' }}
-            onClick={handleCreate}
-          />
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {[...brands]
-            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-            .map(brand => (
-              <BrandCard
-                key={brand._id}
-                brand={brand}
-                onEdit={() => handleEdit(brand)}
-                onDelete={() => setDeleteBrand(brand)}
-                onToggleActive={() => handleToggleActive(brand)}
-              />
-            ))}
-        </div>
-      )}
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...brands]
+              .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+              .map(brand => (
+                <BrandCard
+                  key={brand._id}
+                  brand={brand}
+                  onEdit={() => handleEdit(brand)}
+                  onDelete={() => setDeleteBrand(brand)}
+                  onToggleActive={() => handleToggleActive(brand)}
+                />
+              ))}
+          </div>
+        )}
+      </AdminAsyncSection>
 
       {/* Create/Edit Modal */}
       <BrandFormModal
@@ -143,7 +161,7 @@ export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand
         onOpenChange={open => !open && setDeleteBrand(null)}
         onSuccess={() => {
           setDeleteBrand(null);
-          router.refresh();
+          void list.reload();
         }}
       />
 
@@ -152,7 +170,7 @@ export const BrandsPageClient = ({ initialBrands }: { initialBrands: ClientBrand
         brands={brands}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={() => void list.reload()}
       />
     </DashboardPageWrapper>
   );

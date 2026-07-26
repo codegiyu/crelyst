@@ -52,6 +52,23 @@
       ]
     },
     {
+      "collectionGroup": "portfolioCaseStudies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "displayOrder", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "portfolioCaseStudies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "displayOrder", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "testimonials",
       "queryScope": "COLLECTION",
       "fields": [
@@ -83,20 +100,6 @@
         { "fieldPath": "isActive", "order": "ASCENDING" },
         { "fieldPath": "displayOrder", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "emailLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "jobId", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "emailLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "messageId", "order": "ASCENDING" }
       ]
     },
     {
@@ -116,13 +119,6 @@
       ]
     },
     {
-      "collectionGroup": "emailLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "formSubmissions",
       "queryScope": "COLLECTION",
       "fields": [
@@ -136,13 +132,6 @@
       "fields": [
         { "fieldPath": "formType", "order": "ASCENDING" },
         { "fieldPath": "isRead", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     }
   ],

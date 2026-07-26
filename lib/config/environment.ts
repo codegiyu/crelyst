@@ -103,6 +103,13 @@ export interface IEnvironment {
     /** Secret for `/internal/styleguide` in production (`?key=` or httpOnly cookie). */
     SECRET: string | undefined;
   };
+  BOLD_BRAND_STUDIO: {
+    DEPLOY_HOOK_URL: string | undefined;
+    ALLOWED_ORIGINS: string | undefined;
+    VERCEL_TOKEN: string | undefined;
+    VERCEL_PROJECT_ID: string | undefined;
+    VERCEL_TEAM_ID: string | undefined;
+  };
 }
 
 export const ENVIRONMENT: IEnvironment = {
@@ -168,6 +175,13 @@ export const ENVIRONMENT: IEnvironment = {
   },
   STYLEGUIDE: {
     SECRET: process.env.STYLEGUIDE_SECRET?.trim() || undefined,
+  },
+  BOLD_BRAND_STUDIO: {
+    DEPLOY_HOOK_URL: process.env.BOLD_BRAND_STUDIO_DEPLOY_HOOK_URL?.trim() || undefined,
+    ALLOWED_ORIGINS: process.env.BOLD_BRAND_STUDIO_ALLOWED_ORIGINS?.trim() || undefined,
+    VERCEL_TOKEN: process.env.BOLD_BRAND_STUDIO_VERCEL_TOKEN?.trim() || undefined,
+    VERCEL_PROJECT_ID: process.env.BOLD_BRAND_STUDIO_VERCEL_PROJECT_ID?.trim() || undefined,
+    VERCEL_TEAM_ID: process.env.BOLD_BRAND_STUDIO_VERCEL_TEAM_ID?.trim() || undefined,
   },
   COMPANIES: {
     crelyst: {

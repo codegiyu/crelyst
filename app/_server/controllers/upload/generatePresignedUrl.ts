@@ -13,6 +13,7 @@ import {
   getBrandById,
   getServiceById,
   getProjectById,
+  getPortfolioCaseStudyById,
   getTestimonialById,
   createDocument,
   getTeamMemberById,
@@ -27,6 +28,9 @@ const presignedUrlBodySchema = z
       'admin',
       'service',
       'project',
+      'portfolio-case-study',
+      'bbs-site-content',
+      'site-settings',
       'testimonial',
       'brand',
       'team-member',
@@ -113,6 +117,13 @@ async function entityExists(entityType: EntityType, entityId: string): Promise<b
       return (await getServiceById(entityId)) !== null;
     case 'project':
       return (await getProjectById(entityId)) !== null;
+    case 'portfolio-case-study':
+      return (await getPortfolioCaseStudyById(entityId)) !== null;
+    case 'bbs-site-content':
+      // Singleton doc id — allow upload before/without an existing Firestore row
+      return entityId === 'content';
+    case 'site-settings':
+      return entityId === 'settings';
     case 'testimonial':
       return (await getTestimonialById(entityId)) !== null;
     case 'brand':

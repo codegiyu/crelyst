@@ -1,4 +1,12 @@
-import { Facebook, Instagram, Linkedin, Tiktok, TwitterX, Whatsapp } from '@/components/icons';
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Tiktok,
+  TwitterX,
+  Whatsapp,
+  Youtube,
+} from '@/components/icons';
 import { SocialPlatform } from '@/app/_server/lib/types/constants';
 import { IconComp } from '@/lib/types/general';
 
@@ -13,7 +21,7 @@ export const SOCIAL_ICON_MAP: Record<SocialPlatform, IconComp> = {
   x: TwitterX,
   tiktok: Tiktok,
   whatsapp: Whatsapp,
-  youtube: Linkedin, // Fallback - you can add a YouTube icon
+  youtube: Youtube,
 };
 
 /**

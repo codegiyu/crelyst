@@ -1,5 +1,6 @@
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { buildAdminLoginUrl } from '@/lib/auth/adminRoutePaths';
 import { resolveConsoleAdminFromToken } from '@/lib/middleware/auth';
 
@@ -18,5 +19,5 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
     redirect(buildAdminLoginUrl(pathname));
   }
 
-  return <>{children}</>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

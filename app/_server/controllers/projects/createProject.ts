@@ -4,6 +4,7 @@ import { sendResponse } from '../../lib/utils/appResponse';
 import {
   getProjectBySlug,
   createProject as createProjectRepo,
+  getNextDisplayOrder,
 } from '../../lib/firestore/collections';
 import { slugify } from '../../lib/utils/slugify';
 import type { RouteHandler } from '../../lib/api/routeHandler';
@@ -81,7 +82,7 @@ export const createProject: RouteHandler = async ({ body, user }) => {
     caseStudy: payload.caseStudy ?? undefined,
     isFeatured: payload.isFeatured ?? false,
     isActive: payload.isActive ?? true,
-    displayOrder: payload.displayOrder ?? 0,
+    displayOrder: payload.displayOrder ?? (await getNextDisplayOrder('projects')),
     seo: payload.seo ?? {},
   });
 

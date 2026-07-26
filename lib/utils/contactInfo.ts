@@ -1,6 +1,6 @@
 import { ContactInfo, OfficeHours } from '@/app/_server/lib/types/constants';
 import { FooterContactRowProps } from '@/components/layout/Footer';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle } from 'lucide-react';
 
 /**
  * Transform contact info from site settings to footer contact cards format
@@ -40,6 +40,19 @@ export const transformContactInfoToFooterCards = (
         text: mail,
         link: `mailto:${mail}`,
       })),
+    });
+  }
+
+  const whatsappDigits = contactInfo.whatsapp?.replace(/\D/g, '') ?? '';
+  if (whatsappDigits) {
+    cards.push({
+      LucideIcon: MessageCircle,
+      texts: [
+        {
+          text: contactInfo.whatsapp,
+          link: `https://wa.me/${whatsappDigits}`,
+        },
+      ],
     });
   }
 

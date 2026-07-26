@@ -6,7 +6,6 @@ import { useShallow } from 'zustand/react/shallow';
 import type { ClientSiteSettings } from '../constants/endpoints';
 import { callApi } from '../services/callApi';
 
-// Define the available settings slices
 export type SiteSettingsSlice =
   | 'all'
   | 'appDetails'
@@ -17,23 +16,30 @@ export type SiteSettingsSlice =
   | 'analytics'
   | 'localization'
   | 'branding'
+  | 'projectWorkflow'
+  | 'aboutPage'
   | 'contactInfo'
   | 'socials';
 
 export interface SiteSettingsStore {
-  // State
   settings: Partial<ClientSiteSettings> | null;
   loadedSlices: Set<SiteSettingsSlice>;
   isLoading: boolean;
   lastFetched: Date | null;
+  lastError: string | null;
 
-  // Actions
   actions: {
-    fetchSettings: (slice?: SiteSettingsSlice, options?: { force?: boolean }) => Promise<void>;
-    fetchAllSettings: (options?: { force?: boolean }) => Promise<void>;
+    fetchSettings: (
+      slice?: SiteSettingsSlice,
+      options?: { force?: boolean }
+    ) => Promise<{ ok: boolean; errorMessage?: string }>;
+    fetchAllSettings: (options?: {
+      force?: boolean;
+    }) => Promise<{ ok: boolean; errorMessage?: string }>;
     setSettings: (settings: Partial<ClientSiteSettings>) => void;
     updateSettings: (updates: Partial<ClientSiteSettings>) => void;
     clearCache: () => void;
+    clearError: () => void;
     isSliceLoaded: (slice: SiteSettingsSlice) => boolean;
   };
 }
@@ -45,9 +51,9 @@ const initialData: InitialSiteSettingsStore = {
   loadedSlices: new Set(),
   isLoading: false,
   lastFetched: null,
+  lastError: null,
 };
 
-// Cache duration in minutes - longer for settings since they change less frequently
 const CACHE_DURATION_MINUTES = 10;
 
 const isCacheValid = (lastFetched: Date | null): boolean => {
@@ -62,24 +68,23 @@ export const useInitSiteSettingsStore = create<SiteSettingsStore>()((set, get) =
       const { force = false } = options;
       const { lastFetched, isLoading, loadedSlices } = get();
 
-      // Return early if cache is valid and slice is already loaded
       if (!force && isCacheValid(lastFetched) && loadedSlices.has(slice)) {
-        return;
+        return { ok: true };
       }
 
-      // Prevent duplicate requests
-      if (isLoading) return;
+      if (isLoading) return { ok: false, errorMessage: 'Settings request already in progress.' };
 
-      set({ isLoading: true });
+      set({ isLoading: true, lastError: null });
 
       try {
-        const { data, error } = await callApi('GET_SITE_SETTINGS', {
+        const { data, error } = await callApi('ADMIN_GET_SITE_SETTINGS', {
           query: `/${slice}`,
         });
 
         if (error || !data) {
-          console.error('Failed to fetch site settings:', error?.message);
-          return;
+          const errorMessage = error?.message?.trim() || `Could not load ${slice} settings.`;
+          set({ lastError: errorMessage });
+          return { ok: false, errorMessage };
         }
 
         set(state => ({
@@ -89,9 +94,15 @@ export const useInitSiteSettingsStore = create<SiteSettingsStore>()((set, get) =
           },
           loadedSlices: new Set([...state.loadedSlices, slice]),
           lastFetched: new Date(),
+          lastError: null,
         }));
+
+        return { ok: true };
       } catch (error) {
-        console.error('Failed to fetch site settings:', error);
+        const errorMessage =
+          error instanceof Error ? error.message : `Could not load ${slice} settings.`;
+        set({ lastError: errorMessage });
+        return { ok: false, errorMessage };
       } finally {
         set({ isLoading: false });
       }
@@ -99,7 +110,7 @@ export const useInitSiteSettingsStore = create<SiteSettingsStore>()((set, get) =
 
     fetchAllSettings: async (options = {}) => {
       const { actions } = get();
-      await actions.fetchSettings('all', options);
+      return actions.fetchSettings('all', options);
     },
 
     setSettings: settings => {
@@ -107,6 +118,7 @@ export const useInitSiteSettingsStore = create<SiteSettingsStore>()((set, get) =
         settings,
         loadedSlices: new Set(['all']),
         lastFetched: new Date(),
+        lastError: null,
       });
     },
 
@@ -124,6 +136,10 @@ export const useInitSiteSettingsStore = create<SiteSettingsStore>()((set, get) =
         ...initialData,
         loadedSlices: new Set(),
       });
+    },
+
+    clearError: () => {
+      set({ lastError: null });
     },
 
     isSliceLoaded: slice => {

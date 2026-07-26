@@ -88,7 +88,6 @@ export const mainSchema = z.object({
   companyName: z.string().max(100),
   testimonial: z.string().min(1, 'Testimonial is required'),
   rating: z.number().int().min(1).max(5),
-  projectId: z.string(),
 
   // ===== Team Member fields =====
   role: z.string().min(1, 'Role is required').max(100),
@@ -102,6 +101,9 @@ export const mainSchema = z.object({
     'admin',
     'service',
     'project',
+    'portfolio-case-study',
+    'bbs-site-content',
+    'site-settings',
     'testimonial',
     'brand',
     'team-member',

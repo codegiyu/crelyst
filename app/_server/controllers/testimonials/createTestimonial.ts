@@ -17,7 +17,6 @@ const createTestimonialBodySchema = z.object({
   isFeatured: z.boolean().optional(),
   isActive: z.boolean().optional(),
   displayOrder: z.number().int().min(0).optional(),
-  projectId: z.string().nullable().optional(),
 });
 
 export const createTestimonial: RouteHandler = async ({ body, user }) => {
@@ -38,7 +37,6 @@ export const createTestimonial: RouteHandler = async ({ body, user }) => {
     isFeatured: payload.isFeatured ?? false,
     isActive: payload.isActive ?? true,
     displayOrder: payload.displayOrder ?? 0,
-    projectId: payload.projectId ?? null,
   });
 
   if (!newTestimonial) {

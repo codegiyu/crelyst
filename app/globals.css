@@ -751,6 +751,30 @@
     background: hsl(var(--muted-foreground) / 0.5);
   }
 
+  /* Ultra-slim primary scrollbar (e.g. team profile dialog) */
+  .scrollbar-primary-slim {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.75) transparent;
+  }
+
+  .scrollbar-primary-slim::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+
+  .scrollbar-primary-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-primary-slim::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.75);
+    border-radius: 999px;
+  }
+
+  .scrollbar-primary-slim::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+
   /* Remove arrows from number inputs */
   /* Chrome, Safari, Edge, Opera */
   input::-webkit-outer-spin-button,
@@ -904,6 +928,48 @@
 }
 
 .testimonial-swiper .swiper-pagination-bullet-active {
+  background: hsl(var(--primary));
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* About team member profile dialog slider */
+.team-member-swiper .swiper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.team-member-swiper .swiper-wrapper {
+  max-width: 100%;
+}
+
+.team-member-swiper .swiper-slide {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.team-member-swiper .swiper-pagination {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.375rem;
+  z-index: 5;
+}
+
+.team-member-swiper .swiper-pagination-bullet {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: hsl(var(--muted-foreground));
+  opacity: 0.35;
+  transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.team-member-swiper .swiper-pagination-bullet-active {
   background: hsl(var(--primary));
   opacity: 1;
   transform: scale(1.15);

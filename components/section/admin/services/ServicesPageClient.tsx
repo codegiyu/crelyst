@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Plus, Pencil, Trash2, MoreHorizontal, Eye, EyeOff, ArrowUpDown } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Modal } from '@/components/ui/Modal';
@@ -16,19 +15,27 @@ import { ServiceForm } from './ServiceForm';
 import { DeleteServiceDialog } from './DeleteServiceDialog';
 import { ReorderServicesModal } from './ReorderServicesModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminMediaCardGridSkeleton } from '@/components/general/admin/loading';
 import type { ClientService } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
+import { useRemoteListItems } from '@/lib/hooks/use-remote-list-items';
 
-export const ServicesPageClient = ({ initialServices }: { initialServices: ClientService[] }) => {
-  const router = useRouter();
-  const [services, setServices] = useState<ClientService[]>(initialServices);
+const LIST_QUERY = '?limit=100' as const;
 
-  useEffect(() => {
-    setServices(initialServices);
-  }, [initialServices]);
+export const ServicesPageClient = () => {
+  const list = useAdminResource({
+    resourceKey: ['admin', 'services', { limit: 100 }],
+    endpoint: 'ADMIN_LIST_SERVICES',
+    options: { query: LIST_QUERY },
+    sectionLabel: 'services',
+  });
 
+  const [services, setServices] = useRemoteListItems(list.data?.services);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingService, setEditingService] = useState<ClientService | null>(null);
   const [deleteService, setDeleteService] = useState<ClientService | null>(null);
@@ -44,10 +51,12 @@ export const ServicesPageClient = ({ initialServices }: { initialServices: Clien
     setIsFormOpen(true);
   };
 
+  useAdminEditDeepLink(services, handleEdit);
+
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingService(null);
-    router.refresh();
+    void list.reload();
   };
 
   const handleToggleActive = async (service: ClientService) => {
@@ -79,6 +88,7 @@ export const ServicesPageClient = ({ initialServices }: { initialServices: Clien
               variant="outline"
               LeftIcon={ArrowUpDown}
               leftIconProps={{ className: 'size-4' }}
+              disabled={list.isError || list.isLoading}
               onClick={() => setIsReorderOpen(true)}
             />
           )}
@@ -86,37 +96,45 @@ export const ServicesPageClient = ({ initialServices }: { initialServices: Clien
             text="Add Service"
             LeftIcon={Plus}
             leftIconProps={{ className: 'size-5' }}
+            disabled={list.isError || list.isLoading}
             onClick={handleCreate}
           />
         </div>
       }>
-      {services.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Plus className="size-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground">No services yet</h3>
-          <p className="text-muted-foreground mb-4">Get started by creating your first service</p>
-          <RegularBtn
-            text="Add Service"
-            LeftIcon={Plus}
-            leftIconProps={{ className: 'size-5' }}
-            onClick={handleCreate}
-          />
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {services.map(service => (
-            <ServiceCard
-              key={service._id}
-              service={service}
-              onEdit={() => handleEdit(service)}
-              onDelete={() => setDeleteService(service)}
-              onToggleActive={() => handleToggleActive(service)}
+      <AdminAsyncSection
+        status={list.status}
+        errorMessage={list.errorMessage}
+        onRetry={() => void list.reload()}
+        hasData={list.data != null}
+        loadingFallback={<AdminMediaCardGridSkeleton label="Loading services" />}>
+        {services.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Plus className="size-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">No services yet</h3>
+            <p className="text-muted-foreground mb-4">Get started by creating your first service</p>
+            <RegularBtn
+              text="Add Service"
+              LeftIcon={Plus}
+              leftIconProps={{ className: 'size-5' }}
+              onClick={handleCreate}
             />
-          ))}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {services.map(service => (
+              <ServiceCard
+                key={service._id}
+                service={service}
+                onEdit={() => handleEdit(service)}
+                onDelete={() => setDeleteService(service)}
+                onToggleActive={() => handleToggleActive(service)}
+              />
+            ))}
+          </div>
+        )}
+      </AdminAsyncSection>
 
       {/* Create/Edit Modal */}
       <Modal
@@ -143,7 +161,7 @@ export const ServicesPageClient = ({ initialServices }: { initialServices: Clien
         onOpenChange={open => !open && setDeleteService(null)}
         onSuccess={() => {
           setDeleteService(null);
-          router.refresh();
+          void list.reload();
         }}
       />
 
@@ -152,7 +170,7 @@ export const ServicesPageClient = ({ initialServices }: { initialServices: Clien
         services={services}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={() => void list.reload()}
       />
     </DashboardPageWrapper>
   );

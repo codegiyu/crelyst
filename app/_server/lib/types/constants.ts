@@ -111,13 +111,24 @@ export interface IServiceMenu {
 
 export interface IServicePackage {
   id: string;
+  title?: string;
+  summary?: string;
   priceRange: number[];
   benefits: string[];
+  isFeatured?: boolean;
 }
 
 export interface IServicePackagePricing {
   id: string;
+  title?: string;
   packages: IServicePackage[];
+}
+
+export interface IServicePricingFooter {
+  title: string;
+  description: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
 export interface IService {
@@ -138,6 +149,7 @@ export interface IService {
   whatMakesUsUnique?: IServiceWhatMakesUsUnique;
   menu?: IServiceMenu;
   packagePricing?: IServicePackagePricing[];
+  pricingFooter?: IServicePricingFooter;
   process?: Array<{
     title: string;
     description: string;
@@ -242,7 +254,6 @@ export interface IProject {
     status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
     order: number;
   }>;
-  teamMembers?: string[];
   challengesFaced?: Array<{
     challenge: string;
     solution: string;
@@ -256,8 +267,6 @@ export interface IProject {
     type?: 'text' | 'html' | 'markdown';
     order: number;
   }>;
-  relatedProjects?: string[];
-  testimonials?: string[];
   tags?: string[];
   budget?: {
     amount?: number;
@@ -289,7 +298,6 @@ export interface ITestimonial {
   isFeatured: boolean;
   isActive: boolean;
   displayOrder: number;
-  projectId?: string; // Optional reference to a project
   createdAt: Date;
   updatedAt: Date;
 }
@@ -415,6 +423,77 @@ export interface Branding {
   secondaryBrandColor: string;
 }
 
+export interface ProjectWorkflowStep {
+  title: string;
+  description: string;
+  order: number;
+}
+
+export interface ProjectWorkflow {
+  title: string;
+  subtitle?: string;
+  steps: ProjectWorkflowStep[];
+}
+
+export interface AboutPageHero {
+  badge: string;
+  titleLine1: string;
+  titleLine2: string;
+  description: string;
+  backgroundImage: string;
+}
+
+export interface AboutPageStatCount {
+  kind: 'count';
+  target: number;
+  label: string;
+}
+
+export interface AboutPageStatStatic {
+  kind: 'static';
+  value: string;
+  label: string;
+}
+
+export type AboutPageStat = AboutPageStatCount | AboutPageStatStatic;
+
+export interface AboutPageStory {
+  caption: string;
+  title: string;
+  subtitle: string;
+  paragraphs: string[];
+  imageUrl: string;
+  imageAlt: string;
+}
+
+export interface AboutPageValueItem {
+  iconKey: 'lightbulb' | 'heart' | 'target' | 'shield';
+  title: string;
+  description: string;
+}
+
+export interface AboutPageValues {
+  caption: string;
+  title: string;
+  text: string;
+  items: AboutPageValueItem[];
+}
+
+export interface AboutPageCta {
+  caption: string;
+  title: string;
+  description: string;
+  buttonLabel: string;
+}
+
+export interface AboutPageContent {
+  hero: AboutPageHero;
+  stats: AboutPageStat[];
+  story: AboutPageStory;
+  values: AboutPageValues;
+  cta: AboutPageCta;
+}
+
 export interface ISiteSettings {
   _id: string;
   name: string;
@@ -426,6 +505,8 @@ export interface ISiteSettings {
   analytics: Analytics;
   localization: Localization;
   branding: Branding;
+  projectWorkflow?: ProjectWorkflow;
+  aboutPage?: AboutPageContent;
   contactInfo: ContactInfo;
   socials: Social[];
   createdAt: Date;
@@ -620,6 +701,9 @@ export const ENTITY_TYPES = [
   'admin',
   'service',
   'project',
+  'portfolio-case-study',
+  'bbs-site-content',
+  'site-settings',
   'testimonial',
   'brand',
   'team-member',
@@ -633,6 +717,9 @@ export const UPLOAD_ENTITY_TYPES: EntityType[] = [
   'admin',
   'service',
   'project',
+  'portfolio-case-study',
+  'bbs-site-content',
+  'site-settings',
   'testimonial',
   'brand',
   'form-submission',
@@ -650,6 +737,8 @@ export const AUDIT_LOG_RESOURCES = [
   'site-settings',
   'service',
   'project',
+  'portfolio-case-study',
+  'bbs-site-content',
   'testimonial',
   'brand',
 ] as const;

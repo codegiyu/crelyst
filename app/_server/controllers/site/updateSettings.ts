@@ -6,7 +6,10 @@ import { updateSiteSettingsSlice } from '../../lib/firestore/collections';
 import { sendResponse } from '../../lib/utils/appResponse';
 import type { RouteHandler } from '../../lib/api/routeHandler';
 import { validateBody } from '../../lib/api/validateBody';
-import { revalidatePublicLayout } from '../../lib/utils/revalidateSiteCache';
+import {
+  revalidatePublicLayout,
+  revalidateAboutAndHome,
+} from '../../lib/utils/revalidateSiteCache';
 
 const updateSettingsBodySchema = z.object({
   settingsPayload: z.array(
@@ -55,6 +58,8 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
       'analytics',
       'localization',
       'branding',
+      'projectWorkflow',
+      'aboutPage',
       'contactInfo',
       'socials',
     ];
@@ -63,17 +68,32 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
     }
 
     const currentSettings = await getSettingsSlice(setting.name as Portion);
+    const currentSliceData = currentSettings ? (currentSettings as any)[setting.name] : undefined;
 
-    if (!currentSettings) throw new AppError('Current setting not found', 404);
+    if (
+      setting.name === 'contactInfo' ||
+      setting.name === 'projectWorkflow' ||
+      setting.name === 'aboutPage'
+    ) {
+      const mergedValue = { ...(currentSliceData || {}), ...setting.value };
 
-    const currentSliceData = (currentSettings as any)[setting.name];
+      if (setting.name === 'aboutPage') {
+        const { aboutPageContentSchema } = await import('./aboutPageSchema');
+        const parsed = aboutPageContentSchema.safeParse(mergedValue);
+        if (!parsed.success) {
+          throw new AppError('Invalid about page content', 400);
+        }
+        await updateSiteSettingsSlice('settings', setting.name, parsed.data);
+        updatedSettings[setting.name] = parsed.data;
+        continue;
+      }
 
-    if (setting.name === 'contactInfo') {
-      const mergedValue = { ...currentSliceData, ...setting.value };
       await updateSiteSettingsSlice('settings', setting.name, mergedValue);
       updatedSettings[setting.name] = mergedValue;
       continue;
     }
+
+    if (!currentSettings) throw new AppError('Current setting not found', 404);
 
     const currentKeysSet = new Set(getAllKeys(currentSliceData));
     const payloadKeysSet = new Set(getAllKeys(setting.value));
@@ -90,6 +110,10 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
   }
 
   revalidatePublicLayout();
+
+  if (updatedSettings.aboutPage) {
+    revalidateAboutAndHome();
+  }
 
   return sendResponse(200, updatedSettings, 'Settings updated successfully');
 };

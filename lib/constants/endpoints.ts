@@ -12,6 +12,8 @@ import {
   ProjectStatus,
 } from '@/app/_server/lib/types/constants';
 import type { ProjectCaseStudy } from '@/lib/types/project-case-study';
+import type { PortfolioCaseStudy } from '@/lib/types/portfolio-case-study';
+import type { BbsSiteContent } from '@/lib/types/bbs-site-content';
 
 export type HttpMethods = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -34,6 +36,8 @@ export type ClientFriendly<T> = T extends Date
 // Client-friendly type aliases for backend types
 export type ClientService = ClientFriendly<IService>;
 export type ClientProject = ClientFriendly<IProject>;
+export type ClientPortfolioCaseStudy = ClientFriendly<PortfolioCaseStudy>;
+export type ClientBbsSiteContent = ClientFriendly<BbsSiteContent>;
 export type ClientBrand = ClientFriendly<IBrand>;
 export type ClientTestimonial = ClientFriendly<ITestimonial>;
 export type ClientTeamMember = ClientFriendly<ITeamMember>;
@@ -107,6 +111,79 @@ export interface AllEndpoints {
   >;
   ADMIN_DELETE_PROJECT: EndpointDefinition<undefined, { success: boolean }, `/${string}`>;
   ADMIN_REORDER_PROJECTS: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
+
+  // Portfolio case studies — Bold Brand Studio (Public)
+  LIST_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
+    undefined,
+    IPortfolioCaseStudiesListRes,
+    PageAndSizeQuery
+  >;
+  GET_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    undefined,
+    { caseStudy: ClientPortfolioCaseStudy },
+    `/${string}`
+  >;
+
+  // Portfolio case studies (Admin)
+  ADMIN_LIST_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
+    undefined,
+    IPortfolioCaseStudiesListRes,
+    PageAndSizeQuery
+  >;
+  ADMIN_CREATE_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    IPortfolioCaseStudyCreatePayload,
+    { caseStudy: ClientPortfolioCaseStudy },
+    undefined
+  >;
+  ADMIN_GET_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    undefined,
+    { caseStudy: ClientPortfolioCaseStudy },
+    `/${string}`
+  >;
+  ADMIN_UPDATE_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    IPortfolioCaseStudyUpdatePayload,
+    { caseStudy: ClientPortfolioCaseStudy },
+    `/${string}`
+  >;
+  ADMIN_DELETE_PORTFOLIO_CASE_STUDY: EndpointDefinition<
+    undefined,
+    { success: boolean },
+    `/${string}`
+  >;
+  ADMIN_REORDER_PORTFOLIO_CASE_STUDIES: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
+  ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
+    undefined,
+    { triggered: boolean; deploy?: unknown; publishMeta?: unknown },
+    undefined
+  >;
+  ADMIN_GET_BBS_PUBLISH_STATUS: EndpointDefinition<
+    undefined,
+    {
+      status: 'unpublished' | 'building' | 'published' | 'error' | 'unknown';
+      tooltip: string;
+      contentState: 'unpublished' | 'published' | 'unknown';
+      deployState: string;
+      deployConfigured: boolean;
+      contentUpdatedAt: string | null;
+      publishMeta: unknown;
+    },
+    undefined
+  >;
+
+  // Bold Brand Studio site content (Public)
+  GET_BBS_SITE_CONTENT: EndpointDefinition<undefined, { content: ClientBbsSiteContent }, undefined>;
+
+  // Bold Brand Studio site content (Admin)
+  ADMIN_GET_BBS_SITE_CONTENT: EndpointDefinition<
+    undefined,
+    { content: ClientBbsSiteContent },
+    undefined
+  >;
+  ADMIN_UPDATE_BBS_SITE_CONTENT: EndpointDefinition<
+    IBbsSiteContentUpdatePayload,
+    { content: ClientBbsSiteContent },
+    undefined
+  >;
 
   // Brand Management (Public)
   LIST_BRANDS: EndpointDefinition<undefined, IBrandsListRes, PageAndSizeQuery>;
@@ -190,6 +267,11 @@ export interface AllEndpoints {
   >;
 
   // Site Settings (Admin)
+  ADMIN_GET_SITE_SETTINGS: EndpointDefinition<
+    undefined,
+    ClientSiteSettings | Partial<ClientSiteSettings>,
+    `/${string}`
+  >;
   ADMIN_UPDATE_SITE_SETTINGS: EndpointDefinition<
     ISiteSettingsUpdatePayload,
     Partial<ClientSiteSettings>,
@@ -317,6 +399,64 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   },
   ADMIN_REORDER_PROJECTS: {
     path: '/admin/projects/reorder',
+    method: 'PATCH',
+  },
+
+  LIST_PORTFOLIO_CASE_STUDIES: {
+    path: '/public/portfolio-case-studies',
+    method: 'GET',
+    isNotAuthenticated: true,
+  },
+  GET_PORTFOLIO_CASE_STUDY: {
+    path: '/public/portfolio-case-studies',
+    method: 'GET',
+    isNotAuthenticated: true,
+  },
+
+  ADMIN_LIST_PORTFOLIO_CASE_STUDIES: {
+    path: '/admin/portfolio-case-studies',
+    method: 'GET',
+  },
+  ADMIN_CREATE_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'POST',
+  },
+  ADMIN_GET_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'GET',
+  },
+  ADMIN_UPDATE_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'PATCH',
+  },
+  ADMIN_DELETE_PORTFOLIO_CASE_STUDY: {
+    path: '/admin/portfolio-case-studies',
+    method: 'DELETE',
+  },
+  ADMIN_REORDER_PORTFOLIO_CASE_STUDIES: {
+    path: '/admin/portfolio-case-studies/reorder',
+    method: 'PATCH',
+  },
+  ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: {
+    path: '/admin/portfolio-case-studies/publish',
+    method: 'POST',
+  },
+  ADMIN_GET_BBS_PUBLISH_STATUS: {
+    path: '/admin/portfolio-case-studies/publish-status',
+    method: 'GET',
+  },
+
+  GET_BBS_SITE_CONTENT: {
+    path: '/public/bbs-site-content',
+    method: 'GET',
+    isNotAuthenticated: true,
+  },
+  ADMIN_GET_BBS_SITE_CONTENT: {
+    path: '/admin/bbs-site-content',
+    method: 'GET',
+  },
+  ADMIN_UPDATE_BBS_SITE_CONTENT: {
+    path: '/admin/bbs-site-content',
     method: 'PATCH',
   },
 
@@ -455,6 +595,10 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   },
 
   // Site Settings (Admin)
+  ADMIN_GET_SITE_SETTINGS: {
+    path: '/admin/site-settings', // /:slice
+    method: 'GET',
+  },
   ADMIN_UPDATE_SITE_SETTINGS: {
     path: '/admin/site-settings',
     method: 'PATCH',
@@ -526,6 +670,7 @@ export type GetListRes<T, Name extends string> = {
 
 export type IServicesListRes = GetListRes<ClientService, 'services'>;
 export type IProjectsListRes = GetListRes<ClientProject, 'projects'>;
+export type IPortfolioCaseStudiesListRes = GetListRes<ClientPortfolioCaseStudy, 'caseStudies'>;
 export type IBrandsListRes = GetListRes<ClientBrand, 'brands'>;
 export type ITestimonialsListRes = GetListRes<ClientTestimonial, 'testimonials'>;
 export type ITeamMembersListRes = GetListRes<ClientTeamMember, 'teamMembers'>;
@@ -724,7 +869,6 @@ export interface IProjectCreatePayload {
     status?: 'planned' | 'in-progress' | 'completed' | 'on-hold';
     order: number;
   }>;
-  teamMembers?: string[];
   challengesFaced?: Array<{
     challenge: string;
     solution: string;
@@ -738,8 +882,6 @@ export interface IProjectCreatePayload {
     type?: 'text' | 'html' | 'markdown';
     order: number;
   }>;
-  relatedProjects?: string[];
-  testimonials?: string[];
   tags?: string[];
   budget?: {
     amount?: number;
@@ -760,6 +902,36 @@ export type IProjectUpdatePayload = Omit<Partial<IProjectCreatePayload>, 'caseSt
   /** Pass `null` to remove case study from the document */
   caseStudy?: ProjectCaseStudy | null;
 };
+
+// Portfolio case study payloads (Bold Brand Studio)
+export type IPortfolioCaseStudyCreatePayload = Partial<PortfolioCaseStudy> &
+  Pick<PortfolioCaseStudy, 'title' | 'description' | 'category' | 'client' | 'industry'> & {
+    slug?: string;
+    image?: string;
+    hero?: string;
+    services?: string[];
+    timeline?: string;
+    summary?: PortfolioCaseStudy['summary'];
+    challenge?: PortfolioCaseStudy['challenge'];
+    strategy?: PortfolioCaseStudy['strategy'];
+    identityImages?: string[];
+    colorPalette?: PortfolioCaseStudy['colorPalette'];
+    typographyPrimary?: string;
+    typographySecondary?: string;
+    results?: PortfolioCaseStudy['results'];
+    keywords?: string[];
+    isActive?: boolean;
+    displayOrder?: number;
+  };
+
+export type IPortfolioCaseStudyUpdatePayload = Partial<IPortfolioCaseStudyCreatePayload>;
+
+export interface IBbsSiteContentUpdatePayload {
+  about?: ClientBbsSiteContent['about'];
+  contact?: ClientBbsSiteContent['contact'];
+  seo?: ClientBbsSiteContent['seo'];
+  projectsListingSeo?: ClientBbsSiteContent['projectsListingSeo'];
+}
 
 // Brand Payloads
 export interface IBrandCreatePayload {
@@ -784,7 +956,6 @@ export interface ITestimonialCreatePayload {
   isFeatured?: boolean;
   isActive?: boolean;
   displayOrder?: number;
-  projectId?: string; // Optional reference to a project
 }
 
 export type ITestimonialUpdatePayload = Partial<ITestimonialCreatePayload>;
@@ -918,6 +1089,8 @@ export interface ISiteSettingsUpdatePayload {
       | 'analytics'
       | 'localization'
       | 'branding'
+      | 'projectWorkflow'
+      | 'aboutPage'
       | 'contactInfo'
       | 'socials';
     value: any; // The value structure depends on the slice name

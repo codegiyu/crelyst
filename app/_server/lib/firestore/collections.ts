@@ -8,11 +8,16 @@ import { Timestamp } from 'firebase-admin/firestore';
 import type { DocumentSnapshot, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { logger } from '../utils/logger';
 import { omitUndefinedFields } from '../utils/omitUndefinedFields';
+import type { OrderedCollectionName } from './orderedCollectionNames';
+
+export { ORDERED_COLLECTION_NAMES } from './orderedCollectionNames';
 
 const COLLECTIONS = {
   brands: 'brands',
   services: 'services',
   projects: 'projects',
+  portfolioCaseStudies: 'portfolioCaseStudies',
+  bbsSiteContent: 'bbsSiteContent',
   testimonials: 'testimonials',
   teamMembers: 'teamMembers',
   siteSettings: 'siteSettings',
@@ -33,6 +38,14 @@ export function getCollection(name: keyof typeof COLLECTIONS) {
   return adminDb.collection(COLLECTIONS[name]);
 }
 
+export async function getNextDisplayOrder(collName: OrderedCollectionName): Promise<number> {
+  const snap = await getCollection(collName).orderBy('displayOrder', 'desc').limit(1).get();
+  if (snap.empty) return 1;
+
+  const value = snap.docs[0].data().displayOrder;
+  return (typeof value === 'number' ? value : 0) + 1;
+}
+
 const MAX_LIST_PAGE_SIZE = 100;
 const MAX_LIST_OFFSET = 500;
 
@@ -50,10 +63,7 @@ type OrderedListOptions = {
   page?: number;
 };
 
-async function listOrderedCollection(
-  collName: 'brands' | 'services' | 'projects' | 'testimonials' | 'teamMembers',
-  options: OrderedListOptions
-) {
+async function listOrderedCollection(collName: OrderedCollectionName, options: OrderedListOptions) {
   const { isActive, limit = 50, page = 1 } = options;
   const { safeLimit, offset } = clampListPagination(limit, page);
   const coll = getCollection(collName);
@@ -271,6 +281,76 @@ export async function deleteAllProjects(): Promise<number> {
   return docs.length;
 }
 
+// ----- Portfolio case studies (Bold Brand Studio) -----
+export async function listPortfolioCaseStudies(opts: OrderedListOptions) {
+  return listOrderedCollection('portfolioCaseStudies', opts);
+}
+
+export async function getPortfolioCaseStudyBySlug(slug: string) {
+  const snap = await getCollection('portfolioCaseStudies').where('slug', '==', slug).limit(1).get();
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...d.data() };
+}
+
+export async function getPortfolioCaseStudyById(id: string) {
+  const doc = await getCollection('portfolioCaseStudies').doc(id).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+}
+
+export async function upsertPortfolioCaseStudyBySlug(slug: string, data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const existing = await getPortfolioCaseStudyBySlug(slug);
+
+  if (existing) {
+    const ref = getCollection('portfolioCaseStudies').doc(existing.id);
+    await ref.update({ ...data, updatedAt: now });
+    const snap = await ref.get();
+    return { id: snap.id, ...snap.data(), created: false };
+  }
+
+  const docRef = getCollection('portfolioCaseStudies').doc();
+  await docRef.set({ ...data, slug, createdAt: now, updatedAt: now });
+  const snap = await docRef.get();
+  return { id: snap.id, ...snap.data(), created: true };
+}
+
+export async function createPortfolioCaseStudy(data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const docRef = getCollection('portfolioCaseStudies').doc();
+  await docRef.set({ ...data, createdAt: now, updatedAt: now });
+  const snap = await docRef.get();
+  return { id: snap.id, ...snap.data() };
+}
+
+export async function updatePortfolioCaseStudy(id: string, data: Record<string, unknown>) {
+  const ref = getCollection('portfolioCaseStudies').doc(id);
+  if (!(await ref.get()).exists) return null;
+  await ref.update({ ...data, updatedAt: Timestamp.now() });
+  const snap = await ref.get();
+  return { id: snap.id, ...snap.data() };
+}
+
+export async function deletePortfolioCaseStudy(id: string) {
+  const ref = getCollection('portfolioCaseStudies').doc(id);
+  if (!(await ref.get()).exists) return false;
+  await ref.delete();
+  return true;
+}
+
+export async function reorderPortfolioCaseStudies(
+  items: Array<{ id: string; displayOrder: number }>
+) {
+  const batch = adminDb!.batch();
+  for (const item of items) {
+    const ref = getCollection('portfolioCaseStudies').doc(item.id);
+    batch.update(ref, { displayOrder: item.displayOrder, updatedAt: Timestamp.now() });
+  }
+  await batch.commit();
+  return { modifiedCount: items.length, matchedCount: items.length };
+}
+
 // ----- Testimonials -----
 export async function listTestimonials(opts: OrderedListOptions & { projectId?: string }) {
   return listOrderedCollection('testimonials', opts);
@@ -412,6 +492,29 @@ export async function updateSiteSettingsSlice(name: string, slice: string, value
   await ref.set({ ...existing, [slice]: value, updatedAt: Timestamp.now() }, { merge: true });
   const updated = await ref.get();
   return { id: updated.id, ...updated.data() };
+}
+
+// ----- Bold Brand Studio site content (singleton) -----
+const BBS_SITE_CONTENT_DOC_ID = 'content';
+
+export async function getBbsSiteContent() {
+  const doc = await getCollection('bbsSiteContent').doc(BBS_SITE_CONTENT_DOC_ID).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+}
+
+export async function setBbsSiteContent(data: Record<string, unknown>) {
+  const now = Timestamp.now();
+  const ref = getCollection('bbsSiteContent').doc(BBS_SITE_CONTENT_DOC_ID);
+  const existing = await ref.get();
+  const payload = {
+    ...data,
+    updatedAt: now,
+    ...(existing.exists ? {} : { createdAt: now }),
+  };
+  await ref.set(payload, { merge: true });
+  const snap = await ref.get();
+  return { id: snap.id, ...snap.data() };
 }
 
 // ----- Documents (for upload tracking) -----

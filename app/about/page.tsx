@@ -1,7 +1,9 @@
 import { PublicShell } from '@/components/layout/PublicShell';
+import { PublicLoadErrorBanner } from '@/components/general/PublicLoadErrorBanner';
 import { AboutPageView } from '@/components/section/about/AboutPageView';
-import { serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
+import { hasAnyServerFetchFailure, serverFetchJsonOrNull } from '@/app/_server/lib/api/serverFetch';
 import type { ClientSiteSettings, ITeamMembersListRes } from '@/lib/constants/endpoints';
+import { DEFAULT_ABOUT_PAGE_CONTENT } from '@/lib/types/about-page';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -11,8 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const [teamRes, contactInfoSlice, socialsSlice, appDetailsSlice] = await Promise.all([
+  const fetchResults = await Promise.all([
     serverFetchJsonOrNull<ITeamMembersListRes>('/api/team-members?limit=100'),
+    serverFetchJsonOrNull<Pick<ClientSiteSettings, 'aboutPage'>>('/api/site-settings/aboutPage'),
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'contactInfo'>>(
       '/api/site-settings/contactInfo'
     ),
@@ -20,15 +23,34 @@ export default async function AboutPage() {
     serverFetchJsonOrNull<Pick<ClientSiteSettings, 'appDetails'>>('/api/site-settings/appDetails'),
   ]);
 
+  const [teamRes, aboutPageSlice, contactInfoSlice, socialsSlice, appDetailsSlice] = fetchResults;
+
+  // Missing aboutPage slice is expected before first CMS save — do not treat as page failure
+  const loadFailed = hasAnyServerFetchFailure([
+    teamRes,
+    contactInfoSlice,
+    socialsSlice,
+    appDetailsSlice,
+  ]);
+
   const footerSettings = {
-    ...contactInfoSlice,
-    ...socialsSlice,
-    ...appDetailsSlice,
+    ...(contactInfoSlice.ok ? contactInfoSlice.data : {}),
+    ...(socialsSlice.ok ? socialsSlice.data : {}),
+    ...(appDetailsSlice.ok ? appDetailsSlice.data : {}),
   };
+
+  const aboutPage =
+    aboutPageSlice.ok && aboutPageSlice.data.aboutPage
+      ? aboutPageSlice.data.aboutPage
+      : DEFAULT_ABOUT_PAGE_CONTENT;
 
   return (
     <PublicShell transparentHeader footerSettings={footerSettings}>
-      <AboutPageView teamMembers={teamRes?.teamMembers ?? []} />
+      {loadFailed ? <PublicLoadErrorBanner /> : null}
+      <AboutPageView
+        teamMembers={teamRes.ok ? (teamRes.data.teamMembers ?? []) : []}
+        aboutPage={aboutPage}
+      />
     </PublicShell>
   );
 }

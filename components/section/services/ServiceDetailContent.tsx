@@ -9,6 +9,14 @@ import { ClientService } from '@/lib/constants/endpoints';
 import { Check, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { PublicContactCTASection } from '@/components/section/shared';
+import { RegularBtn } from '@/components/atoms/RegularBtn';
+import {
+  getPackageDisplayTitle,
+  getPackagePriceLabel,
+  getPricingCategoryTitle,
+  getPricingGridClassName,
+  isPackageFeatured,
+} from '@/lib/utils/servicePackagePricing';
 import {
   Accordion,
   AccordionContent,
@@ -28,11 +36,9 @@ type PackagePricingCardProps = {
 };
 
 const PackagePricingCard = ({ pkg, packageIndex, delay, anim }: PackagePricingCardProps) => {
-  const isMiddle = packageIndex === 1;
-  const priceLabel =
-    pkg.priceRange.length === 1
-      ? `${(pkg.priceRange[0] / 1000).toLocaleString()}k`
-      : `${(pkg.priceRange[0] / 1000).toLocaleString()}k – ${(pkg.priceRange[1] / 1000).toLocaleString()}k`;
+  const featured = isPackageFeatured(pkg, packageIndex);
+  const priceLabel = getPackagePriceLabel(pkg.priceRange);
+  const displayTitle = getPackageDisplayTitle(pkg);
 
   return (
     <motion.div
@@ -42,17 +48,29 @@ const PackagePricingCard = ({ pkg, packageIndex, delay, anim }: PackagePricingCa
       transition={{ duration: 0.5, delay }}
       viewport={{ once: true }}
       className={`relative overflow-hidden rounded-2xl border p-6 md:p-8 ${
-        isMiddle ? 'border-primary bg-primary/5' : 'border-border bg-card'
+        featured ? 'border-primary bg-primary/5' : 'border-border bg-card'
       }`}>
-      {isMiddle && (
+      {featured && (
         <span className="absolute right-4 top-4 rounded-full bg-primary px-3 py-0.5 text-xs font-semibold uppercase text-primary-foreground">
           Popular
         </span>
       )}
       <p className="mb-1 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-        {pkg.id}
+        {displayTitle}
       </p>
-      <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">&#8358;{priceLabel}</p>
+      {pkg.summary ? (
+        <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{pkg.summary}</p>
+      ) : null}
+      <p className="mb-6 text-2xl font-bold text-foreground md:text-3xl">
+        {priceLabel.kind === 'contact' ? (
+          'Contact for pricing'
+        ) : (
+          <>
+            {priceLabel.kind === 'from' ? 'from ' : null}
+            &#8358;{priceLabel.amountLabel}
+          </>
+        )}
+      </p>
       <ul className="grid gap-2.5">
         {pkg.benefits.map((b, bi) => (
           <li key={bi} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -281,11 +299,11 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
                   whileInView={anim()}
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
-                  className="mb-8 text-center font-heading text-xl font-semibold capitalize text-foreground md:text-2xl">
-                  {category.id.replace(/_/g, ' ')}
+                  className="mb-8 text-center font-heading text-xl font-semibold text-foreground md:text-2xl">
+                  {getPricingCategoryTitle(category)}
                 </motion.h3>
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className={getPricingGridClassName(category.packages.length)}>
                   {category.packages.map((pkg, pi) => (
                     <PackagePricingCard
                       key={pkg.id}
@@ -301,6 +319,32 @@ export const ServiceDetailContent = ({ service }: ServiceDetailContentProps) => 
           </div>
         </SectionContainer>
       )}
+
+      {service.pricingFooter ? (
+        <SectionContainer background="muted">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={anim()}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="content-prose-center mx-auto rounded-2xl border border-border bg-card p-8 text-center md:p-10">
+            <h3 className="font-heading text-2xl font-semibold text-foreground md:text-3xl">
+              {service.pricingFooter.title}
+            </h3>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+              {service.pricingFooter.description}
+            </p>
+            <div className="mt-6 flex justify-center">
+              <RegularBtn
+                linkProps={{
+                  href: service.pricingFooter.ctaHref || '/contact',
+                }}
+                text={service.pricingFooter.ctaLabel || 'Get in touch'}
+              />
+            </div>
+          </motion.div>
+        </SectionContainer>
+      ) : null}
 
       {/* ───── FAQ ───── */}
       {service.faq && service.faq.length > 0 && (

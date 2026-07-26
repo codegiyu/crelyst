@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   Plus,
   Pencil,
@@ -26,24 +25,28 @@ import { TestimonialFormModal } from './TestimonialFormModal';
 import { DeleteTestimonialDialog } from './DeleteTestimonialDialog';
 import { ReorderTestimonialsModal } from './ReorderTestimonialsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
+import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminTestimonialCardGridSkeleton } from '@/components/general/admin/loading';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
+import { useAdminEditDeepLink } from '@/lib/hooks/use-admin-edit-deep-link';
+import { useAdminResource } from '@/lib/hooks/use-admin-resource';
+import { useRemoteListItems } from '@/lib/hooks/use-remote-list-items';
 import { cn } from '@/lib/utils';
 
-export const TestimonialsPageClient = ({
-  initialTestimonials,
-}: {
-  initialTestimonials: ClientTestimonial[];
-}) => {
-  const router = useRouter();
-  const [testimonials, setTestimonials] = useState<ClientTestimonial[]>(initialTestimonials);
+const LIST_QUERY = '?limit=100' as const;
 
-  useEffect(() => {
-    setTestimonials(initialTestimonials);
-  }, [initialTestimonials]);
+export const TestimonialsPageClient = () => {
+  const list = useAdminResource({
+    resourceKey: ['admin', 'testimonials', { limit: 100 }],
+    endpoint: 'ADMIN_LIST_TESTIMONIALS',
+    options: { query: LIST_QUERY },
+    sectionLabel: 'testimonials',
+  });
 
+  const [testimonials, setTestimonials] = useRemoteListItems(list.data?.testimonials);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<ClientTestimonial | null>(null);
   const [deleteTestimonial, setDeleteTestimonial] = useState<ClientTestimonial | null>(null);
@@ -62,10 +65,12 @@ export const TestimonialsPageClient = ({
     setIsFormOpen(true);
   };
 
+  useAdminEditDeepLink(testimonials, handleEdit);
+
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setEditingTestimonial(null);
-    router.refresh();
+    void list.reload();
   };
 
   const handleToggleFeatured = async (testimonial: ClientTestimonial) => {
@@ -116,6 +121,7 @@ export const TestimonialsPageClient = ({
               variant="outline"
               LeftIcon={ArrowUpDown}
               leftIconProps={{ className: 'size-4' }}
+              disabled={list.isError || list.isLoading}
               onClick={() => setIsReorderOpen(true)}
             />
           )}
@@ -123,41 +129,50 @@ export const TestimonialsPageClient = ({
             text="Add Testimonial"
             LeftIcon={Plus}
             leftIconProps={{ className: 'size-5' }}
+            disabled={list.isError || list.isLoading}
             onClick={handleCreate}
           />
         </div>
       }>
-      {/* Testimonials Grid */}
-      {testimonials.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Quote className="size-8 text-muted-foreground" />
+      <AdminAsyncSection
+        status={list.status}
+        errorMessage={list.errorMessage}
+        onRetry={() => void list.reload()}
+        hasData={list.data != null}
+        loadingFallback={<AdminTestimonialCardGridSkeleton label="Loading testimonials" />}>
+        {testimonials.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <Quote className="size-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">No testimonials yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Get started by adding your first testimonial
+            </p>
+            <RegularBtn
+              text="Add Testimonial"
+              LeftIcon={Plus}
+              leftIconProps={{ className: 'size-5' }}
+              onClick={handleCreate}
+            />
           </div>
-          <h3 className="text-lg font-semibold text-foreground">No testimonials yet</h3>
-          <p className="text-muted-foreground mb-4">Get started by adding your first testimonial</p>
-          <RegularBtn
-            text="Add Testimonial"
-            LeftIcon={Plus}
-            leftIconProps={{ className: 'size-5' }}
-            onClick={handleCreate}
-          />
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[...testimonials]
-            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-            .map(testimonial => (
-              <AdminTestimonialCard
-                key={testimonial._id}
-                testimonial={testimonial}
-                onEdit={() => handleEdit(testimonial)}
-                onDelete={() => setDeleteTestimonial(testimonial)}
-                onToggleFeatured={() => handleToggleFeatured(testimonial)}
-                onToggleActive={() => handleToggleActive(testimonial)}
-              />
-            ))}
-        </div>
-      )}
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[...testimonials]
+              .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+              .map(testimonial => (
+                <AdminTestimonialCard
+                  key={testimonial._id}
+                  testimonial={testimonial}
+                  onEdit={() => handleEdit(testimonial)}
+                  onDelete={() => setDeleteTestimonial(testimonial)}
+                  onToggleFeatured={() => handleToggleFeatured(testimonial)}
+                  onToggleActive={() => handleToggleActive(testimonial)}
+                />
+              ))}
+          </div>
+        )}
+      </AdminAsyncSection>
 
       {/* Create/Edit Modal */}
       <TestimonialFormModal
@@ -175,7 +190,7 @@ export const TestimonialsPageClient = ({
         onOpenChange={open => !open && setDeleteTestimonial(null)}
         onSuccess={() => {
           setDeleteTestimonial(null);
-          router.refresh();
+          void list.reload();
         }}
       />
 
@@ -184,7 +199,7 @@ export const TestimonialsPageClient = ({
         testimonials={testimonials}
         open={isReorderOpen}
         onOpenChange={setIsReorderOpen}
-        onSuccess={() => router.refresh()}
+        onSuccess={() => void list.reload()}
       />
     </DashboardPageWrapper>
   );

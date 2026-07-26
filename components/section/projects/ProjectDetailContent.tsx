@@ -9,8 +9,56 @@ import { ExternalLink, Github, Target, Calendar, AlertCircle, DollarSign } from 
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { GhostBtn } from '@/components/atoms/GhostBtn';
 import { PublicContactCTASection } from '@/components/section/shared';
+import { DynamicIcon, LucideIconName } from '@/components/general/DynamicIcon';
 import { plainTextToSafeHtml, sanitizeHtml } from '@/lib/utils/sanitizeHtml';
 import Image from 'next/image';
+
+function ProjectSupplementaryMedia({ project }: { project: ClientProject }) {
+  const { siteLoading } = useSiteStore(state => state);
+
+  return (
+    <>
+      {project.videoUrl ? (
+        <SectionContainer>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="relative aspect-video overflow-hidden rounded-2xl bg-muted">
+            <iframe
+              src={project.videoUrl}
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={`${project.title} video`}
+            />
+          </motion.div>
+        </SectionContainer>
+      ) : null}
+
+      {project.tags && project.tags.length > 0 ? (
+        <SectionContainer>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}>
+            <div className="flex flex-wrap gap-2">
+              {project.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        </SectionContainer>
+      ) : null}
+    </>
+  );
+}
 
 interface ProjectDetailContentProps {
   project: ClientProject;
@@ -21,18 +69,21 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
 
   if (project.caseStudy) {
     return (
-      <PublicContactCTASection
-        caption="Collaborate"
-        title="Interested in a Similar Project?"
-        description={
-          <>
-            Let&apos;s discuss how we can bring your vision to life with the same level of quality
-            and attention to detail.
-          </>
-        }
-        buttonLabel="Start Your Project"
-        motionDelay={0.2}
-      />
+      <>
+        <PublicContactCTASection
+          caption="Collaborate"
+          title="Interested in a Similar Project?"
+          description={
+            <>
+              Let&apos;s discuss how we can bring your vision to life with the same level of quality
+              and attention to detail.
+            </>
+          }
+          buttonLabel="Start Your Project"
+          motionDelay={0.2}
+        />
+        <ProjectSupplementaryMedia project={project} />
+      </>
     );
   }
 
@@ -325,9 +376,14 @@ export const ProjectDetailContent = ({ project }: ProjectDetailContentProps) => 
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     viewport={{ once: true }}
                     className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl border border-border text-center">
-                    {metric.icon && (
-                      <div className="text-4xl mb-3 flex justify-center">{metric.icon}</div>
-                    )}
+                    {metric.icon ? (
+                      <div className="mb-3 flex justify-center">
+                        <DynamicIcon
+                          name={metric.icon as LucideIconName}
+                          props={{ className: 'h-10 w-10 text-primary' }}
+                        />
+                      </div>
+                    ) : null}
                     <div className="text-3xl font-bold text-foreground mb-2">{metric.value}</div>
                     <div className="text-sm text-muted-foreground">{metric.label}</div>
                   </motion.div>
