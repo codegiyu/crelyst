@@ -119,7 +119,7 @@ export const PortfolioPageClient = () => {
   return (
     <DashboardPageWrapper
       header={{
-        title: 'Portfolio (Bold Brand Studio)',
+        title: 'Projects',
         description: 'Manage case studies published to the Bold Brand Studio site',
       }}
       headerActions={

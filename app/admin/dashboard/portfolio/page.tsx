@@ -3,7 +3,7 @@ import { PortfolioPageClient } from '@/components/section/admin/portfolio/Portfo
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Manage Portfolio (Bold Brand Studio)',
+  title: 'Portfolio CMS — Projects',
   description: 'Manage Bold Brand Studio portfolio case studies',
 };
 

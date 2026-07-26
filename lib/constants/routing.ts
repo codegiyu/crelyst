@@ -12,6 +12,9 @@ import {
   UserPlus,
   Search,
   History,
+  BookOpen,
+  Contact,
+  FileText,
 } from 'lucide-react';
 import type { ISidebarLinkGroup } from '@/lib/types/general';
 
@@ -35,11 +38,6 @@ export const sidebarLinksData: ISidebarLinkGroup[] = [
         LucideIcon: FolderKanban,
         page: 'Projects',
         path: { prefix: '/admin', suffix: '/dashboard/projects' },
-      },
-      {
-        LucideIcon: Palette,
-        page: 'Portfolio (BBS)',
-        path: { prefix: '/admin', suffix: '/dashboard/portfolio' },
       },
       {
         LucideIcon: Users,
@@ -67,6 +65,36 @@ export const sidebarLinksData: ISidebarLinkGroup[] = [
         page: 'Work with us',
         path: { prefix: '/admin', suffix: '/dashboard/work-with-us' },
         inboxBadgeKey: 'workWithUs',
+      },
+    ],
+  },
+  {
+    groupName: 'Portfolio CMS',
+    links: [
+      {
+        LucideIcon: Palette,
+        page: 'Projects',
+        path: { prefix: '/admin', suffix: '/dashboard/portfolio' },
+      },
+      {
+        LucideIcon: BookOpen,
+        page: 'About',
+        path: { prefix: '/admin', suffix: '/dashboard/portfolio-about' },
+      },
+      {
+        LucideIcon: Contact,
+        page: 'Contact',
+        path: { prefix: '/admin', suffix: '/dashboard/portfolio-contact' },
+      },
+    ],
+  },
+  {
+    groupName: 'Crelyst CMS',
+    links: [
+      {
+        LucideIcon: FileText,
+        page: 'About',
+        path: { prefix: '/admin', suffix: '/dashboard/about-content' },
       },
     ],
   },

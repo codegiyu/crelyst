@@ -108,7 +108,9 @@ export const SidebarLinkGroup = ({
 
   const isActive = (path: string) => {
     if (path === '/') return currentPath === '/';
-    return currentPath.startsWith(path);
+    if (currentPath === path) return true;
+    // Nested routes only — avoids `/portfolio` matching `/portfolio-about`
+    return currentPath.startsWith(`${path}/`);
   };
 
   const getNavClassName = (path?: string | undefined) => {
