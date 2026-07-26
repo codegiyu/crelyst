@@ -35,6 +35,7 @@ describe('sidebarLinksData CMS groups', () => {
       '/admin/dashboard/portfolio-about',
       '/admin/dashboard/portfolio-contact',
       '/admin/dashboard/portfolio-seo',
+      '/admin/dashboard/portfolio-projects-seo',
     ]);
   });
 

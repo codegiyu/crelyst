@@ -52,6 +52,13 @@ describe('updateBbsSiteContentBodySchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('allows projectsListingSeo-only updates', () => {
+    const result = updateBbsSiteContentBodySchema.safeParse({
+      projectsListingSeo: DEFAULT_BBS_SITE_CONTENT.projectsListingSeo,
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('rejects empty payload', () => {
     const result = updateBbsSiteContentBodySchema.safeParse({});
     expect(result.success).toBe(false);

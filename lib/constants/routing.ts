@@ -16,6 +16,7 @@ import {
   Contact,
   FileText,
   Globe,
+  LayoutList,
 } from 'lucide-react';
 import type { ISidebarLinkGroup } from '@/lib/types/general';
 
@@ -91,6 +92,11 @@ export const sidebarLinksData: ISidebarLinkGroup[] = [
         LucideIcon: Globe,
         page: 'SEO',
         path: { prefix: '/admin', suffix: '/dashboard/portfolio-seo' },
+      },
+      {
+        LucideIcon: LayoutList,
+        page: 'Projects SEO',
+        path: { prefix: '/admin', suffix: '/dashboard/portfolio-projects-seo' },
       },
     ],
   },
