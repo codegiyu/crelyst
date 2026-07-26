@@ -9,19 +9,21 @@ import { ArrowRight } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { ProjectPreviewCard } from './ProjectPreviewCard';
 
+const HOME_PROJECTS_PREVIEW_LIMIT = 6;
+
 export const ProjectsPreviewSection = ({ projects }: { projects: ClientProject[] }) => {
   const { siteLoading } = useSiteStore(state => state);
 
-  const sortedProjects = [...projects]
+  const activeProjects = [...projects]
     .filter(project => project.isActive !== false)
     .sort((a, b) => {
       if (a.isFeatured && !b.isFeatured) return -1;
       if (!a.isFeatured && b.isFeatured) return 1;
       return (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
-    })
-    .slice(0, 6);
+    });
 
-  const displayProjects = sortedProjects.slice(0, 6);
+  const displayProjects = activeProjects.slice(0, HOME_PROJECTS_PREVIEW_LIMIT);
+  const showSeeMore = activeProjects.length > HOME_PROJECTS_PREVIEW_LIMIT;
   const featuredProject = displayProjects[0];
   const otherProjects = displayProjects.slice(1);
 
@@ -51,23 +53,23 @@ export const ProjectsPreviewSection = ({ projects }: { projects: ClientProject[]
             ))}
           </div>
 
-          {projects.length > 6 && (
+          {showSeeMore ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
               viewport={{ once: true }}
-              className="text-center mt-12">
+              className="mt-12 text-center">
               <RegularBtn
                 linkProps={{ href: '/projects' }}
                 variant="outline"
                 RightIcon={ArrowRight}
-                rightIconProps={{ className: 'size-4' }}
-                text="View All Projects"
-                className="px-8"
+                rightIconProps={{ className: 'size-4 group-hover:translate-x-1 transition-transform' }}
+                text="See More Projects"
+                className="group px-8"
               />
             </motion.div>
-          )}
+          ) : null}
         </>
       )}
     </SectionContainer>

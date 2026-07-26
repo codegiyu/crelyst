@@ -5,9 +5,12 @@ import { SectionHeading } from '@/components/general/SectionHeading';
 import { motion } from 'motion/react';
 import { useSiteStore } from '@/lib/store/siteStore';
 import type { ClientService } from '@/lib/constants/endpoints';
+import { ArrowRight } from 'lucide-react';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { ServicePreviewCard } from './ServicePreviewCard';
 import { cn } from '@/lib/utils';
+
+const HOME_SERVICES_PREVIEW_LIMIT = 4;
 
 type ServicesRowProps = {
   row: ClientService[];
@@ -95,10 +98,12 @@ const ServicesGrid = ({ services }: { services: ClientService[] }) => {
 export const ServicesPreviewSection = ({ services }: { services: ClientService[] }) => {
   const { siteLoading } = useSiteStore(state => state);
 
-  const displayServices = services
+  const activeServices = services
     .filter(s => s.isActive)
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-    .slice(0, 6);
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+  const displayServices = activeServices.slice(0, HOME_SERVICES_PREVIEW_LIMIT);
+  const showSeeMore = activeServices.length > HOME_SERVICES_PREVIEW_LIMIT;
 
   return (
     <SectionContainer>
@@ -119,18 +124,25 @@ export const ServicesPreviewSection = ({ services }: { services: ClientService[]
         <>
           <ServicesGrid services={displayServices} />
 
-          {services.filter(s => s.isActive).length > 6 && (
+          {showSeeMore ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={siteLoading ? {} : { opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
               viewport={{ once: true }}
-              className="text-center mt-12">
-              <RegularBtn linkProps={{ href: '/services' }} variant="outline" className="px-8">
-                View All Services
-              </RegularBtn>
+              className="mt-12 text-center">
+              <RegularBtn
+                linkProps={{ href: '/services' }}
+                variant="outline"
+                RightIcon={ArrowRight}
+                rightIconProps={{
+                  className: 'size-4 group-hover:translate-x-1 transition-transform',
+                }}
+                text="See More Services"
+                className="group px-8"
+              />
             </motion.div>
-          )}
+          ) : null}
         </>
       )}
     </SectionContainer>
