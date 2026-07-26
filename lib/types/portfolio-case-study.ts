@@ -63,6 +63,12 @@ export interface PortfolioCaseStudyContent {
   resultsHeading?: SectionHeading;
   results: ResultMetric[];
   keywords: string[];
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImageUrl?: string;
+    keywords?: string[];
+  };
   featured?: boolean;
 }
 

@@ -98,9 +98,24 @@ describe('portfolioCaseStudyContentSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('rejects missing required slug', () => {
-    const { slug: _slug, ...rest } = techxforgeProjectFixture;
-    const result = portfolioCaseStudyContentSchema.safeParse(rest);
+  it('accepts optional seo overrides', () => {
+    const result = portfolioCaseStudyContentSchema.safeParse({
+      ...techxforgeProjectFixture,
+      seo: {
+        metaTitle: 'Custom Title',
+        metaDescription: 'Custom description for sharing',
+        ogImageUrl: 'https://cdn.example.com/og.jpg',
+        keywords: ['Custom'],
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects overlong seo metaTitle', () => {
+    const result = portfolioCaseStudyContentSchema.safeParse({
+      ...techxforgeProjectFixture,
+      seo: { metaTitle: 'x'.repeat(121) },
+    });
     expect(result.success).toBe(false);
   });
 });

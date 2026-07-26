@@ -62,6 +62,14 @@ export const portfolioCaseStudyContentSchema = z.object({
   resultsHeading: sectionHeadingSchema,
   results: z.array(resultMetricSchema),
   keywords: z.array(z.string()),
+  seo: z
+    .object({
+      metaTitle: z.string().max(120).optional(),
+      metaDescription: z.string().max(300).optional(),
+      ogImageUrl: z.string().url().or(z.literal('')).optional(),
+      keywords: z.array(z.string().max(80)).max(30).optional(),
+    })
+    .optional(),
   featured: z.boolean().optional(),
 });
 

@@ -38,6 +38,8 @@ const portfolioSchema = z.object({
   typographyPrimary: z.string().optional(),
   typographySecondary: z.string().optional(),
   keywords: z.string().optional(),
+  seoMetaTitle: z.string().max(120).optional(),
+  seoMetaDescription: z.string().max(300).optional(),
   featured: z.boolean().optional(),
   isActive: z.boolean().optional(),
 });
@@ -110,6 +112,8 @@ export function emptyPortfolioCaseStudy(): PortfolioFormValues & PortfolioSectio
     typographyPrimary: '',
     typographySecondary: '',
     keywords: '',
+    seoMetaTitle: '',
+    seoMetaDescription: '',
     featured: false,
     isActive: true,
     summary: [{ text: '' }],
@@ -299,6 +303,7 @@ export const PortfolioCaseStudyForm = ({
 
   const [imageUrl, setImageUrl] = useState(caseStudy?.image ?? '');
   const [heroUrl, setHeroUrl] = useState(caseStudy?.hero ?? '');
+  const [seoOgImageUrl, setSeoOgImageUrl] = useState(caseStudy?.seo?.ogImageUrl ?? '');
 
   const [pendingCardFile, setPendingCardFile] = useState<File | null>(null);
   const [pendingCardPreview, setPendingCardPreview] = useState<string | null>(null);
@@ -306,6 +311,8 @@ export const PortfolioCaseStudyForm = ({
   const [pendingHeroPreview, setPendingHeroPreview] = useState<string | null>(null);
   const [pendingGridFile, setPendingGridFile] = useState<File | null>(null);
   const [pendingGridPreview, setPendingGridPreview] = useState<string | null>(null);
+  const [pendingSeoOgFile, setPendingSeoOgFile] = useState<File | null>(null);
+  const [pendingSeoOgPreview, setPendingSeoOgPreview] = useState<string | null>(null);
 
   const cardUpload = useFileUpload({
     entityType: 'portfolio-case-study',
@@ -333,6 +340,13 @@ export const PortfolioCaseStudyForm = ({
           : { breakdown: [{ text: '' }], gridImage: url },
       }));
     },
+  });
+
+  const seoOgUpload = useFileUpload({
+    entityType: 'portfolio-case-study',
+    entityId,
+    intent: 'banner-image',
+    onUploadComplete: url => setSeoOgImageUrl(url),
   });
 
   const handleCardFileSelect = (file: File | null) => {
@@ -368,6 +382,17 @@ export const PortfolioCaseStudyForm = ({
     }
   };
 
+  const handleSeoOgFileSelect = (file: File | null) => {
+    if (isEditing && file) {
+      seoOgUpload.handleFileSelect(file);
+      void seoOgUpload.uploadFile({ file });
+    } else {
+      if (pendingSeoOgPreview) URL.revokeObjectURL(pendingSeoOgPreview);
+      setPendingSeoOgFile(file);
+      setPendingSeoOgPreview(file ? URL.createObjectURL(file) : null);
+    }
+  };
+
   const handleCardClear = () => {
     if (isEditing) cardUpload.clearFile();
     else if (pendingCardPreview) URL.revokeObjectURL(pendingCardPreview);
@@ -394,6 +419,14 @@ export const PortfolioCaseStudyForm = ({
     });
   };
 
+  const handleSeoOgClear = () => {
+    if (isEditing) seoOgUpload.clearFile();
+    else if (pendingSeoOgPreview) URL.revokeObjectURL(pendingSeoOgPreview);
+    setPendingSeoOgFile(null);
+    setPendingSeoOgPreview(null);
+    setSeoOgImageUrl('');
+  };
+
   const {
     formValues,
     formErrors,
@@ -417,6 +450,8 @@ export const PortfolioCaseStudyForm = ({
       typographyPrimary: caseStudy?.typographyPrimary ?? '',
       typographySecondary: caseStudy?.typographySecondary ?? '',
       keywords: caseStudy?.keywords?.join(', ') ?? '',
+      seoMetaTitle: caseStudy?.seo?.metaTitle ?? '',
+      seoMetaDescription: caseStudy?.seo?.metaDescription ?? '',
       featured: caseStudy?.featured ?? false,
       isActive: caseStudy?.isActive ?? true,
     },
@@ -427,13 +462,30 @@ export const PortfolioCaseStudyForm = ({
     values: PortfolioFormValues,
     cardImage: string,
     heroImage: string,
-    gridImage: string
+    gridImage: string,
+    ogImage: string
   ): IPortfolioCaseStudyCreatePayload {
     const logoDesign = cleanLogoDesign(
       sections.logoDesign
         ? { ...sections.logoDesign, gridImage: gridImage || sections.logoDesign.gridImage }
         : undefined
     );
+
+    const keywordList = values.keywords
+      ? values.keywords
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+      : [];
+
+    const seoMetaTitle = values.seoMetaTitle?.trim() || undefined;
+    const seoMetaDescription = values.seoMetaDescription?.trim() || undefined;
+    const seoOgImageUrl = ogImage.trim() || undefined;
+    const hasSeo =
+      Boolean(seoMetaTitle) ||
+      Boolean(seoMetaDescription) ||
+      Boolean(seoOgImageUrl) ||
+      keywordList.length > 0;
 
     return {
       slug: values.slug?.trim() || undefined,
@@ -481,12 +533,15 @@ export const PortfolioCaseStudyForm = ({
       typographySecondary: values.typographySecondary ?? '',
       resultsHeading: hasHeading(sections.resultsHeading) ? sections.resultsHeading : undefined,
       results: sections.results,
-      keywords: values.keywords
-        ? values.keywords
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean)
-        : [],
+      keywords: keywordList,
+      seo: hasSeo
+        ? {
+            metaTitle: seoMetaTitle,
+            metaDescription: seoMetaDescription,
+            ogImageUrl: seoOgImageUrl,
+            keywords: keywordList.length ? keywordList : undefined,
+          }
+        : undefined,
       featured: values.featured,
       isActive: values.isActive ?? true,
     };
@@ -494,7 +549,13 @@ export const PortfolioCaseStudyForm = ({
 
   async function onSubmit(values: PortfolioFormValues) {
     try {
-      const payload = buildPayload(values, imageUrl, heroUrl, sections.logoDesign?.gridImage ?? '');
+      const payload = buildPayload(
+        values,
+        imageUrl,
+        heroUrl,
+        sections.logoDesign?.gridImage ?? '',
+        seoOgImageUrl
+      );
 
       if (isEditing) {
         const identifier = caseStudy!.slug || getCaseStudyId(caseStudy);
@@ -532,6 +593,7 @@ export const PortfolioCaseStudyForm = ({
         let finalImage = imageUrl;
         let finalHero = heroUrl;
         let finalGrid = sections.logoDesign?.gridImage ?? '';
+        let finalSeoOg = seoOgImageUrl;
 
         if (pendingCardFile) {
           const result = await cardUpload.uploadFile({
@@ -560,10 +622,20 @@ export const PortfolioCaseStudyForm = ({
           if (result?.url) finalGrid = result.url;
         }
 
+        if (pendingSeoOgFile) {
+          const result = await seoOgUpload.uploadFile({
+            file: pendingSeoOgFile,
+            entityId: createdId,
+            intent: 'banner-image',
+          });
+          if (result?.url) finalSeoOg = result.url;
+        }
+
         if (
           (pendingCardFile && finalImage) ||
           (pendingHeroFile && finalHero) ||
-          (pendingGridFile && finalGrid)
+          (pendingGridFile && finalGrid) ||
+          (pendingSeoOgFile && finalSeoOg)
         ) {
           const updatePayload: IPortfolioCaseStudyUpdatePayload = {};
           if (pendingCardFile && finalImage) updatePayload.image = finalImage;
@@ -572,6 +644,12 @@ export const PortfolioCaseStudyForm = ({
             updatePayload.logoDesign = {
               ...sections.logoDesign,
               gridImage: finalGrid,
+            };
+          }
+          if (pendingSeoOgFile && finalSeoOg) {
+            updatePayload.seo = {
+              ...(payload.seo ?? {}),
+              ogImageUrl: finalSeoOg,
             };
           }
 
@@ -1089,8 +1167,26 @@ export const PortfolioCaseStudyForm = ({
         </AccordionItem>
 
         <AccordionItem value="seo">
-          <AccordionTrigger>SEO / Keywords</AccordionTrigger>
+          <AccordionTrigger>SEO</AccordionTrigger>
           <AccordionContent className="grid gap-6 pt-2">
+            <RegularInput
+              label="Meta title"
+              name="seoMetaTitle"
+              placeholder={`${formValues.title || 'Title'} - ${formValues.client || 'Client'} | …`}
+              value={formValues.seoMetaTitle}
+              onChange={handleInputChange}
+              errors={errorsVisible ? formErrors.seoMetaTitle : []}
+              subtext="Leave empty to use title - client | portfolio default"
+            />
+            <RegularTextarea
+              label="Meta description"
+              name="seoMetaDescription"
+              value={formValues.seoMetaDescription ?? ''}
+              onChange={handleInputChange}
+              errors={errorsVisible ? formErrors.seoMetaDescription : []}
+              rows={3}
+              subtext="Leave empty to use about-client or project description fallback"
+            />
             <RegularInput
               label="Keywords"
               name="keywords"
@@ -1099,6 +1195,20 @@ export const PortfolioCaseStudyForm = ({
               onChange={handleInputChange}
               errors={errorsVisible ? formErrors.keywords : []}
               subtext="Comma-separated list for case study SEO"
+            />
+            <ImageUpload
+              label="Open Graph / Twitter image"
+              value={seoOgImageUrl || undefined}
+              previewUrl={
+                isEditing ? seoOgUpload.previewUrl || undefined : pendingSeoOgPreview || undefined
+              }
+              onFileSelect={handleSeoOgFileSelect}
+              onClear={handleSeoOgClear}
+              uploading={seoOgUpload.loading}
+              progress={seoOgUpload.progress}
+              aspectRatio="16/9"
+              placeholder="Upload share image"
+              subtext="Leave empty to fall back to the project hero image"
             />
           </AccordionContent>
         </AccordionItem>
