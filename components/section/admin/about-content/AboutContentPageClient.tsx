@@ -42,7 +42,25 @@ export const AboutContentPageClient = () => {
 
   useEffect(() => {
     if (resource.data?.aboutPage) {
-      setContent(resource.data.aboutPage as AboutPageContent);
+      const raw = resource.data.aboutPage as AboutPageContent & {
+        hero?: AboutPageContent['hero'] & { backgroundImage?: string };
+      };
+      const { backgroundImage: _legacyHeroBg, ...hero } = {
+        ...DEFAULT_ABOUT_PAGE_CONTENT.hero,
+        ...raw.hero,
+      };
+      void _legacyHeroBg;
+
+      setContent({
+        ...DEFAULT_ABOUT_PAGE_CONTENT,
+        ...raw,
+        hero,
+        story: {
+          ...DEFAULT_ABOUT_PAGE_CONTENT.story,
+          ...raw.story,
+          imageUrl: raw.story?.imageUrl || DEFAULT_ABOUT_PAGE_CONTENT.story.imageUrl,
+        },
+      });
       setUsingDefaults(false);
       return;
     }
@@ -52,18 +70,6 @@ export const AboutContentPageClient = () => {
       setUsingDefaults(true);
     }
   }, [resource.data, resource.isError]);
-
-  const heroUpload = useFileUpload({
-    entityType: 'site-settings',
-    entityId: 'settings',
-    intent: 'banner-image',
-    onUploadComplete: url => {
-      setContent(current => ({
-        ...current,
-        hero: { ...current.hero, backgroundImage: url },
-      }));
-    },
-  });
 
   const storyUpload = useFileUpload({
     entityType: 'site-settings',
@@ -197,32 +203,9 @@ export const AboutContentPageClient = () => {
               }
               rows={3}
             />
-            <ImageUpload
-              label="Hero background"
-              value={content.hero.backgroundImage}
-              previewUrl={heroUpload.previewUrl || undefined}
-              uploading={heroUpload.loading}
-              progress={heroUpload.progress}
-              aspectRatio="16/9"
-              onFileSelect={file => {
-                heroUpload.handleFileSelect(file);
-                if (file) void heroUpload.uploadFile({ file });
-              }}
-              onClear={() => {
-                heroUpload.handleFileSelect(null);
-                setContent(c => ({ ...c, hero: { ...c.hero, backgroundImage: '' } }));
-              }}
-            />
-            <RegularInput
-              label="Background image URL"
-              value={content.hero.backgroundImage}
-              onChange={e =>
-                setContent(c => ({
-                  ...c,
-                  hero: { ...c.hero, backgroundImage: e.target.value },
-                }))
-              }
-            />
+            <p className="text-sm text-muted-foreground">
+              Hero background image is static on the public site and is not editable here.
+            </p>
           </section>
 
           <section className="grid gap-4 rounded-xl border bg-card p-6">
@@ -356,14 +339,26 @@ export const AboutContentPageClient = () => {
               }}
               onClear={() => {
                 storyUpload.handleFileSelect(null);
-                setContent(c => ({ ...c, story: { ...c.story, imageUrl: '' } }));
+                setContent(c => ({
+                  ...c,
+                  story: {
+                    ...c.story,
+                    imageUrl: DEFAULT_ABOUT_PAGE_CONTENT.story.imageUrl,
+                  },
+                }));
               }}
             />
             <RegularInput
               label="Image URL"
               value={content.story.imageUrl}
               onChange={e =>
-                setContent(c => ({ ...c, story: { ...c.story, imageUrl: e.target.value } }))
+                setContent(c => ({
+                  ...c,
+                  story: {
+                    ...c.story,
+                    imageUrl: e.target.value || DEFAULT_ABOUT_PAGE_CONTENT.story.imageUrl,
+                  },
+                }))
               }
             />
             <div className="grid gap-3">

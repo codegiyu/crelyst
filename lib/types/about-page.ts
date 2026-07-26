@@ -10,8 +10,10 @@ export type AboutHeroContent = {
   titleLine1: string;
   titleLine2: string;
   description: string;
-  backgroundImage: string;
 };
+
+/** Static about hero background — not CMS-managed. */
+export const ABOUT_HERO_BACKGROUND_IMAGE = '/images/bg-hero-3.jpg';
 
 export type AboutCountStat = {
   kind: 'count';
@@ -71,7 +73,6 @@ export const DEFAULT_ABOUT_PAGE_CONTENT: AboutPageContent = {
     titleLine2: 'Vision',
     description:
       "We're a creative design agency specializing in photography, branding, product design, packaging, and visual identity. We help brands express their unique personality through powerful visuals and storytelling.",
-    backgroundImage: '/images/bg-hero-3.jpg',
   },
   stats: [
     { kind: 'count', target: 150, label: 'Projects' },

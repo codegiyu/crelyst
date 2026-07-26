@@ -24,7 +24,6 @@ export const aboutPageContentSchema = z.object({
     titleLine1: z.string().min(1).max(120),
     titleLine2: z.string().min(1).max(120),
     description: z.string().min(1).max(2000),
-    backgroundImage: z.string().min(1).max(2000),
   }),
   stats: z.array(aboutStatItemSchema).min(1).max(8),
   story: z.object({

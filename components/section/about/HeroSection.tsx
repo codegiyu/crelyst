@@ -1,8 +1,11 @@
 'use client';
 
 import { RegularPageHeroSection } from '@/components/general/RegularPageHeroSection';
-import type { AboutHeroContent } from '@/lib/types/about-page';
-import { DEFAULT_ABOUT_PAGE_CONTENT } from '@/lib/types/about-page';
+import {
+  ABOUT_HERO_BACKGROUND_IMAGE,
+  DEFAULT_ABOUT_PAGE_CONTENT,
+  type AboutHeroContent,
+} from '@/lib/types/about-page';
 
 type HeroSectionProps = {
   immediate?: boolean;
@@ -16,7 +19,7 @@ export const HeroSection = ({
   return (
     <RegularPageHeroSection
       immediate={immediate}
-      backgroundImage={content.backgroundImage}
+      backgroundImage={ABOUT_HERO_BACKGROUND_IMAGE}
       badge={content.badge}
       title={
         <>
