@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Save, X } from 'lucide-react';
+import { CheckCircle2, Plus, TriangleAlert, X } from 'lucide-react';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
@@ -10,10 +10,12 @@ import { RegularTextarea } from '@/components/atoms/RegularTextarea';
 import { RegularSelect } from '@/components/atoms/RegularSelect';
 import { ImageUpload } from '@/components/atoms/ImageUpload';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { callApi } from '@/lib/services/callApi';
 import { adminCallApiToast } from '@/lib/utils/adminMutationToast';
 import { useAdminResource } from '@/lib/hooks/use-admin-resource';
 import { useFileUpload } from '@/lib/hooks/use-file-upload';
+import { cn } from '@/lib/utils';
 import {
   ABOUT_VALUE_ICON_KEYS,
   DEFAULT_ABOUT_PAGE_CONTENT,
@@ -36,6 +38,9 @@ export const AboutContentPageClient = () => {
   });
 
   const [content, setContent] = useState<AboutPageContent>(DEFAULT_ABOUT_PAGE_CONTENT);
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    JSON.stringify(DEFAULT_ABOUT_PAGE_CONTENT)
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usingDefaults, setUsingDefaults] = useState(false);
@@ -61,12 +66,25 @@ export const AboutContentPageClient = () => {
           imageUrl: raw.story?.imageUrl || DEFAULT_ABOUT_PAGE_CONTENT.story.imageUrl,
         },
       });
+      setSavedSnapshot(
+        JSON.stringify({
+          ...DEFAULT_ABOUT_PAGE_CONTENT,
+          ...raw,
+          hero,
+          story: {
+            ...DEFAULT_ABOUT_PAGE_CONTENT.story,
+            ...raw.story,
+            imageUrl: raw.story?.imageUrl || DEFAULT_ABOUT_PAGE_CONTENT.story.imageUrl,
+          },
+        })
+      );
       setUsingDefaults(false);
       return;
     }
 
     if (resource.isError) {
       setContent(DEFAULT_ABOUT_PAGE_CONTENT);
+      setSavedSnapshot(JSON.stringify(DEFAULT_ABOUT_PAGE_CONTENT));
       setUsingDefaults(true);
     }
   }, [resource.data, resource.isError]);
@@ -113,8 +131,12 @@ export const AboutContentPageClient = () => {
       }
 
       if (data.aboutPage) {
-        setContent(data.aboutPage as AboutPageContent);
+        const next = data.aboutPage as AboutPageContent;
+        setContent(next);
+        setSavedSnapshot(JSON.stringify(next));
         setUsingDefaults(false);
+      } else {
+        setSavedSnapshot(JSON.stringify(payload));
       }
     } catch {
       setError('An unexpected error occurred');
@@ -130,6 +152,7 @@ export const AboutContentPageClient = () => {
     }));
   };
 
+  const hasUnsavedChanges = JSON.stringify(content) !== savedSnapshot;
   const sectionStatus = usingDefaults ? 'success' : resource.status;
 
   return (
@@ -139,13 +162,35 @@ export const AboutContentPageClient = () => {
         description: 'Manage headings, copy, and images on the Crelyst about page',
       }}
       headerActions={
-        <RegularBtn
-          text="Save"
-          LeftIcon={Save}
-          leftIconProps={{ className: 'size-4' }}
-          loading={saving}
-          onClick={handleSave}
-        />
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex">
+                <RegularBtn
+                  text="Save"
+                  LeftIcon={hasUnsavedChanges ? TriangleAlert : CheckCircle2}
+                  leftIconProps={{
+                    className: cn(
+                      'size-4',
+                      hasUnsavedChanges ? 'text-amber-600' : 'text-emerald-600'
+                    ),
+                  }}
+                  className={cn(
+                    hasUnsavedChanges ? 'border-amber-500/50' : 'border-emerald-500/40'
+                  )}
+                  variant="outline"
+                  loading={saving}
+                  onClick={handleSave}
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {hasUnsavedChanges
+                ? 'Unsaved changes — save to publish them live on the site.'
+                : 'All changes are live on the site.'}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       }>
       <AdminAsyncSection
         status={sectionStatus}

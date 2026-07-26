@@ -1,8 +1,14 @@
 import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
 import type { RouteHandler } from '../../lib/api/routeHandler';
-
 import { ENVIRONMENT } from '@/lib/config/environment';
+import { getBbsSiteContent, setBbsSiteContent } from '../../lib/firestore/collections';
+import {
+  extractDeploymentIdFromHookPayload,
+  fetchLatestVercelDeploymentSince,
+  isVercelDeployStatusConfigured,
+} from '../../lib/utils/vercelBbsDeploy';
+import type { BbsPublishMeta } from '@/lib/admin/bbsPublishStatus';
 
 export const publishPortfolioCaseStudies: RouteHandler = async ({ user }) => {
   if (!user || !(user as { _id?: string })._id) {
@@ -26,9 +32,33 @@ export const publishPortfolioCaseStudies: RouteHandler = async ({ user }) => {
     deployPayload = { status: response.status };
   }
 
+  const triggeredAt = new Date().toISOString();
+  let deploymentId = extractDeploymentIdFromHookPayload(deployPayload);
+
+  if (!deploymentId && isVercelDeployStatusConfigured()) {
+    try {
+      const latest = await fetchLatestVercelDeploymentSince(Date.parse(triggeredAt));
+      deploymentId = latest?.id ?? null;
+    } catch {
+      // Content cues still work without a deployment id.
+    }
+  }
+
+  const existing = (await getBbsSiteContent()) as Record<string, unknown> | null;
+  const previousMeta = (existing?.publishMeta as BbsPublishMeta | undefined) ?? {};
+
+  const publishMeta: BbsPublishMeta = {
+    ...previousMeta,
+    lastPublishTriggeredAt: triggeredAt,
+    lastDeploymentId: deploymentId ?? previousMeta.lastDeploymentId ?? null,
+    lastDeployStatus: deploymentId ? 'BUILDING' : (previousMeta.lastDeployStatus ?? null),
+  };
+
+  await setBbsSiteContent({ publishMeta });
+
   return sendResponse(
     200,
-    { triggered: true, deploy: deployPayload },
+    { triggered: true, deploy: deployPayload, publishMeta },
     'Bold Brand Studio rebuild triggered'
   );
 };

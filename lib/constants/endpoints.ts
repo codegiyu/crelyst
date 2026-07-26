@@ -153,7 +153,20 @@ export interface AllEndpoints {
   ADMIN_REORDER_PORTFOLIO_CASE_STUDIES: EndpointDefinition<IReorderPayload, IReorderRes, undefined>;
   ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: EndpointDefinition<
     undefined,
-    { triggered: boolean; deploy?: unknown },
+    { triggered: boolean; deploy?: unknown; publishMeta?: unknown },
+    undefined
+  >;
+  ADMIN_GET_BBS_PUBLISH_STATUS: EndpointDefinition<
+    undefined,
+    {
+      status: 'unpublished' | 'building' | 'published' | 'error' | 'unknown';
+      tooltip: string;
+      contentState: 'unpublished' | 'published' | 'unknown';
+      deployState: string;
+      deployConfigured: boolean;
+      contentUpdatedAt: string | null;
+      publishMeta: unknown;
+    },
     undefined
   >;
 
@@ -427,6 +440,10 @@ export const ENDPOINTS: Record<keyof AllEndpoints, EndpointDetails> = {
   ADMIN_PUBLISH_PORTFOLIO_CASE_STUDIES: {
     path: '/admin/portfolio-case-studies/publish',
     method: 'POST',
+  },
+  ADMIN_GET_BBS_PUBLISH_STATUS: {
+    path: '/admin/portfolio-case-studies/publish-status',
+    method: 'GET',
   },
 
   GET_BBS_SITE_CONTENT: {
