@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { InputWrapper } from '../general/InputWrapper';
 import { ImagePlus, X, Loader2, Upload } from 'lucide-react';
 import { Button } from '../ui/button';
+import { shouldOpenImageUploadPicker } from './imageUploadPicker';
 
 export interface ImageUploadProps {
   label?: string;
@@ -64,18 +65,20 @@ export const ImageUpload = ({
   const hasImage = !!displayUrl;
 
   const handleClick = (e: React.MouseEvent) => {
-    // Don't open file picker if clicking on the clear button or its container
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="button"]')) {
+    const isControlClick = Boolean(target.closest('button') || target.closest('[role="button"]'));
+
+    if (
+      !shouldOpenImageUploadPicker({
+        disabled,
+        uploading,
+        isControlClick,
+      })
+    ) {
       return;
     }
 
-    // if (!disabled && !uploading && !hasImage) {
-    //   inputRef.current?.click();
-    // } else if (!disabled && !uploading && hasImage) {
-    //   // Allow changing image by clicking on it (but not on the clear button)
-    //   inputRef.current?.click();
-    // }
+    inputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
