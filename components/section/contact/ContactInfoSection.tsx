@@ -24,11 +24,13 @@ export const ContactInfoSection = ({
   const officeHours = formatOfficeHours(contactInfo?.officeHours);
 
   const socials =
-    socialsProp?.map(social => ({
-      Icon: getSocialIcon(social.platform),
-      href: social.href,
-      label: formatSocialLabel(social.platform),
-    })) || [];
+    socialsProp
+      ?.filter(social => social.href?.trim())
+      .map(social => ({
+        Icon: getSocialIcon(social.platform),
+        href: social.href,
+        label: formatSocialLabel(social.platform),
+      })) || [];
 
   const whatsappDigits = contactInfo?.whatsapp?.replace(/\D/g, '') ?? '';
   const whatsappUrl = whatsappDigits

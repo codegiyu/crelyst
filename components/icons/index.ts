@@ -6,3 +6,4 @@ export { default as Logo } from './Logo';
 export { default as Tiktok } from './Tiktok';
 export { default as TwitterX } from './TwitterX';
 export { default as Whatsapp } from './Whatsapp';
+export { default as Youtube } from './Youtube';

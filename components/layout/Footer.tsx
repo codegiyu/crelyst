@@ -16,11 +16,13 @@ export const Footer = ({ initialSettings }: { initialSettings?: PublicFooterSett
   const officeHours = formatOfficeHours(initialSettings?.contactInfo?.officeHours);
 
   const socials =
-    initialSettings?.socials?.map(social => ({
-      Icon: getSocialIcon(social.platform),
-      href: social.href,
-      label: formatSocialLabel(social.platform),
-    })) || [];
+    initialSettings?.socials
+      ?.filter(social => social.href?.trim())
+      .map(social => ({
+        Icon: getSocialIcon(social.platform),
+        href: social.href,
+        label: formatSocialLabel(social.platform),
+      })) || [];
 
   const appName = initialSettings?.appDetails?.appName || 'Your Company';
   const appDescription =
@@ -67,20 +69,28 @@ export const Footer = ({ initialSettings }: { initialSettings?: PublicFooterSett
           <div className="h-fit grid gap-4">
             <h3 className="text-lg font-semibold text-accent">Contact</h3>
             <div className="grid gap-5 text-zinc-400">
-              {contactCards.map((item, idx) => (
-                <FooterContactRow key={idx} {...item} />
-              ))}
+              {contactCards.length === 0 ? (
+                <p className="text-[0.9375rem] text-zinc-500 italic">
+                  Contact details coming soon.
+                </p>
+              ) : (
+                contactCards.map((item, idx) => <FooterContactRow key={idx} {...item} />)
+              )}
             </div>
           </div>
 
           {/* Office Hours */}
           <div className="h-fit grid gap-4">
             <h3 className="text-lg font-semibold text-accent">Office Hours</h3>
-            <ul className="grid gap-2 text-[0.9375rem] text-zinc-400">
-              {officeHours.map((item, idx) => (
-                <OfficeHourRow key={idx} {...item} />
-              ))}
-            </ul>
+            {officeHours.length === 0 ? (
+              <p className="text-[0.9375rem] text-zinc-500 italic">Hours not published yet.</p>
+            ) : (
+              <ul className="grid gap-2 text-[0.9375rem] text-zinc-400">
+                {officeHours.map((item, idx) => (
+                  <OfficeHourRow key={idx} {...item} />
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 

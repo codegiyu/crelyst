@@ -36,7 +36,9 @@ export function buildOrganizationJsonLd(input: {
     email: input.contactInfo?.email?.[0],
     telephone: input.contactInfo?.tel?.[0],
     address: input.contactInfo?.address?.[0],
-    sameAs: input.socials?.map(social => social.href).filter(Boolean),
+    sameAs: input.socials
+      ?.map(social => social.href?.trim())
+      .filter((href): href is string => Boolean(href)),
   });
 }
 
