@@ -12,22 +12,32 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { User, Settings, HelpCircle, LogOut, Home } from 'lucide-react';
-// import { useTheme } from 'next-themes';
-// import { RegularSelect } from '@/components/atoms/RegularSelect';
-// import type { SelectOption } from '@/lib/types/general';
 import { SidebarTrigger } from '../ui/sidebar';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useRouter } from 'next/navigation';
+import { Logo } from '@/components/icons';
+import { ENVIRONMENT } from '@/lib/config/environment';
+
+const brandName = ENVIRONMENT.COMPANIES.crelyst.name;
 
 export const DashboardHeader = () => {
   return (
-    <header className="sticky top-0 z-50 h-14 flex items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4">
+    <header className="sticky top-0 z-50 h-14 flex items-center gap-3 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4">
+      <Link
+        href="/admin/dashboard"
+        className="flex shrink-0 items-center text-primary md:hidden"
+        aria-label={`${brandName} admin home`}>
+        <i className="block text-[2.5rem] leading-none">
+          <Logo />
+        </i>
+      </Link>
+
       <div className="flex items-center gap-2">
         <SidebarTrigger className="ml-0" />
       </div>
+
       <div className="flex-1" />
 
-      {/* Profile menu */}
       <ProfileMenu />
     </header>
   );
