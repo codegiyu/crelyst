@@ -15,7 +15,11 @@ const updateSettingsBodySchema = z.object({
   settingsPayload: z.array(
     z.object({
       name: z.string().min(1, 'Setting slice name is required'),
-      value: z.record(z.string(), z.unknown(), { error: 'Setting value must be a valid object' }),
+      // Most slices are objects; `socials` is an array of { platform, href }.
+      value: z.union([
+        z.record(z.string(), z.unknown(), { error: 'Setting value must be a valid object' }),
+        z.array(z.unknown()),
+      ]),
     })
   ),
 });
@@ -47,7 +51,9 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
   const updatedSettings: { [key: string]: any } = {};
 
   for (const setting of payload.settingsPayload) {
-    if (!setting.name || !setting.value) throw new AppError('name and value are required', 400);
+    if (!setting.name || setting.value === undefined || setting.value === null) {
+      throw new AppError('name and value are required', 400);
+    }
 
     const validSlices: Portion[] = [
       'appDetails',
@@ -65,6 +71,21 @@ export const updateSettings: RouteHandler = async ({ body, user }) => {
     ];
     if (!validSlices.includes(setting.name as Portion)) {
       throw new AppError(`Invalid slice name. Must be one of: ${validSlices.join(', ')}`, 400);
+    }
+
+    // Socials is a full-replace array slice (add/remove links changes length).
+    if (setting.name === 'socials') {
+      if (!Array.isArray(setting.value)) {
+        throw new AppError('socials value must be an array', 400);
+      }
+
+      await updateSiteSettingsSlice('settings', setting.name, setting.value);
+      updatedSettings[setting.name] = setting.value;
+      continue;
+    }
+
+    if (!setting.value || Array.isArray(setting.value)) {
+      throw new AppError('Setting value must be a valid object', 400);
     }
 
     const currentSettings = await getSettingsSlice(setting.name as Portion);

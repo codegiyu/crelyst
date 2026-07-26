@@ -34,7 +34,11 @@ export const mainSchema = z.object({
     .string()
     .min(1, 'Phone number is required')
     .regex(/^\+[1-9]\d{1,14}$/, 'Invalid phone number format (must be in E.164 format)'),
-  email: z.email({ error: 'Please enter a valid email address!' }).max(100, 'Email is too long!'),
+  // Allow '' for optional team/admin emails; auth routes still require real addresses in their controllers.
+  email: z
+    .email({ error: 'Please enter a valid email address!' })
+    .max(100, 'Email is too long!')
+    .or(z.literal('')),
   password: z
     .string({ error: 'Please enter your password' })
     .min(8, { error: 'Password must be at least 8 characters' }),
@@ -142,7 +146,11 @@ export const mainSchema = z.object({
   settingsPayload: z.array(
     z.object({
       name: z.string().min(1, 'Setting slice name is required!'),
-      value: z.record(z.string(), z.any(), { error: 'Setting value must be a valid object!' }),
+      // Object slices (seo, branding, …) and array slices (socials).
+      value: z.union([
+        z.record(z.string(), z.any(), { error: 'Setting value must be a valid object!' }),
+        z.array(z.any()),
+      ]),
     })
   ),
 
@@ -150,6 +158,16 @@ export const mainSchema = z.object({
   about: bbsSiteContentSliceSchema,
   contact: bbsSiteContentSliceSchema,
   projectsListingSeo: bbsSiteContentSliceSchema,
+
+  // ===== Portfolio / inbox flags commonly sent as partial bodies =====
+  featured: z.boolean(),
+  isRead: z.boolean(),
+  formType: z.enum(['quote-request', 'work-with-us']),
 });
 
-export const partialMainSchema = mainSchema.partial();
+/**
+ * Coarse request-body gate used by parseBody. Unknown keys must pass through —
+ * CMS controllers own strict domain validation. Without passthrough, Zod strips
+ * portfolio/service/project fields and admin saves silently drop content.
+ */
+export const partialMainSchema = mainSchema.partial().passthrough();
