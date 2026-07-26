@@ -35,7 +35,7 @@ const TeamMemberCard = ({ member, index }: TeamMemberCardProps) => {
             src={member.image}
             alt={member.name}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
@@ -96,9 +96,6 @@ const TeamMemberCard = ({ member, index }: TeamMemberCardProps) => {
 
       <h3 className="text-lg font-semibold text-foreground">{member.name}</h3>
       <p className="text-muted-foreground">{member.role}</p>
-      {member.bio && (
-        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{member.bio}</p>
-      )}
     </motion.div>
   );
 };
@@ -125,7 +122,7 @@ export const TeamSection = ({ teamMembers }: { teamMembers: ClientTeamMember[] }
       <motion.div
         initial={{ opacity: 0 }}
         animate={siteLoading ? {} : { opacity: 1 }}
-        className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {activeMembers.map((member, index) => (
           <TeamMemberCard key={member._id} member={member} index={index} />
         ))}
