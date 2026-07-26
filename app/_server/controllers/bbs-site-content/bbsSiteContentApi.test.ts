@@ -67,6 +67,8 @@ describe('updateBbsSiteContent', () => {
     mockGet.mockResolvedValue({
       about: DEFAULT_BBS_SITE_CONTENT.about,
       contact: DEFAULT_BBS_SITE_CONTENT.contact,
+      seo: DEFAULT_BBS_SITE_CONTENT.seo,
+      projectsListingSeo: DEFAULT_BBS_SITE_CONTENT.projectsListingSeo,
     });
     mockSet.mockImplementation(async (data: unknown) => data);
 
@@ -88,8 +90,36 @@ describe('updateBbsSiteContent', () => {
       expect.objectContaining({
         about: expect.objectContaining({ headingLine1: 'Craft First.' }),
         contact: DEFAULT_BBS_SITE_CONTENT.contact,
+        seo: DEFAULT_BBS_SITE_CONTENT.seo,
       })
     );
     expect(json.data.content.about.headingLine1).toBe('Craft First.');
+  });
+
+  it('merges seo-only patch into existing content', async () => {
+    mockGet.mockResolvedValue({
+      about: DEFAULT_BBS_SITE_CONTENT.about,
+      contact: DEFAULT_BBS_SITE_CONTENT.contact,
+      seo: DEFAULT_BBS_SITE_CONTENT.seo,
+      projectsListingSeo: DEFAULT_BBS_SITE_CONTENT.projectsListingSeo,
+    });
+    mockSet.mockImplementation(async (data: unknown) => data);
+
+    const nextSeo = {
+      ...DEFAULT_BBS_SITE_CONTENT.seo,
+      metaTitle: 'Updated Portfolio Title',
+    };
+
+    const response = await updateBbsSiteContent({
+      request: new Request('http://localhost/api/admin/bbs-site-content', {
+        method: 'PATCH',
+      }) as never,
+      user: { _id: 'admin-1' } as never,
+      body: { seo: nextSeo },
+    });
+
+    const json = await response.json();
+    expect(json.data.content.seo.metaTitle).toBe('Updated Portfolio Title');
+    expect(json.data.content.about.eyebrow).toBe(DEFAULT_BBS_SITE_CONTENT.about.eyebrow);
   });
 });

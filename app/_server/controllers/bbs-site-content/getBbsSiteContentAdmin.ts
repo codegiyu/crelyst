@@ -2,18 +2,15 @@ import { AppError } from '../../lib/utils/appError';
 import { sendResponse } from '../../lib/utils/appResponse';
 import { getBbsSiteContent } from '../../lib/firestore/collections';
 import type { RouteHandler } from '../../lib/api/routeHandler';
-import { DEFAULT_BBS_SITE_CONTENT } from './schema';
+import { mergeBbsSiteContent } from './schema';
 
 function toClientContent(doc: Record<string, unknown> | null) {
-  if (!doc) {
-    return DEFAULT_BBS_SITE_CONTENT;
-  }
+  const merged = mergeBbsSiteContent(doc);
 
   return {
-    about: doc.about ?? DEFAULT_BBS_SITE_CONTENT.about,
-    contact: doc.contact ?? DEFAULT_BBS_SITE_CONTENT.contact,
-    createdAt: doc.createdAt,
-    updatedAt: doc.updatedAt,
+    ...merged,
+    createdAt: doc?.createdAt,
+    updatedAt: doc?.updatedAt,
   };
 }
 

@@ -4,4 +4,5 @@ export { ReorderPortfolioModal } from './ReorderPortfolioModal';
 export { PublishBbsButton } from './PublishBbsButton';
 export { PortfolioAboutPageClient } from './PortfolioAboutPageClient';
 export { PortfolioContactPageClient } from './PortfolioContactPageClient';
+export { PortfolioSeoPageClient } from './PortfolioSeoPageClient';
 export { PortfolioPageClient } from './PortfolioPageClient';

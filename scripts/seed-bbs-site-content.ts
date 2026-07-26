@@ -1,6 +1,6 @@
 /**
- * Seed Bold Brand Studio about/contact into Firestore bbsSiteContent/content.
- * Uploads the about portrait from bold-brand-studio assets when present.
+ * Seed Bold Brand Studio about/contact/SEO into Firestore bbsSiteContent/content.
+ * Uploads the about portrait, OG image, and favicon from bold-brand-studio when present.
  *
  * Usage: npx tsx scripts/seed-bbs-site-content.ts
  */
@@ -20,7 +20,10 @@ import { getContentTypeFromExtension } from '../app/_server/lib/utils/r2';
 dotenv.config({ path: resolve(process.cwd(), '.env') });
 
 const PORTRAIT_RELATIVE = join('..', 'bold-brand-studio', 'src', 'assets', '2H0A0127.jpg');
+const FAVICON_RELATIVE = join('..', 'bold-brand-studio', 'public', 'favicon.png');
 const PORTRAIT_KEY = 'bbs-site-content/content/about-portrait.jpg';
+const OG_KEY = 'bbs-site-content/content/og-default.jpg';
+const FAVICON_KEY = 'bbs-site-content/content/favicon.png';
 
 const r2Client = new S3Client({
   region: 'auto',
@@ -46,45 +49,68 @@ async function objectExists(key: string): Promise<boolean> {
   }
 }
 
-async function ensurePortraitUrl(): Promise<{
-  imageUrl: string;
-  uploaded: boolean;
-  skipped: boolean;
-}> {
-  const localPath = resolve(process.cwd(), PORTRAIT_RELATIVE);
+async function ensureAssetUrl(options: {
+  localRelative: string;
+  key: string;
+  extension: string;
+  label: string;
+}): Promise<{ imageUrl: string; uploaded: boolean; skipped: boolean }> {
+  const localPath = resolve(process.cwd(), options.localRelative);
   if (!existsSync(localPath)) {
     console.warn(
-      `[seed-bbs-site-content] portrait not found at ${localPath}; seeding empty imageUrl`
+      `[seed-bbs-site-content] ${options.label} not found at ${localPath}; seeding empty URL`
     );
     return { imageUrl: '', uploaded: false, skipped: true };
   }
 
-  const exists = await objectExists(PORTRAIT_KEY);
+  const exists = await objectExists(options.key);
   if (exists) {
-    return { imageUrl: publicUrlForKey(PORTRAIT_KEY), uploaded: false, skipped: true };
+    return { imageUrl: publicUrlForKey(options.key), uploaded: false, skipped: true };
   }
 
   const body = readFileSync(localPath);
   await r2Client.send(
     new PutObjectCommand({
       Bucket: ENVIRONMENT.R2.BUCKET_NAME,
-      Key: PORTRAIT_KEY,
+      Key: options.key,
       Body: body,
-      ContentType: getContentTypeFromExtension('jpg'),
+      ContentType: getContentTypeFromExtension(options.extension),
     })
   );
 
-  return { imageUrl: publicUrlForKey(PORTRAIT_KEY), uploaded: true, skipped: false };
+  return { imageUrl: publicUrlForKey(options.key), uploaded: true, skipped: false };
 }
 
 async function main() {
-  const portrait = await ensurePortraitUrl();
+  const portrait = await ensureAssetUrl({
+    localRelative: PORTRAIT_RELATIVE,
+    key: PORTRAIT_KEY,
+    extension: 'jpg',
+    label: 'portrait',
+  });
+  const ogImage = await ensureAssetUrl({
+    localRelative: PORTRAIT_RELATIVE,
+    key: OG_KEY,
+    extension: 'jpg',
+    label: 'og image',
+  });
+  const favicon = await ensureAssetUrl({
+    localRelative: FAVICON_RELATIVE,
+    key: FAVICON_KEY,
+    extension: 'png',
+    label: 'favicon',
+  });
 
   const content = {
     ...DEFAULT_BBS_SITE_CONTENT,
     about: {
       ...DEFAULT_BBS_SITE_CONTENT.about,
       imageUrl: portrait.imageUrl || DEFAULT_BBS_SITE_CONTENT.about.imageUrl,
+    },
+    seo: {
+      ...DEFAULT_BBS_SITE_CONTENT.seo,
+      ogImageUrl: ogImage.imageUrl || DEFAULT_BBS_SITE_CONTENT.seo.ogImageUrl,
+      faviconUrl: favicon.imageUrl || DEFAULT_BBS_SITE_CONTENT.seo.faviconUrl,
     },
   };
 
@@ -105,7 +131,11 @@ async function main() {
       {
         seededAt: new Date().toISOString(),
         portrait,
+        ogImage,
+        favicon,
         aboutImageUrl: parsed.data.about.imageUrl,
+        seo: parsed.data.seo,
+        projectsListingSeo: parsed.data.projectsListingSeo,
         contactEmail: parsed.data.contact.email,
         socialCount: parsed.data.contact.socials.length,
       },

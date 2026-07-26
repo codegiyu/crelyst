@@ -1,11 +1,34 @@
 {
-  "seededAt": "2026-07-26T11:40:13.056Z",
+  "seededAt": "2026-07-26T12:05:00.224Z",
   "portrait": {
     "imageUrl": "https://static.crelyst.com.ng/bbs-site-content/content/about-portrait.jpg",
+    "uploaded": false,
+    "skipped": true
+  },
+  "ogImage": {
+    "imageUrl": "https://static.crelyst.com.ng/bbs-site-content/content/og-default.jpg",
+    "uploaded": true,
+    "skipped": false
+  },
+  "favicon": {
+    "imageUrl": "https://static.crelyst.com.ng/bbs-site-content/content/favicon.png",
     "uploaded": true,
     "skipped": false
   },
   "aboutImageUrl": "https://static.crelyst.com.ng/bbs-site-content/content/about-portrait.jpg",
+  "seo": {
+    "metaTitle": "Enemona Isaac's Design Portfolio",
+    "metaDescription": "Discover the design portfolio of Enemona Isaac, a product designer and digital experience creator.",
+    "siteName": "Enemona Isaac",
+    "ogImageUrl": "https://static.crelyst.com.ng/bbs-site-content/content/og-default.jpg",
+    "faviconUrl": "https://static.crelyst.com.ng/bbs-site-content/content/favicon.png"
+  },
+  "projectsListingSeo": {
+    "metaTitle": "Projects | Enemona Isaac's Design Portfolio",
+    "metaDescription": "",
+    "ogImageUrl": "",
+    "keywords": []
+  },
   "contactEmail": "enemonaisaaconoja@gmail.com",
   "socialCount": 3
 }

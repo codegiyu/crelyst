@@ -1,5 +1,5 @@
 /**
- * Bold Brand Studio site content (about + contact) managed from Crelyst admin.
+ * Bold Brand Studio site content (about + contact + SEO) managed from Crelyst admin.
  * Separate from Crelyst company siteSettings.
  */
 
@@ -42,9 +42,26 @@ export interface BbsContactContent {
   socials: BbsSocialLink[];
 }
 
+export interface BbsSeoContent {
+  metaTitle: string;
+  metaDescription: string;
+  siteName: string;
+  ogImageUrl: string;
+  faviconUrl: string;
+}
+
+export interface BbsProjectsListingSeoContent {
+  metaTitle: string;
+  metaDescription: string;
+  ogImageUrl: string;
+  keywords: string[];
+}
+
 export interface BbsSiteContent {
   about: BbsAboutContent;
   contact: BbsContactContent;
+  seo: BbsSeoContent;
+  projectsListingSeo: BbsProjectsListingSeoContent;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -912,6 +912,8 @@ export type IPortfolioCaseStudyUpdatePayload = Partial<IPortfolioCaseStudyCreate
 export interface IBbsSiteContentUpdatePayload {
   about?: ClientBbsSiteContent['about'];
   contact?: ClientBbsSiteContent['contact'];
+  seo?: ClientBbsSiteContent['seo'];
+  projectsListingSeo?: ClientBbsSiteContent['projectsListingSeo'];
 }
 
 // Brand Payloads

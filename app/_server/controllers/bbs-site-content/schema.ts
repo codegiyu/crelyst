@@ -41,19 +41,45 @@ export const bbsContactContentSchema = z.object({
   socials: z.array(bbsSocialLinkSchema).max(12),
 });
 
+export const bbsSeoContentSchema = z.object({
+  metaTitle: z.string().min(1).max(120),
+  metaDescription: z.string().min(1).max(300),
+  siteName: z.string().min(1).max(120),
+  ogImageUrl: z.string().url().or(z.literal('')),
+  faviconUrl: z.string().url().or(z.literal('')),
+});
+
+export const bbsProjectsListingSeoContentSchema = z.object({
+  metaTitle: z.string().min(1).max(120),
+  metaDescription: z.string().max(300),
+  ogImageUrl: z.string().url().or(z.literal('')),
+  keywords: z.array(z.string().min(1).max(80)).max(30),
+});
+
 export const bbsSiteContentSchema = z.object({
   about: bbsAboutContentSchema,
   contact: bbsContactContentSchema,
+  seo: bbsSeoContentSchema,
+  projectsListingSeo: bbsProjectsListingSeoContentSchema,
 });
 
 export const updateBbsSiteContentBodySchema = z
   .object({
     about: bbsAboutContentSchema.optional(),
     contact: bbsContactContentSchema.optional(),
+    seo: bbsSeoContentSchema.optional(),
+    projectsListingSeo: bbsProjectsListingSeoContentSchema.optional(),
   })
-  .refine(data => data.about !== undefined || data.contact !== undefined, {
-    message: 'At least one of about or contact is required',
-  });
+  .refine(
+    data =>
+      data.about !== undefined ||
+      data.contact !== undefined ||
+      data.seo !== undefined ||
+      data.projectsListingSeo !== undefined,
+    {
+      message: 'At least one of about, contact, seo, or projectsListingSeo is required',
+    }
+  );
 
 /** Current live Bold Brand Studio copy — seed/cutover source of truth. */
 export const DEFAULT_BBS_SITE_CONTENT: BbsSiteContent = {
@@ -87,4 +113,36 @@ export const DEFAULT_BBS_SITE_CONTENT: BbsSiteContent = {
       { platform: 'whatsapp', href: 'https://wa.me/2349162045977' },
     ],
   },
+  seo: {
+    metaTitle: "Enemona Isaac's Design Portfolio",
+    metaDescription:
+      'Discover the design portfolio of Enemona Isaac, a product designer and digital experience creator.',
+    siteName: 'Enemona Isaac',
+    ogImageUrl: '',
+    faviconUrl: '',
+  },
+  projectsListingSeo: {
+    metaTitle: "Projects | Enemona Isaac's Design Portfolio",
+    metaDescription: '',
+    ogImageUrl: '',
+    keywords: [],
+  },
 };
+
+export function mergeBbsSiteContent(
+  doc: Record<string, unknown> | null | undefined,
+  overrides: Partial<BbsSiteContent> = {}
+): BbsSiteContent {
+  return {
+    about: (overrides.about ??
+      doc?.about ??
+      DEFAULT_BBS_SITE_CONTENT.about) as BbsSiteContent['about'],
+    contact: (overrides.contact ??
+      doc?.contact ??
+      DEFAULT_BBS_SITE_CONTENT.contact) as BbsSiteContent['contact'],
+    seo: (overrides.seo ?? doc?.seo ?? DEFAULT_BBS_SITE_CONTENT.seo) as BbsSiteContent['seo'],
+    projectsListingSeo: (overrides.projectsListingSeo ??
+      doc?.projectsListingSeo ??
+      DEFAULT_BBS_SITE_CONTENT.projectsListingSeo) as BbsSiteContent['projectsListingSeo'],
+  };
+}

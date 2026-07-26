@@ -6,6 +6,7 @@ import { validateBody } from '../../lib/api/validateBody';
 import {
   bbsSiteContentSchema,
   DEFAULT_BBS_SITE_CONTENT,
+  mergeBbsSiteContent,
   updateBbsSiteContentBodySchema,
 } from './schema';
 
@@ -17,10 +18,12 @@ export const updateBbsSiteContent: RouteHandler = async ({ body, user }) => {
   const payload = validateBody(updateBbsSiteContentBodySchema, body);
   const existing = (await getBbsSiteContent()) as Record<string, unknown> | null;
 
-  const nextContent = {
-    about: payload.about ?? existing?.about ?? DEFAULT_BBS_SITE_CONTENT.about,
-    contact: payload.contact ?? existing?.contact ?? DEFAULT_BBS_SITE_CONTENT.contact,
-  };
+  const nextContent = mergeBbsSiteContent(existing, {
+    about: payload.about,
+    contact: payload.contact,
+    seo: payload.seo,
+    projectsListingSeo: payload.projectsListingSeo,
+  });
 
   const parsed = bbsSiteContentSchema.safeParse(nextContent);
   if (!parsed.success) {
@@ -30,6 +33,8 @@ export const updateBbsSiteContent: RouteHandler = async ({ body, user }) => {
   const saved = (await setBbsSiteContent(parsed.data)) as unknown as {
     about: typeof parsed.data.about;
     contact: typeof parsed.data.contact;
+    seo: typeof parsed.data.seo;
+    projectsListingSeo: typeof parsed.data.projectsListingSeo;
     createdAt?: unknown;
     updatedAt?: unknown;
   };
@@ -40,6 +45,8 @@ export const updateBbsSiteContent: RouteHandler = async ({ body, user }) => {
       content: {
         about: saved.about,
         contact: saved.contact,
+        seo: saved.seo ?? DEFAULT_BBS_SITE_CONTENT.seo,
+        projectsListingSeo: saved.projectsListingSeo ?? DEFAULT_BBS_SITE_CONTENT.projectsListingSeo,
         createdAt: saved.createdAt,
         updatedAt: saved.updatedAt,
       },

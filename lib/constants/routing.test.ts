@@ -28,12 +28,13 @@ describe('sidebarLinksData CMS groups', () => {
     expect(groupNames()).toEqual(['Main', 'Portfolio CMS', 'Crelyst CMS', 'System']);
   });
 
-  it('moves BBS projects under Portfolio CMS and adds About/Contact routes', () => {
+  it('moves BBS projects under Portfolio CMS and adds About/Contact/SEO routes', () => {
     expect(hrefsIn('Main')).not.toContain('/admin/dashboard/portfolio');
     expect(hrefsIn('Portfolio CMS')).toEqual([
       '/admin/dashboard/portfolio',
       '/admin/dashboard/portfolio-about',
       '/admin/dashboard/portfolio-contact',
+      '/admin/dashboard/portfolio-seo',
     ]);
   });
 
