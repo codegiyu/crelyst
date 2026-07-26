@@ -28,14 +28,14 @@ export const StorySection = ({
           whileInView={reveal ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="relative">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted">
+          className="relative mx-auto w-full max-w-[500px] lg:mx-0">
+          <div className="relative aspect-[5/6] overflow-hidden rounded-2xl border border-border bg-muted">
             <Image
               src={content.imageUrl}
               alt={content.imageAlt}
               fill
               className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              sizes="(max-width: 1024px) min(100vw, 500px), 500px"
             />
           </div>
           <div className="absolute -bottom-4 -right-4 -z-10 h-24 w-24 rounded-xl bg-accent/20" />
