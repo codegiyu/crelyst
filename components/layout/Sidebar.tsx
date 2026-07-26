@@ -21,10 +21,13 @@ import { NavLink } from '../atoms/NavLink';
 import { ISidebarLink } from '@/lib/types/general';
 import { usePathname } from 'next/navigation';
 import { bottomBarLinks, sidebarLinksData } from '@/lib/constants/routing';
+import { ENVIRONMENT } from '@/lib/config/environment';
 import { Logo } from '../icons';
 import { GhostBtn } from '../atoms/GhostBtn';
 import { callApi } from '@/lib/services/callApi';
 import { cn } from '@/lib/utils';
+
+const brandName = ENVIRONMENT.COMPANIES.crelyst.name;
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -63,8 +66,8 @@ export function AppSidebar() {
             <Logo />
           </i>
           {!isCollapsed && (
-            <div className="flex-1">
-              {/* <h1 className="text-lg font-semibold">Admin Dashboard</h1> */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-semibold truncate">{brandName}</h1>
               <p className="text-xs text-muted-foreground">Management Console</p>
             </div>
           )}
