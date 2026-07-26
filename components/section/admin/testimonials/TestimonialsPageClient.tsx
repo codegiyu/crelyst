@@ -26,6 +26,7 @@ import { DeleteTestimonialDialog } from './DeleteTestimonialDialog';
 import { ReorderTestimonialsModal } from './ReorderTestimonialsModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminTestimonialCardGridSkeleton } from '@/components/general/admin/loading';
 import type { ClientTestimonial } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
@@ -137,7 +138,8 @@ export const TestimonialsPageClient = () => {
         status={list.status}
         errorMessage={list.errorMessage}
         onRetry={() => void list.reload()}
-        hasData={list.data != null}>
+        hasData={list.data != null}
+        loadingFallback={<AdminTestimonialCardGridSkeleton label="Loading testimonials" />}>
         {testimonials.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="rounded-full bg-muted p-4 mb-4">

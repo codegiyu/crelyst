@@ -30,6 +30,7 @@ import { DeleteTeamMemberDialog } from './DeleteTeamMemberDialog';
 import { ReorderTeamMembersModal } from './ReorderTeamMembersModal';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminTeamCardGridSkeleton } from '@/components/general/admin/loading';
 import type { ClientTeamMember } from '@/lib/constants/endpoints';
 import Image from 'next/image';
 import { callApi } from '@/lib/services/callApi';
@@ -124,7 +125,8 @@ export const TeamMembersPageClient = () => {
         status={list.status}
         errorMessage={list.errorMessage}
         onRetry={() => void list.reload()}
-        hasData={list.data != null}>
+        hasData={list.data != null}
+        loadingFallback={<AdminTeamCardGridSkeleton label="Loading team members" />}>
         {teamMembers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="rounded-full bg-muted p-4 mb-4">

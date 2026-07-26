@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminInboxListSkeleton } from '@/components/general/admin/loading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -383,7 +384,8 @@ export function FormSubmissionsInboxClient({
         status={list.status}
         errorMessage={list.errorMessage}
         onRetry={() => void list.reload()}
-        hasData={list.data != null}>
+        hasData={list.data != null}
+        loadingFallback={<AdminInboxListSkeleton label="Loading submissions" />}>
         <div className="grid gap-6">
           {!listEmpty && (
             <div className="max-w-md">

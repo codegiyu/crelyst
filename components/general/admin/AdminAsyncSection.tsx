@@ -18,10 +18,18 @@ export type AdminAsyncSectionProps = {
 };
 
 const DefaultLoading = () => (
-  <div className="grid gap-3" aria-busy="true" aria-label="Loading">
-    <Skeleton className="h-8 w-48" />
-    <Skeleton className="h-24 w-full" />
-    <Skeleton className="h-24 w-full" />
+  <div className="grid gap-4" aria-busy="true" aria-label="Loading">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 3 }, (_, i) => (
+        <div key={i} className="rounded-xl border bg-card overflow-hidden">
+          <Skeleton className="h-40 w-full rounded-none" />
+          <div className="p-4 grid gap-2">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </div>
+      ))}
+    </div>
   </div>
 );
 

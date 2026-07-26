@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
 import { AdminSectionError } from '@/components/general/admin/AdminSectionError';
+import { AdminAuditTableSkeleton } from '@/components/general/admin/loading';
 import { RegularBtn } from '@/components/atoms/RegularBtn';
 import { Input } from '@/components/ui/input';
 import { callApi } from '@/lib/services/callApi';
@@ -203,7 +204,8 @@ export function AuditLogsPageClient() {
         status={list.status}
         errorMessage={list.errorMessage}
         onRetry={() => void list.reload()}
-        hasData={list.data != null}>
+        hasData={list.data != null}
+        loadingFallback={<AdminAuditTableSkeleton label="Loading audit log" />}>
         <div className="grid gap-6">
           <p className="text-sm text-muted-foreground">
             {searchActive

@@ -6,6 +6,7 @@ import type { SiteSettingsSlice } from '@/lib/store/useSiteSettingsStore';
 import type { ClientSiteSettings } from '@/lib/constants/endpoints';
 import { DashboardPageWrapper } from '@/components/general/DashboardPageWrapper';
 import { AdminAsyncSection } from '@/components/general/admin/AdminAsyncSection';
+import { AdminSettingsFormSkeleton } from '@/components/general/admin/loading';
 import { useAdminResource } from '@/lib/hooks/use-admin-resource';
 import { cn } from '@/lib/utils';
 import {
@@ -32,7 +33,6 @@ import { FeaturesTab } from './tabs/FeaturesTab';
 import { LocalizationTab } from './tabs/LocalizationTab';
 import { AnalyticsTab } from './tabs/AnalyticsTab';
 import { ProjectWorkflowTab } from './tabs/ProjectWorkflowTab';
-import { Skeleton } from '@/components/ui/skeleton';
 import { settingsTabRemountKey } from '@/lib/utils/settingsTabKey';
 
 const SETTINGS_TABS = [
@@ -303,7 +303,7 @@ export const SettingsPageClient = () => {
             errorMessage={sliceResource.errorMessage}
             onRetry={() => void sliceResource.reload()}
             hasData={sliceResource.data != null}
-            loadingFallback={<TabContentSkeleton />}>
+            loadingFallback={<AdminSettingsFormSkeleton label="Loading settings" />}>
             {renderTabContent()}
           </AdminAsyncSection>
         </div>
@@ -311,26 +311,3 @@ export const SettingsPageClient = () => {
     </DashboardPageWrapper>
   );
 };
-
-const TabContentSkeleton = () => (
-  <div className="rounded-xl border bg-card shadow-sm p-6 grid gap-6">
-    <div className="grid gap-2">
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="h-4 w-72" />
-    </div>
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-      <div className="grid gap-2">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-      <div className="grid gap-2">
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="h-24 w-full" />
-      </div>
-    </div>
-  </div>
-);
